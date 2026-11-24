@@ -1,0 +1,77 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme inline {
+  --font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-sans: var(--font-mono);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--foreground);
+  --color-popover: var(--card);
+  --color-popover-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--card);
+  --color-secondary-foreground: var(--foreground);
+  --color-muted: var(--card);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--card);
+  --color-accent-foreground: var(--foreground);
+  --color-destructive: #ff9a84;
+  --color-border: var(--border);
+  --color-input: var(--border);
+  --color-ring: var(--primary);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  color-scheme: dark;
+  --background: #160e0a;
+  --foreground: #f5eee8;
+  --card: #291a14;
+  --primary: #d58e4d;
+  --primary-foreground: #160e0a;
+  --muted-foreground: #d3b48c;
+  --border: #65442c;
+  --radius: 0.625rem;
+  font-family: var(--font-mono);
+  background: var(--background);
+  color: var(--foreground);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer base {
+  * { @apply border-border; }
+  body { @apply m-0 min-w-80 bg-background text-foreground; }
+  button, a, input, select, textarea { @apply focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring; }
+  button, a { -webkit-tap-highlight-color: transparent; }
+  button { @apply cursor-pointer; }
+  button:disabled { @apply cursor-not-allowed; }
+  html { scroll-behavior: smooth; }
+}
+
+.skip-link {
+  @apply fixed top-3 left-3 z-50 -translate-y-24 rounded bg-primary px-4 py-3 text-primary-foreground focus:translate-y-0;
+}
+
+.shimmer {
+  background: linear-gradient(100deg, var(--card) 25%, #4a3223 45%, var(--card) 65%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
