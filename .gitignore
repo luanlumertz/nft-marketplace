@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.env*
+!.env.example
+.vercel/
+playwright-report/
+test-results/
+artifacts/
+*.local
+*.tsbuildinfo
+.DS_Store
+Thumbs.db
