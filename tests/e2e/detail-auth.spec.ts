@@ -79,6 +79,7 @@ test('retoma o favorito após login e persiste após refresh', async ({
 test('faz rollback do favorito e exige login quando a sessão expira', async ({
   page,
 }) => {
+  await page.clock.install()
   await signIn(page, 'ana@kurio.demo', '/nfts/emerald-ape-042')
   await favorite(page, false).click()
   await expect(favorite(page, true)).toBeEnabled()
@@ -90,7 +91,9 @@ test('faz rollback do favorito e exige login quando a sessão expira', async ({
   await expect(favorite(page, true)).toHaveAttribute('aria-pressed', 'true')
   await mockRequest(page, 'scenario', 'default')
   await mockRequest(page, 'session/expire', null)
-  await favorite(page, true).click()
+  // Dispara a revalidação periódica via REST sem disputar um clique ou reload
+  // com outra consulta que também pode detectar a expiração.
+  await page.clock.fastForward(16_000)
   await expect(
     page.getByRole('form', { name: 'Entrar na Kurio' }),
   ).toBeVisible()
@@ -98,6 +101,12 @@ test('faz rollback do favorito e exige login quando a sessão expira', async ({
     page.getByText('Sua sessão expirou. Entre novamente para continuar.'),
   ).toBeVisible()
   await expect(page).toHaveURL(/redirect=/)
+  const form = page.getByRole('form', { name: 'Entrar na Kurio' })
+  await form.getByLabel('E-mail', { exact: true }).fill('ana@kurio.demo')
+  await form.getByLabel('Senha', { exact: true }).fill('Kurio123!')
+  await form.getByRole('button', { name: 'Entrar', exact: true }).click()
+  await expect(page).toHaveURL('/nfts/emerald-ape-042')
+  await expect(favorite(page, true)).toHaveAttribute('aria-pressed', 'true')
 })
 
 test('isola favoritos depois de logout e troca de usuário', async ({
