@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react'
-import { Link, useRouter, useRouterState } from '@tanstack/react-router'
-import { useMutation } from '@tanstack/react-query'
+import { Link, useRouterState } from '@tanstack/react-router'
 import { LogIn, LogOut, UserRound, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -10,32 +9,16 @@ import {
   DialogDescription,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { logout, useSession } from './session'
-import { catalogDefaults } from '@/features/nfts/catalog-search'
+import { useSession } from './session'
+import { useLogout } from './use-logout'
 
 export function AccountButton({ mobile = false }: { mobile?: boolean }) {
   const trigger = useRef<HTMLButtonElement>(null)
   const session = useSession(),
-    user = session.data?.user,
-    router = useRouter()
+    user = session.data?.user
   const href = useRouterState({ select: (state) => state.location.href }),
     [open, setOpen] = useState(false)
-  const protectedRoute = useRouterState({
-    select: (state) =>
-      state.matches.some((match) => match.staticData.requiresAuth === true),
-  })
-  const exit = useMutation({
-    mutationFn: logout,
-    onSettled: async () => {
-      setOpen(false)
-      if (protectedRoute)
-        await router.navigate({
-          to: '/',
-          search: catalogDefaults,
-          replace: true,
-        })
-    },
-  })
+  const exit = useLogout(() => setOpen(false))
   const style = mobile
     ? 'bg-transparent text-muted-foreground hover:bg-transparent'
     : 'account-trigger h-auto flex items-center gap-1.5 rounded-sm p-[7px_10px] has-[>svg]:px-2.5 bg-primary text-background text-[16px] font-medium'
@@ -79,6 +62,16 @@ export function AccountButton({ mobile = false }: { mobile?: boolean }) {
             {user.email}
           </DialogDescription>
           <div className="mt-6 flex flex-col gap-3">
+            <Button asChild variant="outline">
+              <Link to="/perfil" onClick={() => setOpen(false)}>
+                Dados do perfil
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to="/carteiras" onClick={() => setOpen(false)}>
+                Carteiras
+              </Link>
+            </Button>
             <Button asChild variant="outline">
               <Link to="/favoritos" onClick={() => setOpen(false)}>
                 Meus favoritos

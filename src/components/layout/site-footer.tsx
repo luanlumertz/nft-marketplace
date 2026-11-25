@@ -96,11 +96,20 @@ export function SiteFooter({
               'Atividade',
               'Estúdio do criador',
               'Lista de interesse',
-            ].map((text) => (
-              <span key={text} aria-disabled="true" title={unavailable}>
-                {text}
-              </span>
-            ))}
+            ].map((text) =>
+              text === 'Meu perfil' || text === 'Lista de interesse' ? (
+                <Link
+                  key={text}
+                  to={text === 'Meu perfil' ? '/perfil' : '/favoritos'}
+                >
+                  {text}
+                </Link>
+              ) : (
+                <span key={text} aria-disabled="true" title={unavailable}>
+                  {text}
+                </span>
+              ),
+            )}
           </div>
           <div>
             <h3>Central de ajuda</h3>

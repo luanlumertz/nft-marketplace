@@ -25,6 +25,7 @@ export function AppLayout() {
   const home = pathname === '/'
   const detail = pathname.startsWith('/nfts/')
   const cart = pathname === '/carrinho'
+  const account = pathname === '/perfil' || pathname === '/carteiras'
 
   return (
     <div
@@ -53,7 +54,7 @@ export function AppLayout() {
           <Link
             to="/"
             activeProps={{ className: '' }}
-            className={home ? 'active' : ''}
+            className={home || account ? 'active' : ''}
           >
             Início
           </Link>
@@ -91,7 +92,7 @@ export function AppLayout() {
       >
         {announcement}
       </div>
-      <SiteFooter showOnMobile={home} />
+      {!account && <SiteFooter showOnMobile={home} />}
       <nav
         className="mobile-navigation hidden mobile:fixed mobile:bottom-0 mobile:left-0 mobile:right-0 mobile:h-23.75 mobile:p-[24px_24px_max(18px,env(safe-area-inset-bottom))] mobile:rounded-[32px_32px_0_0] mobile:bg-card mobile:flex mobile:items-center mobile:justify-around mobile:text-muted-foreground mobile:z-40 mobile:[&_>_a]:grid mobile:[&_>_a]:place-items-center mobile:[&_>_a]:min-w-11 mobile:[&_>_a]:min-h-11 mobile:[&_>_button]:grid mobile:[&_>_button]:place-items-center mobile:[&_>_button]:min-w-11 mobile:[&_>_button]:min-h-11 mobile:**:aria-[current='page']:text-primary mobile:[&_.mobile-explore]:relative mobile:[&_.mobile-explore]:-top-10 mobile:[&_.mobile-explore]:w-16 mobile:[&_.mobile-explore]:h-16 mobile:[&_.mobile-explore]:rounded-[50%] mobile:[&_.mobile-explore]:[border:8px_solid_#21150eee] mobile:[&_.mobile-explore]:[background:linear-gradient(110deg,#f2c28a,#b77538)] mobile:[&_.mobile-explore]:text-foreground mobile:[&_.mobile-explore]:[box-shadow:0_8px_0_#1b110b]"
         aria-label="Navegação mobile"
