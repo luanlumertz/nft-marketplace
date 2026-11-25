@@ -112,13 +112,11 @@ test('isola favoritos depois de logout e troca de usuário', async ({
     .filter({ visible: true })
   await account.click()
   await page.getByRole('button', { name: 'Sair da conta' }).click()
+  await expect(page).toHaveURL('/')
   await expect(
-    page.getByRole('form', { name: 'Entrar na Kurio' }),
+    page.getByRole('list', { name: 'NFTs da coleção' }),
   ).toBeVisible()
-  const form = page.getByRole('form', { name: 'Entrar na Kurio' })
-  await form.getByLabel('E-mail', { exact: true }).fill('bruno@kurio.demo')
-  await form.getByLabel('Senha', { exact: true }).fill('Kurio123!')
-  await form.getByRole('button', { name: 'Entrar', exact: true }).click()
+  await signIn(page, 'bruno@kurio.demo')
   await expect(
     page.getByRole('heading', { name: 'Golden Beat #207' }),
   ).toBeVisible()

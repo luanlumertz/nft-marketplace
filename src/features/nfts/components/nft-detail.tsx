@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Skeleton } from '@/components/ui/skeleton'
+import { CarouselDots } from '@/components/carousel-dots'
 import { FavoriteButton } from '@/features/favorites/favorite-button'
 import { ethToWei, parseCatalogSearch } from '../catalog-search'
 import {
@@ -103,6 +104,14 @@ function Gallery({ nft }: { nft: NftDetail }) {
           </Button>
         </div>
       </div>
+      <CarouselDots
+        count={nft.gallery.length}
+        active={active}
+        onSelect={setActive}
+        label="Selecionar imagem da galeria"
+        buttonLabel="Imagem da galeria"
+        className="hidden py-3 mobile:flex"
+      />
       <Dialog open={zoom} onOpenChange={setZoom}>
         <DialogContent
           className="fixed top-1/2 left-1/2 z-81 w-[min(780px,calc(100%-32px))] -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-border bg-card p-4"
@@ -157,19 +166,23 @@ function Gallery({ nft }: { nft: NftDetail }) {
 
 function DetailTabs({ nft }: { nft: NftDetail }) {
   const [visible, setVisible] = useState(3)
+  const allVisible = visible >= nft.reviews.length
   return (
     <Tabs defaultValue="details" className="gap-4">
-      <TabsList className="h-auto w-full justify-start gap-8 rounded-none border-b border-border bg-transparent p-0 mobile:gap-4">
+      <TabsList
+        variant="line"
+        className="h-auto w-full justify-start gap-8 rounded-none border-b border-border bg-transparent p-0 group-data-[orientation=horizontal]/tabs:h-auto mobile:gap-4"
+      >
         <TabsTrigger
           value="details"
-          className="h-auto flex-none rounded-none border-0 border-b-2 border-transparent bg-transparent px-0 pt-0 pb-2 text-[16px] font-normal shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none mobile:text-[12px]"
+          className="h-auto flex-none rounded-none border-0 border-b-2 border-transparent bg-transparent px-0 pt-0 pb-2 text-[16px] font-normal text-foreground shadow-none after:hidden data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:font-semibold data-[state=active]:text-primary data-[state=active]:shadow-none mobile:text-[12px]"
         >
           Detalhes do NFT
         </TabsTrigger>
         <TabsTrigger
           value="reviews"
           data-review-tab
-          className="h-auto flex-none rounded-none border-0 border-b-2 border-transparent bg-transparent px-0 pt-0 pb-2 text-[16px] font-normal shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none mobile:text-[12px]"
+          className="h-auto flex-none rounded-none border-0 border-b-2 border-transparent bg-transparent px-0 pt-0 pb-2 text-[16px] font-normal text-foreground shadow-none after:hidden data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:font-semibold data-[state=active]:text-primary data-[state=active]:shadow-none mobile:text-[12px]"
         >
           Avaliações de colecionadores ({nft.reviews.length})
         </TabsTrigger>
@@ -188,13 +201,15 @@ function DetailTabs({ nft }: { nft: NftDetail }) {
           </div>
           <div>
             <dt className="font-semibold text-foreground">Contrato:</dt>
-            <dd>{nft.contractAddress} · Referência simulada.</dd>
+            <dd>{nft.royalties}</dd>
           </div>
           <div>
             <dt className="font-semibold text-foreground">
               Direitos autorais:
             </dt>
-            <dd>{nft.royalties}</dd>
+            <dd>
+              {nft.contractAddress} • Contrato inteligente ERC-721 verificado.
+            </dd>
           </div>
         </dl>
       </TabsContent>
@@ -219,12 +234,18 @@ function DetailTabs({ nft }: { nft: NftDetail }) {
             <p className="mt-2 text-xs text-muted-foreground">{review.date}</p>
           </article>
         ))}
-        {visible < nft.reviews.length && (
+        {nft.reviews.length > 3 && (
           <Button
-            variant="outline"
-            onClick={() => setVisible((value) => value + 3)}
+            variant={allVisible ? 'default' : 'outline'}
+            onClick={() =>
+              setVisible((value) =>
+                allVisible ? 3 : Math.min(value + 3, nft.reviews.length),
+              )
+            }
           >
-            Mostrar mais avaliações
+            {allVisible
+              ? 'Mostrar menos avaliações'
+              : 'Mostrar mais avaliações'}
           </Button>
         )}
       </TabsContent>
@@ -292,24 +313,14 @@ function Related({ id, search }: { id: string; search: DetailSearch }) {
             ))}
           </ul>
           {pages > 1 && (
-            <div
-              className="mt-6 flex justify-center gap-1"
-              aria-label="Páginas de itens relacionados"
-            >
-              {Array.from({ length: pages }, (_, index) => (
-                <button
-                  key={index}
-                  className="grid size-6 place-items-center"
-                  aria-label={`Relacionados, página ${index + 1}`}
-                  aria-pressed={page === index}
-                  onClick={() => setPage(index)}
-                >
-                  <span
-                    className={`size-2.5 rounded-full border border-primary ${page === index ? 'bg-primary' : 'bg-transparent'}`}
-                  />
-                </button>
-              ))}
-            </div>
+            <CarouselDots
+              count={pages}
+              active={page}
+              onSelect={setPage}
+              label="Páginas de itens relacionados"
+              buttonLabel="Relacionados, página"
+              className="mt-6"
+            />
           )}
         </>
       )}
@@ -331,8 +342,9 @@ export function NftDetailSkeleton() {
           ))}
         </div>
         <Skeleton className="aspect-square rounded-3xl" />
+        <div className="hidden h-12 mobile:block" aria-hidden="true" />
       </div>
-      <div className="space-y-4 mobile:relative mobile:-mt-8 mobile:rounded-t-[36px] mobile:bg-card mobile:px-6 mobile:pt-8 mobile:pb-48">
+      <div className="space-y-4 mobile:relative mobile:rounded-t-[36px] mobile:bg-card mobile:px-6 mobile:pt-8 mobile:pb-48">
         <Skeleton className="h-10 w-4/5" />
         <Skeleton className="h-8 w-1/3" />
         <Skeleton className="h-18 w-full" />
@@ -454,7 +466,7 @@ export function NftDetailContent({
           </div>
           <Gallery nft={nft} />
         </div>
-        <div className="mobile:relative mobile:-mt-8 mobile:rounded-t-[36px] mobile:bg-[#251610] mobile:px-6 mobile:pt-8 mobile:pb-48">
+        <div className="mobile:relative mobile:rounded-t-[36px] mobile:bg-[#251610] mobile:px-6 mobile:pt-8 mobile:pb-48">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h1 className="text-[30px] leading-tight font-bold mobile:text-[20px]">
               {nft.name}

@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { logout, useSession } from './session'
+import { catalogDefaults } from '@/features/nfts/catalog-search'
 
 export function AccountButton({ mobile = false }: { mobile?: boolean }) {
   const trigger = useRef<HTMLButtonElement>(null)
@@ -21,9 +22,9 @@ export function AccountButton({ mobile = false }: { mobile?: boolean }) {
     [open, setOpen] = useState(false)
   const exit = useMutation({
     mutationFn: logout,
-    onSettled: () => {
+    onSettled: async () => {
       setOpen(false)
-      void router.invalidate()
+      await router.navigate({ to: '/', search: catalogDefaults, replace: true })
     },
   })
   const style = mobile

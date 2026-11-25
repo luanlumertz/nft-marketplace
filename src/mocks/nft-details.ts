@@ -4,6 +4,12 @@ import { ethToWei } from '@/features/nfts/catalog-search'
 import { weiToEth } from '@/features/nfts/detail-contracts'
 
 export function detailFor(nft: Nft): NftDetail {
+  const networkName =
+    nft.network === 'ethereum'
+      ? 'Ethereum'
+      : nft.network === 'polygon'
+        ? 'Polygon'
+        : 'Solana'
   return {
     ...nft,
     description: `Um colecionável digital finalizado à mão da coleção Kurio Editions, verificado na ${nft.network}, com arte desbloqueável e acesso para colecionadores.`,
@@ -49,13 +55,13 @@ export function detailFor(nft: Nft): NftDetail {
       ? ['Óculos', 'Esmeralda', 'Raro']
       : ['Arte digital', 'Edição limitada', 'Colecionável'],
     fullDescription: [
-      `${nft.name} é uma obra digital ${nft.edition} finalizada à mão da coleção Kurio Editions. Cada atributo fica armazenado nos metadados do token e verificado na ${nft.network}. A obra explora identidade, movimento e luz em um mundo digital sem fronteiras.`,
-      'A propriedade inclui a arte em alta resolução, lançamentos exclusivos para colecionadores e um registro permanente de procedência registrado na rede. Nova Sato recebe 5% de direitos autorais nas vendas secundárias, apoiando novos trabalhos e lançamentos da comunidade.',
+      `${nft.name} é uma obra digital ${nft.edition} finalizada à mão da coleção Kurio Editions. Cada atributo fica armazenado nos metadados do token e verificado na ${networkName}. A obra explora identidade, movimento e luz em um mundo digital sem fronteiras.`,
+      'A propriedade inclui a arte em alta resolução, lançamentos exclusivos para colecionadores e um registro permanente de procedência registrada na rede. Nova Sato recebe 5% de direitos autorais nas vendas secundárias, apoiando novos trabalhos e lançamentos da comunidade.',
     ],
-    networkDescription: `Cunhado na ${nft.network} com procedência e metadados armazenados no IPFS.`,
-    contractAddress: '0x7A42…19E8',
+    networkDescription: `Cunhado na ${networkName} com procedência imutável e metadados armazenados no IPFS.`,
+    contractAddress: '0x7A42...19E8',
     royalties:
-      'Direitos autorais do criador: 5% nas vendas secundárias. Referências de contrato e rede simuladas.',
+      'Direitos autorais do criador: 5% nas vendas secundárias, pagos automaticamente pelos mercados compatíveis.',
     rating: 4.8,
     reviews: Array.from({ length: 19 }, (_, index) => ({
       id: `${nft.id}-review-${index}`,
