@@ -92,7 +92,7 @@ function WalletForm({
     >
       <fieldset
         disabled={pending}
-        className="grid grid-cols-2 gap-x-7 gap-y-8 [&_label]:mb-0 [&_label]:leading-4 mobile:grid-cols-1 mobile:gap-5 mobile:[&_label]:mb-2 mobile:[&_label]:leading-5"
+        className="grid grid-cols-2 gap-x-7 gap-y-8 mobile:grid-cols-1 mobile:gap-5"
       >
         <AccountField
           label="Nome de exibição"
@@ -231,7 +231,7 @@ function WalletSection({
             <label className="flex cursor-pointer items-center gap-2 text-[13px] has-disabled:cursor-not-allowed has-disabled:opacity-60">
               <input
                 type="checkbox"
-                className="size-4 accent-primary"
+                className="size-4 shrink-0 appearance-none rounded-full border border-primary bg-transparent checked:bg-primary disabled:opacity-60"
                 checked={
                   (mirrorRequested && !mutation.isError) ||
                   (!!wallet?.sameAsPrimary && !editing)

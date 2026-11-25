@@ -157,7 +157,7 @@ export const accounts = {
   },
   authenticate(user: User) {
     const token = crypto.randomUUID(),
-      expiresAt = Date.now() + 15 * 60_000
+      expiresAt = Date.now() + 24 * 60 * 60_000
     state.sessions = state.sessions.filter(
       (session) => session.expiresAt > Date.now(),
     )

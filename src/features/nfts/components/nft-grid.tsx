@@ -76,7 +76,7 @@ export function NftGrid() {
           <div
             role="tablist"
             aria-label="Seleção de NFTs"
-            className="catalog-tabs flex justify-start gap-5.5 whitespace-nowrap [&_button]:[border-bottom:2px_solid_transparent] [&_button]:text-[14px] [&_button]:pb-1 [&_button]:min-h-7 [&_button[aria-selected='true']]:text-primary [&_button[aria-selected='true']]:border-b-primary tablet:gap-3 tablet:[&_button]:text-[12px] mobile:flex-wrap mobile:gap-x-4 mobile:gap-y-2 mobile:w-full mobile:[&_button]:text-[12px] mobile:[&_button]:min-h-6"
+            className="catalog-tabs flex justify-start gap-5.5 whitespace-nowrap [&_button]:[border-bottom:2px_solid_transparent] [&_button]:text-[16px] [&_button]:pb-1 [&_button]:min-h-7 [&_button[aria-selected='true']]:text-primary [&_button[aria-selected='true']]:border-b-primary tablet:gap-3 tablet:[&_button]:text-[14px] mobile:flex-wrap mobile:gap-x-4 mobile:gap-y-2 mobile:w-full mobile:[&_button]:text-[14px] mobile:[&_button]:min-h-6"
           >
             {tabs.map(([value, label], index) => (
               <button
@@ -112,7 +112,7 @@ export function NftGrid() {
               </button>
             ))}
           </div>
-          <label className="catalog-sort flex items-center gap-1 whitespace-nowrap text-[13px] mt-px [&_select]:bg-background [&_select]:max-w-48 [&_select]:cursor-pointer tablet:text-[11px] tablet:[&_select]:max-w-40 tablet-compact:ml-auto mobile:hidden">
+          <label className="catalog-sort flex items-center gap-1 whitespace-nowrap text-[14px] mt-px [&_select]:bg-background [&_select]:max-w-48 [&_select]:cursor-pointer tablet:text-[13px] tablet:[&_select]:max-w-40 tablet-compact:ml-auto mobile:hidden">
             Ordenar por:
             <select
               aria-label="Ordenar NFTs"

@@ -77,7 +77,7 @@ export function SiteFooter({
             <small>Cadastro de alertas indisponível.</small>
           </div>
         </div>
-        <div className="footer-contact grid grid-cols-4 gap-5 items-center p-[24px_32px] [background:#3a2412] text-[13px] leading-5.5 tablet-compact:text-[11px]">
+        <div className="footer-contact grid grid-cols-4 gap-5 items-center p-[24px_32px] [background:#3a2412] text-[15px] leading-6 tablet-compact:text-[14px]">
           <strong>KURIO</strong>
           <span>
             Feito para colecionadores,

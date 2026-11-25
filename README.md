@@ -48,7 +48,7 @@ Variáveis `VITE_*` são públicas e incorporadas ao build. Nunca coloque segred
 
 Também é possível criar uma conta em `/cadastro`. No desktop, login/cadastro abrem em modal sobre a página de retorno, preservando os filtros do catálogo ou a edição/quantidade do NFT; no mobile, ocupam a tela. Ao cancelar ou concluir, o retorno preserva a URL anterior. Favoritar sem sessão abre o login e retoma a inclusão após autenticar. O logout mantém a página pública atual e redireciona ao catálogo apenas ao sair de uma página privada, como Favoritos.
 
-`/favoritos` exige sessão. Conta e favoritos persistem após refresh; logout e troca de usuário removem o cache privado. A sessão dura 15 minutos e é revalidada pela API ao retomar a janela e a cada 15 segundos enquanto a aba está ativa. Senhas ficam no store simulado como hashes PBKDF2-SHA256 com salt individual, nunca em claro.
+`/favoritos` exige sessão. Conta e favoritos persistem após refresh; logout e troca de usuário removem o cache privado. Novas sessões duram 24 horas e são revalidadas pela API ao retomar a janela e a cada 15 segundos enquanto a aba está ativa. Sessões abertas antes dessa alteração conservam a validade original; saia e entre novamente para obter o novo prazo. Senhas ficam no store simulado como hashes PBKDF2-SHA256 com salt individual, nunca em claro.
 
 ## Explorar o carrinho
 
@@ -66,7 +66,7 @@ Os cenários `cart-error`, `coupon-invalid` e `coupon-expired` exercitam falha t
 
 ## Perfil e carteiras
 
-Abra **Dados do perfil** ou **Carteiras** no menu da conta, ou acesse `/perfil` e `/carteiras`. Ambas exigem login e preservam a rota de retorno após autenticar. A navegação lateral do desktop vira abas no mobile.
+Abra **Dados do perfil** ou **Carteiras** no menu da conta, ou acesse `/perfil` e `/carteiras`. Ambas exigem login e preservam a rota de retorno após autenticar. A navegação lateral do desktop vira uma faixa horizontal no mobile, com todas as opções e setas quando houver conteúdo fora da tela. Seções ainda indisponíveis permanecem identificadas e sem ação.
 
 No perfil, edite nome de exibição, nome de usuário, e-mail, nome ENS e apelido da carteira. **Alterar** seleciona um avatar PNG, JPEG ou WebP de até **512 KB**; **Remover** limpa a prévia. Clique em **Salvar** para confirmar dados/avatar. Para trocar a senha, preencha os três campos de senha antes de salvar. Se qualquer validação falhar, inclusive senha atual incorreta ou e-mail/nome de usuário em uso, a alteração inteira é recusada. A nova senha substitui a credencial de login e revoga outras sessões da conta; a sessão atual permanece aberta. Senhas nunca são persistidas em claro.
 

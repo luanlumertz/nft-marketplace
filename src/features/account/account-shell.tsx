@@ -1,8 +1,10 @@
-import type { ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link } from '@tanstack/react-router'
 import {
   ArrowLeft,
   BadgeDollarSign,
+  ChevronLeft,
+  ChevronRight,
   Download,
   Heart,
   LogOut,
@@ -21,6 +23,35 @@ export function AccountShell({
   children: ReactNode
 }) {
   const exit = useLogout()
+  const sections = useRef<HTMLElement>(null)
+  const [scroll, setScroll] = useState({ left: false, right: false })
+  useEffect(() => {
+    const nav = sections.current
+    if (!nav) return
+    const update = () =>
+      setScroll({
+        left: nav.scrollLeft > 1,
+        right: nav.scrollLeft + nav.clientWidth < nav.scrollWidth - 1,
+      })
+    const observer = new ResizeObserver(update)
+    observer.observe(nav)
+    nav.addEventListener('scroll', update, { passive: true })
+    const current = nav.querySelector<HTMLElement>('[aria-current="page"]')
+    if (current)
+      nav.scrollLeft = Math.max(
+        0,
+        current.offsetLeft + current.offsetWidth - nav.clientWidth,
+      )
+    update()
+    return () => {
+      observer.disconnect()
+      nav.removeEventListener('scroll', update)
+    }
+  }, [active])
+  const moveSections = (direction: number) => {
+    const nav = sections.current
+    if (nav) nav.scrollBy({ left: direction * nav.clientWidth * 0.8 })
+  }
   const item =
     'flex min-h-11.25 items-center gap-4 border-l-6 border-transparent px-3 text-[14px] text-primary'
   const selected = 'border-l-primary bg-primary/5'
@@ -116,25 +147,70 @@ export function AccountShell({
             <LogOut size={20} />
           </button>
         </div>
-        <nav
-          aria-label="Seções da conta"
-          className="flex gap-6 border-b border-border text-sm"
-        >
-          <Link
-            to="/perfil"
-            aria-current={active === 'profile' ? 'page' : undefined}
-            className={`border-b-2 pb-3 ${active === 'profile' ? 'border-primary text-primary' : 'border-transparent'}`}
+        <div className="flex items-center gap-1 border-b border-border">
+          {(scroll.left || scroll.right) && (
+            <button
+              type="button"
+              aria-label="Seções anteriores da conta"
+              disabled={!scroll.left}
+              onClick={() => moveSections(-1)}
+              className="grid h-11 w-8 shrink-0 place-items-center text-primary disabled:opacity-30"
+            >
+              <ChevronLeft size={20} />
+            </button>
+          )}
+          <nav
+            ref={sections}
+            aria-label="Seções da conta"
+            className="relative flex min-w-0 flex-1 gap-6 overflow-x-auto text-sm whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&_a]:flex [&_a]:min-h-11 [&_a]:shrink-0 [&_a]:items-center [&_span]:flex [&_span]:min-h-11 [&_span]:shrink-0 [&_span]:items-center"
           >
-            Dados do perfil
-          </Link>
-          <Link
-            to="/carteiras"
-            aria-current={active === 'wallets' ? 'page' : undefined}
-            className={`border-b-2 pb-3 ${active === 'wallets' ? 'border-primary text-primary' : 'border-transparent'}`}
-          >
-            Carteiras
-          </Link>
-        </nav>
+            <Link
+              to="/perfil"
+              aria-current={active === 'profile' ? 'page' : undefined}
+              className={`border-b-2 pb-3 ${active === 'profile' ? 'border-primary text-primary' : 'border-transparent'}`}
+            >
+              Dados do perfil
+            </Link>
+            <Link
+              to="/carteiras"
+              aria-current={active === 'wallets' ? 'page' : undefined}
+              className={`border-b-2 pb-3 ${active === 'wallets' ? 'border-primary text-primary' : 'border-transparent'}`}
+            >
+              Carteiras
+            </Link>
+            <span
+              aria-disabled="true"
+              title="Indisponível nesta demonstração"
+              className="border-b-2 border-transparent pb-3 text-muted-foreground"
+            >
+              Atividade
+            </span>
+            <Link to="/favoritos" className="border-b-2 border-transparent pb-3">
+              Lista de interesse
+            </Link>
+            {['Ofertas', 'Arquivos baixados', 'Suporte'].map((label) => (
+              <span
+                key={label}
+                aria-disabled="true"
+                title="Indisponível nesta demonstração"
+                className="border-b-2 border-transparent pb-3 text-muted-foreground"
+              >
+                {label}
+              </span>
+            ))}
+          </nav>
+          {(scroll.left || scroll.right) && (
+            <button
+              type="button"
+              aria-label="Próximas seções da conta"
+              disabled={!scroll.right}
+              onClick={() => moveSections(1)}
+              className="grid h-11 w-8 shrink-0 place-items-center text-primary disabled:opacity-30"
+            >
+              <ChevronRight size={20} />
+            </button>
+          )}
+        </div>
       </div>
       <section className="min-w-0">{children}</section>
     </div>
