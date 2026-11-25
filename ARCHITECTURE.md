@@ -148,6 +148,8 @@ O acesso direto ao Figma não foi liberado pela integração; foram usadas as im
 
 Conteúdo editorial e newsletter são somente apresentação; links de coleções e banners navegam para consultas reais. Conta, favoritos e carrinho estão ativos. Pagamento/pedidos, login social e recuperação de senha permanecem indisponíveis, sem mensagens fictícias de sucesso.
 
+O catálogo mobile também apresenta os banners de coleções e o Diário da Cunhagem após a paginação. Os banners usam imagem e texto lado a lado; os cards editoriais usam duas colunas com título e metadados, omitindo o parágrafo de descrição para reduzir texto. O mesmo `SiteFooter` oferece no início mobile uma versão compacta com atalhos funcionais, coleções em disclosure nativo acessível, carteiras compatíveis e copyright. Blocos de benefícios, newsletter, contatos ilustrativos e links auxiliares ficam na versão desktop. O rodapé compacto reserva espaço para a navegação fixa. Estas extensões mobile foram autorizadas além do trecho disponível no frame original.
+
 ## Detalhe, conta e favoritos
 
 `NftDetail` acrescenta galeria (`url`, `alt`), edições (`id`, `label`, `available`, `priceEth`), edição padrão, metadados, descrição completa e avaliações. Os quatro itens da galeria reutilizam a arte original do NFT, como nas miniaturas das referências fornecidas. Nenhuma imagem alternativa foi inventada. Relacionados vêm de um endpoint público. Avaliações são somente leitura, com dados determinísticos.

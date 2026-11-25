@@ -28,7 +28,7 @@ export function AppLayout() {
 
   return (
     <div
-      className={`app-shell min-h-svh ${home ? 'home-layout mobile:[&_.site-main]:pt-10' : ''} ${detail ? 'detail-layout mobile:[&_.site-main]:w-full mobile:[&_.site-main]:p-0 mobile:[&_.mobile-navigation]:hidden' : ''} ${cart ? 'cart-layout mobile:[&_.site-main]:w-full mobile:[&_.site-main]:p-0 mobile:[&_.mobile-navigation]:hidden' : ''}`}
+      className={`app-shell min-h-svh ${home ? 'home-layout mobile:[&_.site-main]:pt-10 mobile:[&_.site-main]:pb-12' : ''} ${detail ? 'detail-layout mobile:[&_.site-main]:w-full mobile:[&_.site-main]:p-0 mobile:[&_.mobile-navigation]:hidden' : ''} ${cart ? 'cart-layout mobile:[&_.site-main]:w-full mobile:[&_.site-main]:p-0 mobile:[&_.mobile-navigation]:hidden' : ''}`}
     >
       <SessionBoundary />
       <SessionNotice />
@@ -91,7 +91,7 @@ export function AppLayout() {
       >
         {announcement}
       </div>
-      <SiteFooter />
+      <SiteFooter showOnMobile={home} />
       <nav
         className="mobile-navigation hidden mobile:fixed mobile:bottom-0 mobile:left-0 mobile:right-0 mobile:h-23.75 mobile:p-[24px_24px_max(18px,env(safe-area-inset-bottom))] mobile:rounded-[32px_32px_0_0] mobile:bg-card mobile:flex mobile:items-center mobile:justify-around mobile:text-muted-foreground mobile:z-40 mobile:[&_>_a]:grid mobile:[&_>_a]:place-items-center mobile:[&_>_a]:min-w-11 mobile:[&_>_a]:min-h-11 mobile:[&_>_button]:grid mobile:[&_>_button]:place-items-center mobile:[&_>_button]:min-w-11 mobile:[&_>_button]:min-h-11 mobile:**:aria-[current='page']:text-primary mobile:[&_.mobile-explore]:relative mobile:[&_.mobile-explore]:-top-10 mobile:[&_.mobile-explore]:w-16 mobile:[&_.mobile-explore]:h-16 mobile:[&_.mobile-explore]:rounded-[50%] mobile:[&_.mobile-explore]:[border:8px_solid_#21150eee] mobile:[&_.mobile-explore]:[background:linear-gradient(110deg,#f2c28a,#b77538)] mobile:[&_.mobile-explore]:text-foreground mobile:[&_.mobile-explore]:[box-shadow:0_8px_0_#1b110b]"
         aria-label="Navegação mobile"

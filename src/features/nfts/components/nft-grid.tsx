@@ -76,7 +76,7 @@ export function NftGrid() {
           <div
             role="tablist"
             aria-label="Seleção de NFTs"
-            className="catalog-tabs flex gap-5.5 whitespace-nowrap [&_button]:[border-bottom:2px_solid_transparent] [&_button]:text-[14px] [&_button]:pb-1 [&_button]:min-h-7 [&_button[aria-selected='true']]:text-primary [&_button[aria-selected='true']]:border-b-primary tablet:gap-3 tablet:[&_button]:text-[12px] mobile:gap-4 mobile:w-full mobile:justify-between mobile:[&_button]:text-[12px] mobile:[&_button]:min-h-6"
+            className="catalog-tabs flex justify-start gap-5.5 whitespace-nowrap [&_button]:[border-bottom:2px_solid_transparent] [&_button]:text-[14px] [&_button]:pb-1 [&_button]:min-h-7 [&_button[aria-selected='true']]:text-primary [&_button[aria-selected='true']]:border-b-primary tablet:gap-3 tablet:[&_button]:text-[12px] mobile:flex-wrap mobile:gap-x-4 mobile:gap-y-2 mobile:w-full mobile:[&_button]:text-[12px] mobile:[&_button]:min-h-6"
           >
             {tabs.map(([value, label], index) => (
               <button

@@ -496,9 +496,19 @@ export function NftDetailContent({
             <h1 className="text-[30px] leading-tight font-bold mobile:text-[20px]">
               {nft.name}
             </h1>
-            <span className="hidden items-center gap-1 rounded-full border border-primary px-1 text-sm text-primary mobile:flex">
-              <Star size={13} fill="currentColor" />
-              {nft.rating.toFixed(1)}({nft.reviews.length})
+            <span
+              className="hidden items-center gap-1 rounded-full border border-primary/70 px-1.5 py-0.5 text-[11px] leading-none text-foreground mobile:flex"
+              aria-label={`${nft.rating.toFixed(1)} de 5 estrelas, ${nft.reviews.length} avaliações`}
+            >
+              <Star
+                size={12}
+                fill="currentColor"
+                className="shrink-0 text-amber-400"
+                aria-hidden="true"
+              />
+              <span>
+                {nft.rating.toFixed(1)} ({nft.reviews.length})
+              </span>
             </span>
           </div>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-2 mobile:hidden">
@@ -520,7 +530,7 @@ export function NftDetailContent({
                   ?.scrollIntoView({ behavior: 'smooth' })
               }}
             >
-              <span className="flex text-primary" aria-hidden="true">
+              <span className="flex gap-0.5 text-amber-400" aria-hidden="true">
                 {Array.from({ length: 5 }, (_, i) => (
                   <Star
                     key={i}
