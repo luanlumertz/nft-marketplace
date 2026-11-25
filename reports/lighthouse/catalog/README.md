@@ -1,13 +1,13 @@
 # Lighthouse — início do catálogo
 
-Medições de 25/11/2026, código funcional do commit `149d21d`. Build otimizado, cenário padrão MSW, imagens/fontes locais e funcionalidades habilitadas. São três execuções sequenciais por perfil, com as configurações padrão mobile e desktop do Lighthouse. Ambiente, ferramentas e todas as execuções estão em [summary.json](./summary.json); os relatórios HTML e JSON individuais estão nesta pasta.
+Medições de 25/11/2026, código funcional do commit `12052e0`. Build otimizado, cenário padrão MSW, imagens/fontes locais e funcionalidades habilitadas. São três execuções sequenciais por perfil, com as configurações padrão mobile e desktop do Lighthouse. Ambiente, ferramentas e todas as execuções estão em [summary.json](./summary.json); os relatórios HTML e JSON individuais estão nesta pasta.
 
 | Perfil | Performance | Accessibility | Best Practices | SEO | LCP | CLS | TBT |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Mobile | 88 | 100 | 100 | 100 | 3,233 s | 0,000079 | 250 ms |
-| Desktop | 100 | 100 | 100 | 100 | 0,800 s | 0,000022 | 0 ms |
+| Mobile | 89 | 100 | 100 | 100 | 3,221 s | 0,000079 | 246 ms |
+| Desktop | 100 | 100 | 100 | 100 | 0,802 s | 0,000022 | 0 ms |
 
-Todos os valores são medianas. No mobile, a primeira execução apresentou TBT de 649 ms e as demais, aproximadamente 242/250 ms; as pontuações foram 75, 89 e 88. Essa variação está preservada nos relatórios, sem descartar a execução inicial.
+Todos os valores são medianas. No mobile, a primeira execução apresentou TBT de 365 ms e as demais, 232/246 ms; as pontuações foram 83, 89 e 89. Essa variação está preservada nos relatórios, sem descartar a execução inicial.
 
 ## Meta ainda não atingida
 

@@ -119,7 +119,7 @@ npm run audit:lighthouse -- --runs=1 --profile=desktop --page=home
 
 Uma medição rápida valida a infraestrutura, mas não substitui as três medições de cada página/perfil exigidas na entrega final.
 
-A auditoria do início desta etapa está versionada em [reports/lighthouse/catalog](./reports/lighthouse/catalog/README.md), com três execuções por perfil e relatórios HTML/JSON. Medianas: Performance **88 mobile / 100 desktop**; Accessibility, Best Practices e SEO **100** em ambos. A meta de performance mobile ainda não foi atingida; as causas observadas, a variabilidade e as otimizações aplicadas estão documentadas no relatório. A auditoria do detalhe completo permanece para a respectiva etapa.
+A auditoria do início desta etapa está versionada em [reports/lighthouse/catalog](./reports/lighthouse/catalog/README.md), com três execuções por perfil e relatórios HTML/JSON. Medianas: Performance **89 mobile / 100 desktop**; Accessibility, Best Practices e SEO **100** em ambos. A meta de performance mobile ainda não foi atingida; as causas observadas, a variabilidade e as otimizações aplicadas estão documentadas no relatório. A auditoria do detalhe completo permanece para a respectiva etapa.
 
 ## CI e deploy
 
