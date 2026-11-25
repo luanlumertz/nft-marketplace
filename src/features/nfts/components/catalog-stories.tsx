@@ -54,7 +54,7 @@ export function CatalogStories() {
           ],
         ].map(([color, title, text, tab]) => (
           <div
-            className="promo-banner grid grid-cols-[49%_minmax(0,_1fr)] rounded-[8px] overflow-hidden bg-card min-h-[250px] [&_>_img]:h-[250px] [&_>_img]:w-full [&_>_img]:object-cover [&_>_img]:rounded-[20px] [&_>_div]:[padding:36px_22px_20px] [&_>_div]:text-right [&_h2]:text-[18px] [&_h2]:font-semibold [&_h2]:leading-[24px] [&_p]:text-[13px] [&_p]:leading-[24px] [&_p]:text-muted-foreground [&_p]:mt-3 [&_a]:inline-flex [&_a]:items-center [&_a]:gap-[6px] [&_a]:bg-primary [&_a]:text-background [&_a]:[padding:10px_18px] [&_a]:rounded-[6px] [&_a]:text-[14px] [&_a]:font-semibold tablet:min-h-60 tablet:[&_>_div]:[padding:20px_14px] tablet:[&_h2]:text-[15px] tablet:[&_p]:text-[11px] tablet:[&_p]:leading-[19px]"
+            className="promo-banner grid grid-cols-[49%_minmax(0,1fr)] rounded-md overflow-hidden bg-card min-h-62.5 [&_>_img]:h-62.5 [&_>_img]:w-full [&_>_img]:object-cover [&_>_img]:rounded-[20px] [&_>_div]:p-[36px_22px_20px] [&_>_div]:text-right [&_h2]:text-[18px] [&_h2]:font-semibold [&_h2]:leading-6 [&_p]:text-[13px] [&_p]:leading-6 [&_p]:text-muted-foreground [&_p]:mt-3 [&_a]:inline-flex [&_a]:items-center [&_a]:gap-1.5 [&_a]:bg-primary [&_a]:text-background [&_a]:p-[10px_18px] [&_a]:rounded-sm [&_a]:text-[14px] [&_a]:font-semibold tablet:min-h-60 tablet:[&_>_div]:p-[20px_14px] tablet:[&_h2]:text-[15px] tablet:[&_p]:text-[11px] tablet:[&_p]:leading-4.75"
             key={color}
           >
             <img
@@ -82,7 +82,7 @@ export function CatalogStories() {
         ))}
       </section>
       <section
-        className="editorial mt-32 [&_>_h2]:text-center [&_>_h2]:text-[28px] [&_>_h2]:font-bold [&_>_p]:text-center [&_>_p]:text-[14px] [&_>_p]:text-muted-foreground [&_>_p]:[margin:12px_0_38px] [&_article]:bg-card [&_article]:rounded-[8px] [&_article]:overflow-hidden [&_article_>_img]:w-full [&_article_>_img]:h-49 [&_article_>_img]:object-cover [&_article_>_div]:[padding:12px_16px_16px] [&_h3]:text-[15px] [&_h3]:font-semibold [&_h3]:leading-[22px] [&_h3_+_p]:text-[12px] [&_h3_+_p]:text-muted-foreground [&_h3_+_p]:mt-2 [&_h3_+_p]:leading-[17px] [&_article_span]:inline-block [&_article_span]:mt-[6px] [&_article_span]:text-[12px] [&_article_span]:text-primary"
+        className="editorial mt-32 [&_>_h2]:text-center [&_>_h2]:text-[28px] [&_>_h2]:font-bold [&_>_p]:text-center [&_>_p]:text-[14px] [&_>_p]:text-muted-foreground [&_>_p]:m-[12px_0_38px] [&_article]:bg-card [&_article]:rounded-md [&_article]:overflow-hidden [&_article_>_img]:w-full [&_article_>_img]:h-49 [&_article_>_img]:object-cover [&_article_>_div]:p-[12px_16px_16px] [&_h3]:text-[15px] [&_h3]:font-semibold [&_h3]:leading-5.5 [&_h3+p]:text-[12px] [&_h3+p]:text-muted-foreground [&_h3+p]:mt-2 [&_h3+p]:leading-4.25 [&_article_span]:inline-block [&_article_span]:mt-1.5 [&_article_span]:text-[12px] [&_article_span]:text-primary"
         aria-labelledby="diario-titulo"
       >
         <h2 id="diario-titulo">Diário da Cunhagem</h2>
@@ -90,7 +90,7 @@ export function CatalogStories() {
           Histórias, guias e insights para colecionadores sobre o universo da
           propriedade digital.
         </p>
-        <div className="editorial-grid grid grid-cols-[repeat(4,_minmax(0,_1fr))] gap-6 tablet-compact:grid-cols-[1fr_1fr]">
+        <div className="editorial-grid grid grid-cols-4 gap-6 tablet-compact:grid-cols-[1fr_1fr]">
           {stories.map(([image, date, minutes, title, text]) => (
             <article key={title}>
               <img

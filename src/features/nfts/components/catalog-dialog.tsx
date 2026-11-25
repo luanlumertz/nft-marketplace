@@ -47,7 +47,7 @@ export default function CatalogDialog({
         </DialogDescription>
         {children}
         <DialogClose
-          className="dialog-close absolute right-3 top-3 [padding:8px] text-primary"
+          className="dialog-close absolute right-3 top-3 p-2 text-primary"
           aria-label={closeLabel}
         >
           <X size={20} />

@@ -27,12 +27,12 @@ export function CatalogHero() {
   const slide = slides[active]
   return (
     <section
-      className="catalog-hero relative grid grid-cols-[minmax(0,_1fr)_450px] items-center gap-20 min-h-[450px] mb-24 [&_h1]:text-[44px] [&_h1]:font-bold [&_h1]:leading-[1.6] [&_h1]:uppercase [&_h1]:tracking-[-0.9px] tablet:grid-cols-[minmax(0,_1fr)_38%] tablet:gap-7 tablet:min-h-80 tablet:mb-16 tablet:[&_h1]:text-[30px] mobile:grid-cols-[minmax(0,_1fr)_38%] mobile:gap-3 mobile:items-start mobile:[padding:12px_16px_34px] mobile:min-h-[190px] mobile:mb-[14px] mobile:[background:radial-gradient(_ellipse_at_15%_20%,_#865b35_0%,_#57391f_42%,_#281b12_80%_)] mobile:rounded-[28px] mobile:overflow-hidden mobile:[&_h1]:text-[clamp(15px,_4.5vw,_18px)] mobile:[&_h1]:leading-[1.5] mobile:[&_h1]:tracking-[-0.4px]"
+      className="catalog-hero relative grid grid-cols-[minmax(0,1fr)_450px] items-center gap-20 min-h-112.5 mb-24 [&_h1]:text-[44px] [&_h1]:font-bold [&_h1]:leading-[1.6] [&_h1]:uppercase [&_h1]:tracking-[-0.9px] tablet:grid-cols-[minmax(0,1fr)_38%] tablet:gap-7 tablet:min-h-80 tablet:mb-16 tablet:[&_h1]:text-[30px] mobile:grid-cols-[minmax(0,1fr)_38%] mobile:gap-3 mobile:items-start mobile:p-[12px_16px_34px] mobile:min-h-47.5 mobile:mb-3.5 mobile:[background:radial-gradient(ellipse_at_15%_20%,#865b35_0%,#57391f_42%,#281b12_80%)] mobile:rounded-[28px] mobile:overflow-hidden mobile:[&_h1]:text-[clamp(15px,4.5vw,18px)] mobile:[&_h1]:leading-normal mobile:[&_h1]:tracking-[-0.4px]"
       aria-roledescription="carrossel"
       aria-label="Destaques da Kurio"
     >
-      <div className="hero-copy pl-10 pb-11 tablet:pl-4 mobile:[padding:0] mobile:min-w-0">
-        <p className="hero-eyebrow text-[14px] tracking-[1.5px] mb-[14px] mobile:text-[11px] mobile:tracking-[0] mobile:mb-1">
+      <div className="hero-copy pl-10 pb-11 tablet:pl-4 mobile:p-0 mobile:min-w-0">
+        <p className="hero-eyebrow text-[14px] tracking-[1.5px] mb-3.5 mobile:text-[11px] mobile:tracking-normal mobile:mb-1">
           Bem-vindo à Kurio
         </p>
         <h1>
@@ -51,7 +51,7 @@ export function CatalogHero() {
             {slide.mobile}
           </span>
         </h1>
-        <p className="hero-description max-w-145 mt-2 text-muted-foreground text-[14px] leading-[24px] mobile:max-w-none mobile:mt-[7px] mobile:text-[clamp(11px,_2.9vw,_12px)] mobile:leading-[18px]">
+        <p className="hero-description max-w-145 mt-2 text-muted-foreground text-[14px] leading-6 mobile:max-w-none mobile:mt-1.75 mobile:text-[clamp(11px,2.9vw,12px)] mobile:leading-4.5">
           <span className="hero-desktop-title mobile:hidden">
             Descubra NFTs selecionados de criadores emergentes e consagrados.
             Colecione arte digital rara, apoie artistas e tenha uma parte da
@@ -63,13 +63,13 @@ export function CatalogHero() {
         </p>
         <a
           href="#catalogo"
-          className="hero-explore inline-flex items-center justify-center gap-[5px] min-h-10 min-w-35 mt-8 [padding:10px_24px] rounded-[6px] bg-primary text-background uppercase text-[14px] font-bold [&_svg]:hidden mobile:min-h-6 mobile:min-w-0 mobile:mt-0 mobile:[padding:0] mobile:[background:none] mobile:text-primary mobile:text-[12px] mobile:[&_svg]:block"
+          className="hero-explore inline-flex items-center justify-center gap-1.25 min-h-10 min-w-35 mt-8 p-[10px_24px] rounded-sm bg-primary text-background uppercase text-[14px] font-bold [&_svg]:hidden mobile:min-h-6 mobile:min-w-0 mobile:mt-0 mobile:p-0 mobile:[background:none] mobile:text-primary mobile:text-[12px] mobile:[&_svg]:block"
         >
           Explorar <ArrowRight size={18} aria-hidden="true" />
         </a>
       </div>
       <img
-        className="hero-image w-[450px] h-[450px] rounded-[24px] object-cover tablet:w-full tablet:h-auto tablet:aspect-[1] mobile:w-full mobile:h-auto mobile:aspect-[1] mobile:rounded-[18px]"
+        className="hero-image w-112.5 h-112.5 rounded-3xl object-cover tablet:w-full tablet:h-auto tablet:aspect-[1] mobile:w-full mobile:h-auto mobile:aspect-[1] mobile:rounded-[18px]"
         src={`/nfts/jungle-${slide.image}.png`}
         alt={slide.alt}
         width={450}
@@ -77,7 +77,7 @@ export function CatalogHero() {
         fetchPriority="high"
       />
       <div
-        className="hero-dots absolute bottom-[31px] left-[calc(50%_-_16px)] flex gap-0 [&_button]:grid [&_button]:place-items-center [&_button]:w-6 [&_button]:h-6 [&_span]:w-2 [&_span]:h-2 [&_span]:rounded-[50%] [&_span]:bg-primary [&_span]:opacity-45 [&_span]:[transition:width_150ms,_border-radius_150ms,_opacity_150ms] [&_button[aria-pressed='true']_span]:w-5 [&_button[aria-pressed='true']_span]:rounded-[8px] [&_button[aria-pressed='true']_span]:opacity-100 [&_button[aria-pressed='true']_span]:[box-shadow:0_0_0_2px_var(--background),_0_0_0_3px_var(--primary)] tablet:bottom-0 mobile:bottom-0 mobile:left-[calc(50%_-_36px)]"
+        className="hero-dots absolute bottom-7.75 left-[calc(50%-16px)] flex gap-0 [&_button]:grid [&_button]:place-items-center [&_button]:w-6 [&_button]:h-6 [&_span]:w-2 [&_span]:h-2 [&_span]:rounded-[50%] [&_span]:bg-primary [&_span]:opacity-45 [&_span]:[transition:width_150ms,border-radius_150ms,opacity_150ms] [&_button[aria-pressed='true']_span]:w-5 [&_button[aria-pressed='true']_span]:rounded-md [&_button[aria-pressed='true']_span]:opacity-100 [&_button[aria-pressed='true']_span]:[box-shadow:0_0_0_2px_var(--background),0_0_0_3px_var(--primary)] tablet:bottom-0 mobile:bottom-0 mobile:left-[calc(50%-36px)]"
         aria-label="Selecionar destaque"
       >
         {slides.map((item, index) => (

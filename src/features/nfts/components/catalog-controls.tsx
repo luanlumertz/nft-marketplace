@@ -35,7 +35,7 @@ export function CatalogSearchForm({
   return (
     <form
       role="search"
-      className="catalog-search flex items-center gap-[10px] min-w-0 [padding:10px_14px] bg-card rounded-[10px] text-muted-foreground [&_input]:bg-transparent [&_input]:w-full [&_input]:min-w-0 [&_input]:text-[14px] [&_input]:text-foreground [&_input::placeholder]:text-muted-foreground [&_input::placeholder]:opacity-100"
+      className="catalog-search flex items-center gap-2.5 min-w-0 p-[10px_14px] bg-card rounded-lg text-muted-foreground [&_input]:bg-transparent [&_input]:w-full [&_input]:min-w-0 [&_input]:text-[14px] [&_input]:text-foreground [&_input::placeholder]:text-muted-foreground [&_input::placeholder]:opacity-100"
       onSubmit={(event) => {
         event.preventDefault()
         onSearch(draft)
@@ -95,7 +95,7 @@ export function HeaderSearch() {
             title="Encontre seu próximo NFT"
             description="Busque pelo nome da obra ou pela descrição."
             closeLabel="Fechar busca"
-            className="search-dialog fixed top-[18vh] left-[max(24px,_calc(50%_-_280px))] w-[min(560px,_calc(100%_-_48px))] [padding:36px_28px_28px] [border:1px_solid_var(--border)] rounded-[16px] bg-card z-81"
+            className="search-dialog fixed top-[18vh] left-[max(24px,calc(50%-280px))] w-[min(560px,calc(100%-48px))] p-[36px_28px_28px] [border:1px_solid_var(--border)] rounded-2xl bg-card z-81"
             onClose={() => setOpen(false)}
             returnFocus={() => trigger.current?.focus({ preventScroll: true })}
           >
@@ -148,7 +148,7 @@ function PriceFilter({
       <h3>Faixa de preço</h3>
       <Slider
         thumbLabels={['Ajustar preço mínimo', 'Ajustar preço máximo']}
-        className="price-slider relative flex items-center h-7 [margin:2px_7px_0] touch-none select-none"
+        className="price-slider relative flex items-center h-7 m-[2px_7px_0] touch-none select-none"
         min={0}
         max={12.3}
         step={0.01}
@@ -163,7 +163,7 @@ function PriceFilter({
           setError('')
         }}
       />
-      <div className="price-inputs flex gap-[5px] items-center text-[11px] [&_label]:min-w-0 [&_label]:[flex:0_1_auto] [&_input]:w-full [&_input]:block [&_input]:[padding:2px_0] [&_input]:text-foreground [&_input]:bg-transparent [&_input]:text-[inherit]">
+      <div className="price-inputs flex gap-1.25 items-center text-[11px] [&_label]:min-w-0 [&_label]:flex-[0_1_auto] [&_input]:w-full [&_input]:block [&_input]:p-[2px_0] [&_input]:text-foreground [&_input]:bg-transparent [&_input]:text-inherit">
         <span>Preço:</span>
         <label style={{ width: `${Math.max(min.length, 4)}ch` }}>
           <span className="sr-only">De</span>
@@ -221,13 +221,13 @@ export function CatalogFilters({
     search.maxPrice !== catalogDefaults.maxPrice ||
     search.tab !== catalogDefaults.tab
   return (
-    <div className="catalog-filters bg-card [padding:16px_20px_20px] [&_legend]:text-[18px] [&_legend]:font-semibold [&_legend]:mb-[10px] [&_h3]:text-[18px] [&_h3]:font-semibold [&_h3]:mb-[10px] [&_fieldset]:min-w-0">
+    <div className="catalog-filters bg-card p-[16px_20px_20px] [&_legend]:text-[18px] [&_legend]:font-semibold [&_legend]:mb-2.5 [&_h3]:text-[18px] [&_h3]:font-semibold [&_h3]:mb-2.5 [&_fieldset]:min-w-0">
       <fieldset>
         <legend>Coleções</legend>
         {collections.map(([value, label]) => (
           <label
             key={value}
-            className="filter-option relative flex items-center gap-[5px] justify-between min-h-10 [margin:0_4px] [padding:3px_8px] text-[14px] text-muted-foreground cursor-pointer [&_input]:absolute [&_input]:w-[1px] [&_input]:h-[1px] [&_input]:opacity-0 [&:has(input:focus-visible)]:[outline:2px_solid_var(--primary)] [&:has(input:focus-visible)]:[outline-offset:1px] [&:has(input:checked)]:text-primary [&:has(input:checked)]:font-semibold [&:has(input:checked)]:[box-shadow:inset_2px_0_var(--primary)]"
+            className="filter-option relative flex items-center gap-1.25 justify-between min-h-10 m-[0_4px] p-[3px_8px] text-[14px] text-muted-foreground cursor-pointer [&_input]:absolute [&_input]:w-px [&_input]:h-px [&_input]:opacity-0 [&:has(input:focus-visible)]:[outline:2px_solid_var(--primary)] [&:has(input:focus-visible)]:outline-offset-1 [&:has(input:checked)]:text-primary [&:has(input:checked)]:font-semibold [&:has(input:checked)]:[box-shadow:inset_2px_0_var(--primary)]"
           >
             <input
               type="checkbox"
@@ -260,7 +260,7 @@ export function CatalogFilters({
         {networks.map(([value, label]) => (
           <label
             key={value}
-            className="filter-option relative flex items-center gap-[5px] justify-between min-h-10 [margin:0_4px] [padding:3px_8px] text-[14px] text-muted-foreground cursor-pointer [&_input]:absolute [&_input]:w-[1px] [&_input]:h-[1px] [&_input]:opacity-0 [&:has(input:focus-visible)]:[outline:2px_solid_var(--primary)] [&:has(input:focus-visible)]:[outline-offset:1px] [&:has(input:checked)]:text-primary [&:has(input:checked)]:font-semibold [&:has(input:checked)]:[box-shadow:inset_2px_0_var(--primary)]"
+            className="filter-option relative flex items-center gap-1.25 justify-between min-h-10 m-[0_4px] p-[3px_8px] text-[14px] text-muted-foreground cursor-pointer [&_input]:absolute [&_input]:w-px [&_input]:h-px [&_input]:opacity-0 [&:has(input:focus-visible)]:[outline:2px_solid_var(--primary)] [&:has(input:focus-visible)]:outline-offset-1 [&:has(input:checked)]:text-primary [&:has(input:checked)]:font-semibold [&:has(input:checked)]:[box-shadow:inset_2px_0_var(--primary)]"
           >
             <input
               type="checkbox"
@@ -285,13 +285,13 @@ export function CatalogFilters({
       </fieldset>
       {hasFilters && (
         <button
-          className="clear-filters block mt-5 text-[12px] text-primary underline [text-underline-offset:4px]"
+          className="clear-filters block mt-5 text-[12px] text-primary underline underline-offset-4"
           onClick={() => update(catalogDefaults)}
         >
           Limpar filtros
         </button>
       )}
-      <label className="filter-sort hidden [&_select]:bg-card [&_select]:[border:1px_solid_var(--border)] [&_select]:[padding:10px] [&_select]:rounded-[6px]">
+      <label className="filter-sort hidden [&_select]:bg-card [&_select]:[border:1px_solid_var(--border)] [&_select]:p-2.5 [&_select]:rounded-sm">
         Ordenar por
         <select
           aria-label="Ordenar por"
@@ -315,7 +315,7 @@ export function MobileCatalogTools() {
   const { search, update } = useCatalogNavigation()
   const query = useQuery(nftListOptions(search))
   return (
-    <div className="mobile-catalog-tools hidden mobile:flex mobile:gap-2 mobile:mb-4 mobile:[&_.catalog-search]:[flex:1] mobile:[&_.catalog-search]:min-h-[45px] mobile:[&_.catalog-search_input]:text-[13px] mobile:[&_.catalog-search_input]:font-medium mobile:[&_.search-submit]:absolute mobile:[&_.search-submit]:w-[1px] mobile:[&_.search-submit]:h-[1px] mobile:[&_.search-submit]:overflow-hidden mobile:[&_.search-submit]:[clip-path:inset(50%)] mobile:[&_.search-submit:focus-visible]:static mobile:[&_.search-submit:focus-visible]:w-auto mobile:[&_.search-submit:focus-visible]:h-auto mobile:[&_.search-submit:focus-visible]:[clip-path:none]">
+    <div className="mobile-catalog-tools hidden mobile:flex mobile:gap-2 mobile:mb-4 mobile:[&_.catalog-search]:flex-1 mobile:[&_.catalog-search]:min-h-11.25 mobile:[&_.catalog-search_input]:text-[13px] mobile:[&_.catalog-search_input]:font-medium mobile:[&_.search-submit]:absolute mobile:[&_.search-submit]:w-px mobile:[&_.search-submit]:h-px mobile:[&_.search-submit]:overflow-hidden mobile:[&_.search-submit]:[clip-path:inset(50%)] mobile:[&_.search-submit:focus-visible]:static mobile:[&_.search-submit:focus-visible]:w-auto mobile:[&_.search-submit:focus-visible]:h-auto mobile:[&_.search-submit:focus-visible]:[clip-path:none]">
       <CatalogSearchForm
         key={search.q}
         value={search.q}
@@ -337,7 +337,7 @@ export function FilterDrawer(props: Parameters<typeof CatalogFilters>[0]) {
     <>
       <button
         ref={trigger}
-        className="filter-trigger grid place-items-center shrink-0 h-[45px] w-[45px] rounded-[16px] [background:linear-gradient(130deg,_#956033,_var(--primary))] text-background"
+        className="filter-trigger grid place-items-center shrink-0 h-11.25 w-11.25 rounded-2xl [background:linear-gradient(130deg,#956033,var(--primary))] text-background"
         aria-label="Abrir filtros"
         aria-haspopup="dialog"
         aria-expanded={open}
@@ -358,7 +358,7 @@ export function FilterDrawer(props: Parameters<typeof CatalogFilters>[0]) {
             title="Filtrar NFTs"
             description="Combine coleções, preço e rede."
             closeLabel="Fechar filtros"
-            className="filter-drawer fixed right-0 top-0 h-[100dvh] w-[min(420px,_100%)] [padding:30px_24px] overflow-y-auto overscroll-contain bg-background [border-left:1px_solid_var(--border)] z-81 [&_.catalog-filters]:[padding:0] [&_.catalog-filters]:[background:none] [&_.filter-sort]:flex [&_.filter-sort]:flex-col [&_.filter-sort]:gap-[10px] [&_.filter-sort]:text-[14px] [&_.filter-sort]:mt-6"
+            className="filter-drawer fixed right-0 top-0 h-dvh w-[min(420px,100%)] p-[30px_24px] overflow-y-auto overscroll-contain bg-background [border-left:1px_solid_var(--border)] z-81 [&_.catalog-filters]:p-0 [&_.catalog-filters]:[background:none] [&_.filter-sort]:flex [&_.filter-sort]:flex-col [&_.filter-sort]:gap-2.5 [&_.filter-sort]:text-[14px] [&_.filter-sort]:mt-6"
             onClose={() => setOpen(false)}
             returnFocus={() => trigger.current?.focus({ preventScroll: true })}
           >

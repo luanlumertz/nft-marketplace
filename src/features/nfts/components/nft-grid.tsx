@@ -40,7 +40,7 @@ export function NftGrid() {
   return (
     <section
       id="catalogo"
-      className="catalog-layout grid grid-cols-[310px_minmax(0,_1fr)] gap-12 [scroll-margin-top:24px] tablet:grid-cols-[240px_minmax(0,_1fr)] tablet:gap-6 tablet-compact:block mobile:block"
+      className="catalog-layout grid grid-cols-[310px_minmax(0,1fr)] gap-12 scroll-mt-6 tablet:grid-cols-[240px_minmax(0,1fr)] tablet:gap-6 tablet-compact:block mobile:block"
       aria-labelledby="titulo-colecao"
     >
       <h2 id="titulo-colecao" className="sr-only">
@@ -53,7 +53,7 @@ export function NftGrid() {
         <CatalogFilters {...filters} />
         {data?.featured[1] && (
           <Link
-            className="featured-nft block relative mt-6 overflow-hidden [background:radial-gradient(ellipse_at_top,_#47301c,_var(--background)_70%)] [&_h3]:[margin:24px_20px_10px] [&_h3]:text-primary [&_h3]:text-[24px] [&_h3]:font-bold [&_h3]:uppercase [&_>_strong]:block [&_>_strong]:text-center [&_>_strong]:uppercase [&_>_strong]:text-[23px] [&_>_strong]:mb-2 [&_img]:w-full [&_img]:h-[365px] [&_img]:object-cover [&_img]:rounded-[24px]"
+            className="featured-nft block relative mt-6 overflow-hidden [background:radial-gradient(ellipse_at_top,#47301c,var(--background)_70%)] [&_h3]:m-[24px_20px_10px] [&_h3]:text-primary [&_h3]:text-[24px] [&_h3]:font-bold [&_h3]:uppercase [&_>_strong]:block [&_>_strong]:text-center [&_>_strong]:uppercase [&_>_strong]:text-[23px] [&_>_strong]:mb-2 [&_img]:w-full [&_img]:h-91.25 [&_img]:object-cover [&_img]:rounded-3xl"
             to="/nfts/$nftId"
             params={{ nftId: data.featured[1].id }}
             search={search}
@@ -71,11 +71,11 @@ export function NftGrid() {
         )}
       </aside>
       <div className="catalog-main min-w-0">
-        <div className="catalog-toolbar min-h-7 flex items-start justify-between gap-[14px] mb-[22px] mobile:mb-4 mobile:min-h-6">
+        <div className="catalog-toolbar min-h-7 flex items-start justify-between gap-3.5 mb-5.5 mobile:mb-4 mobile:min-h-6">
           <div
             role="tablist"
             aria-label="Seleção de NFTs"
-            className="catalog-tabs flex gap-[22px] whitespace-nowrap [&_button]:[border-bottom:2px_solid_transparent] [&_button]:text-[14px] [&_button]:pb-1 [&_button]:min-h-7 [&_button[aria-selected='true']]:text-primary [&_button[aria-selected='true']]:border-b-primary tablet:gap-3 tablet:[&_button]:text-[12px] mobile:gap-4 mobile:w-full mobile:justify-between mobile:[&_button]:text-[12px] mobile:[&_button]:min-h-6"
+            className="catalog-tabs flex gap-5.5 whitespace-nowrap [&_button]:[border-bottom:2px_solid_transparent] [&_button]:text-[14px] [&_button]:pb-1 [&_button]:min-h-7 [&_button[aria-selected='true']]:text-primary [&_button[aria-selected='true']]:border-b-primary tablet:gap-3 tablet:[&_button]:text-[12px] mobile:gap-4 mobile:w-full mobile:justify-between mobile:[&_button]:text-[12px] mobile:[&_button]:min-h-6"
           >
             {tabs.map(([value, label], index) => (
               <button
@@ -111,7 +111,7 @@ export function NftGrid() {
               </button>
             ))}
           </div>
-          <label className="catalog-sort flex items-center gap-1 whitespace-nowrap text-[13px] mt-[1px] [&_select]:bg-background [&_select]:max-w-48 [&_select]:cursor-pointer tablet:text-[11px] tablet:[&_select]:max-w-40 tablet-compact:ml-auto mobile:hidden">
+          <label className="catalog-sort flex items-center gap-1 whitespace-nowrap text-[13px] mt-px [&_select]:bg-background [&_select]:max-w-48 [&_select]:cursor-pointer tablet:text-[11px] tablet:[&_select]:max-w-40 tablet-compact:ml-auto mobile:hidden">
             Ordenar por:
             <select
               aria-label="Ordenar NFTs"
@@ -127,13 +127,13 @@ export function NftGrid() {
               ))}
             </select>
           </label>
-          <div className="tablet-filter hidden tablet-compact:block tablet-compact:[&_.filter-trigger]:h-8 tablet-compact:[&_.filter-trigger]:w-9 tablet-compact:[&_.filter-trigger]:rounded-[8px] mobile:hidden">
+          <div className="tablet-filter hidden tablet-compact:block tablet-compact:[&_.filter-trigger]:h-8 tablet-compact:[&_.filter-trigger]:w-9 tablet-compact:[&_.filter-trigger]:rounded-md mobile:hidden">
             <FilterDrawer {...filters} />
           </div>
         </div>
         {active && (
           <div
-            className="active-filters flex flex-wrap gap-2 mb-5 [&_button]:flex [&_button]:max-w-full [&_button]:items-center [&_button]:gap-[7px] [&_button]:[border:1px_solid_var(--border)] [&_button]:rounded-[18px] [&_button]:[padding:5px_10px] [&_button]:text-[12px] [&_button]:text-muted-foreground [&_button]:wrap-anywhere"
+            className="active-filters flex flex-wrap gap-2 mb-5 [&_button]:flex [&_button]:max-w-full [&_button]:items-center [&_button]:gap-1.75 [&_button]:[border:1px_solid_var(--border)] [&_button]:rounded-[18px] [&_button]:p-[5px_10px] [&_button]:text-[12px] [&_button]:text-muted-foreground [&_button]:wrap-anywhere"
             aria-label="Filtros aplicados"
           >
             {search.q && (
@@ -186,7 +186,7 @@ export function NftGrid() {
           aria-live="polite"
           className={
             active || query.isRefetching
-              ? 'catalog-result-count mb-[15px] text-muted-foreground text-[12px]'
+              ? 'catalog-result-count mb-3.75 text-muted-foreground text-[12px]'
               : 'sr-only'
           }
         >
@@ -206,14 +206,14 @@ export function NftGrid() {
             <div
               role="status"
               aria-label="Carregando NFTs"
-              className="nft-grid grid grid-cols-[repeat(3,_minmax(0,_1fr))] gap-x-[34px] gap-y-16 tablet:gap-x-5 tablet:gap-y-10 mobile:grid-cols-[repeat(2,_minmax(0,_1fr))] mobile:gap-x-6 mobile:gap-y-5"
+              className="nft-grid grid grid-cols-3 gap-x-8.5 gap-y-16 tablet:gap-x-5 tablet:gap-y-10 mobile:grid-cols-2 mobile:gap-x-6 mobile:gap-y-5"
             >
               {Array.from({ length: 9 }, (_, index) => (
                 <div
-                  className="nft-card min-w-0 relative [&_h3]:text-[15px] [&_h3]:mt-[10px] [&_h3]:leading-[24px] tablet:[&_h3]:text-[13px] mobile:[&:nth-child(even)]:mt-8 mobile:[&:nth-child(even)]:mb-[-32px] mobile:[&_h3]:text-[13px] mobile:[&_h3]:leading-[20px] mobile:[&_h3]:[margin:10px_7px_0]"
+                  className="nft-card min-w-0 relative [&_h3]:text-[15px] [&_h3]:mt-2.5 [&_h3]:leading-6 tablet:[&_h3]:text-[13px] mobile:even:mt-8 mobile:even:-mb-8 mobile:[&_h3]:text-[13px] mobile:[&_h3]:leading-5 mobile:[&_h3]:m-[10px_7px_0]"
                   key={index}
                 >
-                  <Skeleton className="card-art relative flex items-center bg-card aspect-[258/300] w-full [padding:24px_12px] rounded-[12px] overflow-hidden [&_img]:block [&_img]:w-full [&_img]:h-auto [&_img]:aspect-[1] [&_img]:object-cover [&_img]:rounded-[16px] tablet:py-[14px] mobile:aspect-[175/200] mobile:[padding:12px_9px_18px] mobile:rounded-[28px] mobile:[&_img]:rounded-[16px]" />
+                  <Skeleton className="card-art relative flex items-center bg-card aspect-258/300 w-full p-[24px_12px] rounded-[12px] overflow-hidden [&_img]:block [&_img]:w-full [&_img]:h-auto [&_img]:aspect-[1] [&_img]:object-cover [&_img]:rounded-2xl tablet:py-3.5 mobile:aspect-175/200 mobile:p-[12px_9px_18px] mobile:rounded-[28px] mobile:[&_img]:rounded-2xl" />
                   <Skeleton className="mt-3 h-6 w-4/5" />
                   <Skeleton className="mt-2 h-5 w-1/2" />
                 </div>
@@ -226,7 +226,7 @@ export function NftGrid() {
               }}
             />
           ) : data?.items.length === 0 ? (
-            <div className="empty-catalog min-h-75 flex flex-col items-start justify-center gap-3 [&_h3]:text-[20px] [&_h3]:font-semibold [&_p]:text-[14px] [&_p]:text-muted-foreground [&_button]:text-primary [&_button]:underline [&_button]:[text-underline-offset:4px] mobile:min-h-[230px]">
+            <div className="empty-catalog min-h-75 flex flex-col items-start justify-center gap-3 [&_h3]:text-[20px] [&_h3]:font-semibold [&_p]:text-[14px] [&_p]:text-muted-foreground [&_button]:text-primary [&_button]:underline [&_button]:underline-offset-4 mobile:min-h-57.5">
               <h3>Nenhum NFT encontrado.</h3>
               <p>Tente outra busca ou remova alguns filtros.</p>
               <button onClick={() => update(catalogDefaults)}>
@@ -236,20 +236,20 @@ export function NftGrid() {
           ) : (
             <ul
               aria-label="NFTs da coleção"
-              className="nft-grid grid grid-cols-[repeat(3,_minmax(0,_1fr))] gap-x-[34px] gap-y-16 tablet:gap-x-5 tablet:gap-y-10 mobile:grid-cols-[repeat(2,_minmax(0,_1fr))] mobile:gap-x-6 mobile:gap-y-5"
+              className="nft-grid grid grid-cols-3 gap-x-8.5 gap-y-16 tablet:gap-x-5 tablet:gap-y-10 mobile:grid-cols-2 mobile:gap-x-6 mobile:gap-y-5"
             >
               {data?.items.map((nft, index) => (
                 <li
                   key={nft.id}
-                  className="nft-card min-w-0 relative [&_h3]:text-[15px] [&_h3]:mt-[10px] [&_h3]:leading-[24px] tablet:[&_h3]:text-[13px] mobile:[&:nth-child(even)]:mt-8 mobile:[&:nth-child(even)]:mb-[-32px] mobile:[&_h3]:text-[13px] mobile:[&_h3]:leading-[20px] mobile:[&_h3]:[margin:10px_7px_0]"
+                  className="nft-card min-w-0 relative [&_h3]:text-[15px] [&_h3]:mt-2.5 [&_h3]:leading-6 tablet:[&_h3]:text-[13px] mobile:even:mt-8 mobile:even:-mb-8 mobile:[&_h3]:text-[13px] mobile:[&_h3]:leading-5 mobile:[&_h3]:m-[10px_7px_0]"
                 >
                   <Link
                     to="/nfts/$nftId"
                     params={{ nftId: nft.id }}
                     search={search}
-                    className="nft-card-link block [&:hover_h3]:underline [&:hover_h3]:[text-underline-offset:4px]"
+                    className="nft-card-link block [&:hover_h3]:underline [&:hover_h3]:underline-offset-4"
                   >
-                    <div className="card-art relative flex items-center bg-card aspect-[258/300] w-full [padding:24px_12px] rounded-[12px] overflow-hidden [&_img]:block [&_img]:w-full [&_img]:h-auto [&_img]:aspect-[1] [&_img]:object-cover [&_img]:rounded-[16px] tablet:py-[14px] mobile:aspect-[175/200] mobile:[padding:12px_9px_18px] mobile:rounded-[28px] mobile:[&_img]:rounded-[16px]">
+                    <div className="card-art relative flex items-center bg-card aspect-258/300 w-full p-[24px_12px] rounded-[12px] overflow-hidden [&_img]:block [&_img]:w-full [&_img]:h-auto [&_img]:aspect-[1] [&_img]:object-cover [&_img]:rounded-2xl tablet:py-3.5 mobile:aspect-175/200 mobile:p-[12px_9px_18px] mobile:rounded-[28px] mobile:[&_img]:rounded-2xl">
                       <img
                         src={nft.imageUrl}
                         alt={`Arte de ${nft.name}`}
@@ -258,20 +258,20 @@ export function NftGrid() {
                         loading="lazy"
                       />
                       {nft.rare && (
-                        <span className="rarity-label hidden mobile:block mobile:absolute mobile:top-4 mobile:left-0 mobile:bg-primary mobile:text-background mobile:[padding:7px_10px] mobile:uppercase mobile:text-[12px]">
+                        <span className="rarity-label hidden mobile:block mobile:absolute mobile:top-4 mobile:left-0 mobile:bg-primary mobile:text-background mobile:p-[7px_10px] mobile:uppercase mobile:text-[12px]">
                           Raro
                         </span>
                       )}
                     </div>
                     <h3>{nft.name}</h3>
-                    <p className="nft-price text-[18px] font-semibold text-primary mt-[3px] leading-[26px] wrap-anywhere tabular-nums [&_del]:text-muted-foreground [&_del]:font-normal [&_del]:text-[16px] [&_del]:whitespace-nowrap mobile:text-[16px] mobile:leading-[20px] mobile:[margin:0_7px] mobile:[&_del]:text-[12px]">
+                    <p className="nft-price text-[18px] font-semibold text-primary mt-0.75 leading-6.5 wrap-anywhere tabular-nums [&_del]:text-muted-foreground [&_del]:font-normal [&_del]:text-[16px] [&_del]:whitespace-nowrap mobile:text-[16px] mobile:leading-5 mobile:m-[0_7px] mobile:[&_del]:text-[12px]">
                       {nft.priceEth} ETH{' '}
                       {nft.previousPriceEth && (
                         <del>{nft.previousPriceEth} ETH</del>
                       )}
                     </p>
                     {nft.available === 0 && (
-                      <span className="sold-out-label inline-block mt-[5px] text-[12px] text-muted-foreground">
+                      <span className="sold-out-label inline-block mt-1.25 text-[12px] text-muted-foreground">
                         Edição esgotada
                       </span>
                     )}
@@ -293,7 +293,7 @@ export function NftGrid() {
         </div>
         {data && data.totalPages > 1 && (
           <nav
-            className="catalog-pagination flex gap-2 justify-end mt-[78px] [&_button]:min-w-[35px] [&_button]:h-9 [&_button]:[border:1px_solid_var(--border)] [&_button]:rounded-[4px] [&_button]:grid [&_button]:place-items-center [&_button]:text-[16px] [&_[aria-current='page']]:text-background [&_[aria-current='page']]:bg-primary [&_[aria-current='page']]:[border-color:var(--primary)] [&_[aria-current='page']]:font-semibold mobile:mt-16 mobile:justify-center mobile:gap-[10px]"
+            className="catalog-pagination flex gap-2 justify-end mt-19.5 [&_button]:min-w-8.75 [&_button]:h-9 [&_button]:[border:1px_solid_var(--border)] [&_button]:rounded-xs [&_button]:grid [&_button]:place-items-center [&_button]:text-[16px] **:aria-[current='page']:text-background **:aria-[current='page']:bg-primary **:aria-[current='page']:[border-color:var(--primary)] **:aria-[current='page']:font-semibold mobile:mt-16 mobile:justify-center mobile:gap-2.5"
             aria-label="Paginação do catálogo"
           >
             {data.page > 1 && (
