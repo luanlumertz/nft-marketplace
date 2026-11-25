@@ -73,7 +73,7 @@ function Gallery({ nft }: { nft: NftDetail }) {
             </button>
           ))}
         </div>
-        <div className="relative rounded-xs bg-card p-5 mobile:bg-transparent mobile:p-0">
+        <div className="relative flex items-center justify-center rounded-2xl bg-card p-5 mobile:block mobile:bg-transparent mobile:p-0">
           <button
             type="button"
             className="block w-full"

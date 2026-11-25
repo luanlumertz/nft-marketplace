@@ -48,7 +48,7 @@ export function AppLayout() {
         </Link>
         <nav
           aria-label="Navegação principal"
-          className="desktop-navigation flex gap-10 h-full items-center text-[16px] tracking-[0.4px] [&_a]:flex [&_a]:h-full [&_a]:items-center [&_a]:[border-bottom:3px_solid_transparent] [&_.active]:text-primary [&_.active]:border-b-primary [&_.active]:font-semibold tablet:gap-4.5 tablet:text-[14px]"
+          className="desktop-navigation flex h-full items-stretch gap-10 text-[16px] tracking-[0.4px] [&_a]:relative [&_a]:flex [&_a]:items-center [&_span]:flex [&_span]:items-center [&_.active]:text-primary [&_.active]:font-semibold [&_.active]:after:absolute [&_.active]:after:inset-x-0 [&_.active]:after:bottom-0 [&_.active]:after:h-0.75 [&_.active]:after:bg-primary tablet:gap-4.5 tablet:text-[14px]"
         >
           <Link
             to="/"

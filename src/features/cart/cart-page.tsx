@@ -303,7 +303,7 @@ export function CartPage() {
                     >
                       Código promocional
                     </label>
-                    <div className="flex rounded-xs border border-border mobile:rounded-full">
+                    <div className="flex rounded-xs border border-border bg-[#382418] mobile:rounded-full">
                       <Input
                         id="cart-coupon"
                         value={code}
@@ -316,7 +316,7 @@ export function CartPage() {
                         aria-describedby={
                           cart.message ? 'cart-error' : undefined
                         }
-                        className="h-10 min-w-0 flex-1 rounded-none border-0 bg-transparent px-2 text-[12px] shadow-none placeholder:text-muted-foreground focus-visible:ring-0 mobile:h-12.5 mobile:rounded-full mobile:px-4"
+                        className="h-10 min-w-0 flex-1 rounded-none border-0 bg-transparent px-2 text-[12px] shadow-none placeholder:text-muted-foreground focus-visible:ring-0 dark:bg-transparent mobile:h-12.5 mobile:rounded-full mobile:px-4"
                       />
                       <Button
                         type="submit"
