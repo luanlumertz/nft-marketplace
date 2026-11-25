@@ -10,6 +10,7 @@ import {
   type ClientToServerEvents,
 } from './contracts'
 import { nftKeys } from './queries'
+import { isCartKey } from '@/features/cart/use-cart'
 
 export function useCatalogEvents() {
   const queryClient = useQueryClient()
@@ -32,6 +33,9 @@ export function useCatalogEvents() {
       socket.emit('catalog.subscribe')
       // REST reconcilia o estado mesmo se algum evento foi perdido na desconexao.
       void queryClient.invalidateQueries({ queryKey: nftKeys.all })
+      void queryClient.invalidateQueries({
+        predicate: (query) => isCartKey(query.queryKey),
+      })
     }
 
     const onNftUpdated = (payload: unknown) => {
@@ -77,6 +81,13 @@ export function useCatalogEvents() {
             : current,
         )
         setAnnouncement(`Preço ou disponibilidade de ${nft.name} atualizado.`)
+        await queryClient.cancelQueries({
+          predicate: (query) => isCartKey(query.queryKey),
+        })
+        if (disposed) return
+        await queryClient.invalidateQueries({
+          predicate: (query) => isCartKey(query.queryKey),
+        })
         // Preço afeta ordenação, faixa e paginação; somente REST recompõe a lista.
         await queryClient.invalidateQueries({ queryKey: nftKeys.all })
       })

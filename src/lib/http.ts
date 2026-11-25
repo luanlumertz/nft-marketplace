@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { env } from '@/lib/env'
 import { getSessionToken, sessionExpiredEvent } from './credentials'
+import { getCartGuestId } from './cart-identity'
 
 export const http = axios.create({
   baseURL: env.apiUrl,
@@ -9,6 +10,8 @@ export const http = axios.create({
 })
 
 http.interceptors.request.use((config) => {
+  if (!config.headers.has('X-Cart-Guest'))
+    config.headers.set('X-Cart-Guest', getCartGuestId())
   const token = getSessionToken()
   if (token && !config.headers.has('Authorization'))
     config.headers.set('Authorization', `Bearer ${token}`)
