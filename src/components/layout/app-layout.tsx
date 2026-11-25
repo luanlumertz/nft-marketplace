@@ -6,14 +6,22 @@ import { SiteFooter } from './site-footer'
 import { AccountButton } from '@/features/auth/account-button'
 import { SessionBoundary } from '@/features/auth/session-boundary'
 import { SessionNotice } from '@/features/auth/session-notice'
+import { safeReturnTo } from '@/features/auth/contracts'
 
 export function AppLayout() {
   const announcement = useCatalogEvents()
   const pathname = useRouterState({
-    select: (state) => state.location.pathname,
+    select: (state) => {
+      const path = state.location.pathname
+      return path === '/login' || path === '/cadastro'
+        ? new URL(
+            safeReturnTo(state.location.search.redirect),
+            window.location.origin,
+          ).pathname
+        : path
+    },
   })
-  const home =
-    pathname === '/' || pathname === '/login' || pathname === '/cadastro'
+  const home = pathname === '/'
   const detail = pathname.startsWith('/nfts/')
 
   return (

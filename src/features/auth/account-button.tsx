@@ -20,11 +20,20 @@ export function AccountButton({ mobile = false }: { mobile?: boolean }) {
     router = useRouter()
   const href = useRouterState({ select: (state) => state.location.href }),
     [open, setOpen] = useState(false)
+  const protectedRoute = useRouterState({
+    select: (state) =>
+      state.matches.some((match) => match.staticData.requiresAuth === true),
+  })
   const exit = useMutation({
     mutationFn: logout,
     onSettled: async () => {
       setOpen(false)
-      await router.navigate({ to: '/', search: catalogDefaults, replace: true })
+      if (protectedRoute)
+        await router.navigate({
+          to: '/',
+          search: catalogDefaults,
+          replace: true,
+        })
     },
   })
   const style = mobile

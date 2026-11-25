@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/dialog'
 import { AuthForm } from './auth-form'
 import { safeReturnTo } from './contracts'
-import { CatalogHome } from '@/features/nfts/components/catalog-home'
+import { AuthBackground } from './auth-background'
 
 export function AuthPage({
   mode,
@@ -30,7 +30,7 @@ export function AuthPage({
   return (
     <>
       <div className="mobile:hidden" aria-hidden="true">
-        <CatalogHome />
+        <AuthBackground redirect={redirect} />
       </div>
       <Dialog
         open

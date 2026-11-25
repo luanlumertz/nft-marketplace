@@ -46,7 +46,7 @@ Variáveis `VITE_*` são públicas e incorporadas ao build. Nunca coloque segred
 | `ana@kurio.demo` | `Kurio123!` | Sage Nomad |
 | `bruno@kurio.demo` | `Kurio123!` | Golden Beat |
 
-Também é possível criar uma conta em `/cadastro`. No desktop, login/cadastro abrem em modal sobre o catálogo; no mobile, ocupam a tela. O retorno preserva a URL anterior, inclusive edição/quantidade do NFT. Favoritar sem sessão abre o login e retoma a inclusão após autenticar.
+Também é possível criar uma conta em `/cadastro`. No desktop, login/cadastro abrem em modal sobre a página de retorno, preservando os filtros do catálogo ou a edição/quantidade do NFT; no mobile, ocupam a tela. Ao cancelar ou concluir, o retorno preserva a URL anterior. Favoritar sem sessão abre o login e retoma a inclusão após autenticar. O logout mantém a página pública atual e redireciona ao catálogo apenas ao sair de uma página privada, como Favoritos.
 
 `/favoritos` exige sessão. Conta e favoritos persistem após refresh; logout e troca de usuário removem o cache privado. A sessão dura 15 minutos e é revalidada pela API ao retomar a janela e a cada 15 segundos enquanto a aba está ativa. Senhas ficam no store simulado como hashes PBKDF2-SHA256 com salt individual, nunca em claro.
 

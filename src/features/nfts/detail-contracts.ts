@@ -48,10 +48,7 @@ export function weiToEth(value: bigint) {
     .replace(/0+$/, '')
   return fraction ? `${whole}.${fraction}` : String(whole)
 }
-export function validateDetailSearch(
-  raw: SearchSchemaInput &
-    Partial<CatalogSearch> & { edition?: string; quantity?: number },
-) {
+export function parseDetailSearch(raw: Record<string, unknown>) {
   return {
     ...parseCatalogSearch(raw),
     edition:
@@ -64,4 +61,10 @@ export function validateDetailSearch(
       .catch(1)
       .parse(raw.quantity),
   }
+}
+export function validateDetailSearch(
+  raw: SearchSchemaInput &
+    Partial<CatalogSearch> & { edition?: string; quantity?: number },
+) {
+  return parseDetailSearch(raw)
 }

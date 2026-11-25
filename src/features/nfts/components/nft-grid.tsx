@@ -18,18 +18,18 @@ import { useCatalogNavigation } from '../use-catalog-navigation'
 import { CatalogFilters, FilterDrawer } from './catalog-controls'
 
 export function NftGrid() {
-  const { search, update, navigate } = useCatalogNavigation()
+  const { search, update, navigate, isPreview } = useCatalogNavigation()
   const query = useQuery(nftListOptions(search))
   const data = query.data
   useEffect(() => {
-    if (data && data.page !== search.page) {
+    if (!isPreview && data && data.page !== search.page) {
       void navigate({
         search: { ...search, page: data.page },
         replace: true,
         resetScroll: false,
       })
     }
-  }, [data, search, navigate])
+  }, [data, search, navigate, isPreview])
   const active =
     !!search.q ||
     search.collections.length > 0 ||
