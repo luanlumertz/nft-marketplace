@@ -77,7 +77,7 @@ export function SiteFooter({
             <small>Cadastro de alertas indisponível.</small>
           </div>
         </div>
-        <div className="footer-contact grid grid-cols-4 gap-5 items-center p-[24px_32px] [background:#3a2412] text-[15px] leading-6 tablet-compact:text-[14px]">
+        <div className="footer-contact grid grid-cols-[minmax(72px,0.45fr)_repeat(3,minmax(0,1fr))] gap-5 items-center p-[24px_32px] [background:#3a2412] text-[15px] leading-6 tablet-compact:text-[14px]">
           <strong>KURIO</strong>
           <span>
             Feito para colecionadores,
@@ -166,9 +166,15 @@ export function SiteFooter({
               aria-label="Carteiras compatíveis: MetaMask, WalletConnect e Coinbase"
             >
               <span>METAMASK</span>
-              <span aria-hidden="true">·</span>
+              <span
+                aria-hidden="true"
+                className="size-1 shrink-0 rounded-full bg-primary"
+              />
               <span>WALLETCONNECT</span>
-              <span aria-hidden="true">·</span>
+              <span
+                aria-hidden="true"
+                className="size-1 shrink-0 rounded-full bg-primary"
+              />
               <span>COINBASE</span>
             </div>
           </div>
