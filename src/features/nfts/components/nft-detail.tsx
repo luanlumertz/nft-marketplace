@@ -34,6 +34,8 @@ import {
   type validateDetailSearch,
 } from '../detail-contracts'
 import { relatedNftsOptions } from '../queries'
+import { catalogDefaults } from '../catalog-search'
+import { useCart } from '@/features/cart/use-cart'
 
 type DetailSearch = ReturnType<typeof validateDetailSearch>
 function Gallery({ nft }: { nft: NftDetail }) {
@@ -253,7 +255,15 @@ function DetailTabs({ nft }: { nft: NftDetail }) {
   )
 }
 
-function Related({ id, search }: { id: string; search: DetailSearch }) {
+export function NftRecommendations({
+  id,
+  search = catalogDefaults,
+  title = 'Mais desta coleção',
+}: {
+  id: string
+  search?: ReturnType<typeof parseCatalogSearch>
+  title?: string
+}) {
   const query = useQuery(relatedNftsOptions(id)),
     [page, setPage] = useState(0)
   const pages = Math.ceil((query.data?.items.length ?? 0) / 5)
@@ -263,7 +273,7 @@ function Related({ id, search }: { id: string; search: DetailSearch }) {
         id="related-title"
         className="border-b border-border pb-2 text-[18px] font-semibold text-primary"
       >
-        Mais desta coleção
+        {title}
       </h2>
       {query.isPending ? (
         <div className="mt-8 grid grid-cols-5 gap-6">
@@ -364,6 +374,8 @@ export function NftDetailContent({
   search: DetailSearch
 }) {
   const navigate = useNavigate({ from: '/nfts/$nftId' })
+  const cart = useCart()
+  const [cartNotice, setCartNotice] = useState('')
   const selected =
     nft.editions.find(
       (edition) => edition.id === (search.edition ?? nft.defaultEditionId),
@@ -375,6 +387,19 @@ export function NftDetailContent({
   const price =
     selected.id === nft.defaultEditionId ? nft.priceEth : selected.priceEth
   const total = weiToEth(ethToWei(price) * BigInt(quantity))
+  const addToCart = (open: boolean) => {
+    setCartNotice('')
+    cart.run(
+      {
+        type: 'add',
+        selection: { nftId: nft.id, editionId: selected.id, quantity },
+      },
+      () => {
+        if (open) void navigate({ to: '/carrinho' })
+        else setCartNotice('NFT adicionado ao carrinho.')
+      },
+    )
+  }
   const [shareMessage, setShareMessage] = useState('')
   useEffect(() => {
     const previous = document.title
@@ -541,8 +566,8 @@ export function NftDetailContent({
             {quantityControl}
             <div className="flex gap-2">
               <Button
-                disabled
-                title="Compra indisponível nesta demonstração"
+                disabled={limit === 0 || !cart.ready || cart.pending}
+                onClick={() => addToCart(true)}
                 className="h-10 min-w-32.5 rounded-xs disabled:opacity-100"
               >
                 COMPRAR
@@ -555,6 +580,27 @@ export function NftDetailContent({
               />
             </div>
           </div>
+          {(cart.message || cartNotice) && (
+            <p
+              role={cart.message ? 'alert' : 'status'}
+              className="mt-3 text-sm text-primary"
+            >
+              {cart.message || cartNotice}
+            </p>
+          )}
+          {cart.query.isError && (
+            <p role="alert" className="mt-3 text-sm text-primary">
+              Não foi possível carregar o carrinho.{' '}
+              <Button
+                variant="link"
+                onClick={() => {
+                  void cart.query.refetch()
+                }}
+              >
+                Recarregar carrinho
+              </Button>
+            </p>
+          )}
           {limit === 0 && (
             <p role="status" className="mt-3 text-sm text-primary">
               Edição esgotada
@@ -635,7 +681,7 @@ export function NftDetailContent({
       >
         <DetailTabs nft={nft} />
       </section>
-      <Related id={nft.id} search={search} />
+      <NftRecommendations id={nft.id} search={search} />
       <div className="fixed inset-x-0 bottom-0 z-40 hidden rounded-t-[40px] bg-[#251610] px-6 pt-5 pb-[max(28px,env(safe-area-inset-bottom))] shadow-[0_-10px_30px_#160e0a33] mobile:block">
         <div className="mb-5 flex items-center justify-between gap-3">
           {quantityControl}
@@ -645,8 +691,8 @@ export function NftDetailContent({
         </div>
         <div className="flex gap-3">
           <Button
-            disabled
-            title="Compra indisponível nesta demonstração"
+            disabled={limit === 0 || !cart.ready || cart.pending}
+            onClick={() => addToCart(true)}
             className="h-15 flex-1 rounded-full text-[16px] font-semibold disabled:opacity-100"
           >
             Comprar NFT
@@ -654,9 +700,9 @@ export function NftDetailContent({
           <Button
             variant="outline"
             size="icon"
-            disabled
-            title="Carrinho indisponível nesta demonstração"
-            aria-label="Carrinho indisponível"
+            disabled={limit === 0 || !cart.ready || cart.pending}
+            onClick={() => addToCart(false)}
+            aria-label="Adicionar ao carrinho"
             className="size-15 rounded-full border-border bg-transparent text-primary disabled:opacity-100"
           >
             <ShoppingCart className="size-6" />

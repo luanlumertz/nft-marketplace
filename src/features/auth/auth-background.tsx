@@ -12,6 +12,7 @@ import {
 import { FavoritesPage } from '@/features/favorites/favorites-page'
 import { QueryError } from '@/components/query-feedback'
 import { safeReturnTo } from './contracts'
+import { CartPage } from '@/features/cart/cart-page'
 
 function originSearch(target: URL) {
   const parsed: Record<string, unknown> = {
@@ -49,6 +50,7 @@ export function AuthBackground({ redirect }: { redirect: string }) {
       <DetailBackground target={target} id={decodeURIComponent(detail[1])} />
     )
   if (target.pathname === '/favoritos') return <FavoritesPage />
+  if (target.pathname === '/carrinho') return <CartPage />
   return (
     <CatalogPreviewContext value={parseCatalogSearch(originSearch(target))}>
       <CatalogHome />

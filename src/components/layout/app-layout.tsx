@@ -1,5 +1,5 @@
 import { Link, Outlet, useRouterState } from '@tanstack/react-router'
-import { Home, Heart, ScanLine, ShoppingCart } from 'lucide-react'
+import { Home, Heart, ScanLine } from 'lucide-react'
 import { useCatalogEvents } from '@/features/nfts/use-catalog-events'
 import { HeaderSearch } from '@/features/nfts/components/catalog-controls'
 import { SiteFooter } from './site-footer'
@@ -7,6 +7,7 @@ import { AccountButton } from '@/features/auth/account-button'
 import { SessionBoundary } from '@/features/auth/session-boundary'
 import { SessionNotice } from '@/features/auth/session-notice'
 import { safeReturnTo } from '@/features/auth/contracts'
+import { CartLink } from '@/features/cart/cart-link'
 
 export function AppLayout() {
   const announcement = useCatalogEvents()
@@ -23,10 +24,11 @@ export function AppLayout() {
   })
   const home = pathname === '/'
   const detail = pathname.startsWith('/nfts/')
+  const cart = pathname === '/carrinho'
 
   return (
     <div
-      className={`app-shell min-h-svh ${home ? 'home-layout mobile:[&_.site-main]:pt-10' : ''} ${detail ? 'detail-layout mobile:[&_.site-main]:w-full mobile:[&_.site-main]:p-0 mobile:[&_.mobile-navigation]:hidden' : ''}`}
+      className={`app-shell min-h-svh ${home ? 'home-layout mobile:[&_.site-main]:pt-10' : ''} ${detail ? 'detail-layout mobile:[&_.site-main]:w-full mobile:[&_.site-main]:p-0 mobile:[&_.mobile-navigation]:hidden' : ''} ${cart ? 'cart-layout mobile:[&_.site-main]:w-full mobile:[&_.site-main]:p-0 mobile:[&_.mobile-navigation]:hidden' : ''}`}
     >
       <SessionBoundary />
       <SessionNotice />
@@ -59,7 +61,7 @@ export function AppLayout() {
             to="/"
             hash="catalogo"
             activeProps={{ className: '' }}
-            className={detail ? 'active' : ''}
+            className={detail || cart ? 'active' : ''}
           >
             Mercado
           </Link>
@@ -70,13 +72,7 @@ export function AppLayout() {
         </nav>
         <div className="header-actions flex justify-end items-center gap-5.5 tablet:gap-3">
           <HeaderSearch />
-          <button
-            className="icon-control w-7 h-10 grid place-items-center"
-            disabled
-            aria-label="Carrinho indisponível nesta demonstração"
-          >
-            <ShoppingCart />
-          </button>
+          <CartLink />
           <AccountButton />
         </div>
       </header>
@@ -117,9 +113,7 @@ export function AppLayout() {
         >
           <ScanLine size={28} />
         </a>
-        <button disabled aria-label="Carrinho indisponível nesta demonstração">
-          <ShoppingCart size={22} />
-        </button>
+        <CartLink mobile />
         <AccountButton mobile />
       </nav>
     </div>
