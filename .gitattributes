@@ -2,3 +2,4 @@
 *.png binary
 *.woff2 binary
 reports/lighthouse/**/*.html -whitespace
+reports/lighthouse/** linguist-generated=true
