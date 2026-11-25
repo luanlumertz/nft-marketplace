@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "./catalog.css";
 
 @theme inline {
   --font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, monospace;
