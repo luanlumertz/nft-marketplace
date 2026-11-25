@@ -244,6 +244,11 @@ test('mantém a composição visual do início', async ({ page }) => {
   await page.goto('/')
   await expect(list(page).getByRole('listitem')).toHaveCount(9)
   await expect(page.getByRole('tabpanel')).toHaveAttribute('aria-busy', 'false')
+  expect(
+    await page
+      .getByRole('main')
+      .evaluate((element) => getComputedStyle(element).fontFamily),
+  ).toContain('Roboto Mono')
   await page.evaluate(async () => {
     await document.fonts.ready
     const visible = [...document.images].filter(
@@ -252,6 +257,9 @@ test('mantém a composição visual do início', async ({ page }) => {
     for (const image of visible) image.loading = 'eager'
     await Promise.all(visible.map((image) => image.decode()))
   })
+  expect(
+    await page.evaluate(() => document.fonts.check('400 16px "Roboto Mono"')),
+  ).toBe(true)
   await expect(page).toHaveScreenshot('inicio.png', {
     fullPage: true,
     animations: 'disabled',

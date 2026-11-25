@@ -90,6 +90,7 @@
   letter-spacing: -0.9px;
 }
 .hero-description {
+  max-width: 580px;
   margin-top: 8px;
   color: var(--muted-foreground);
   font-size: 14px;

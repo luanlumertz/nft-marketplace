@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import "tailwindcss" source(".");
 @import "tw-animate-css";
 @import "./catalog.css";
 
@@ -30,6 +30,7 @@
 }
 
 :root {
+  --font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, monospace;
   color-scheme: dark;
   --background: #160e0a;
   --foreground: #f5eee8;

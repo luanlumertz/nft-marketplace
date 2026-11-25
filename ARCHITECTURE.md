@@ -115,6 +115,8 @@ Os controles de eventos mantêm REST coerente com a versão mais recente. Não i
 
 ## Interface e assets
 
+O Tailwind procura classes somente em `src/`, por meio de `source(".")` em `src/styles.css`. Relatórios HTML de auditoria não participam da geração do CSS. A fonte base também é declarada explicitamente na raiz, e o teste visual verifica sua família e carregamento.
+
 Os quatro PNGs originais enviados em `jungles.zip` estão em `public/nfts/`. Nenhuma imagem depende de host externo. Roboto Mono foi escolhida provisoriamente com base nas referências e é servida localmente via Fontsource; a família exata ainda precisa ser confirmada no Figma. Cores iniciais foram aproximadas pelas referências e o contraste do texto secundário foi reforçado.
 
 Button e Skeleton foram gerados pelo CLI shadcn/ui 4.23.0, estilo `new-york`. Os imports de `cn` apontam para o utilitário local; Skeleton foi adaptado para shimmer com dimensões estáveis, e há respeito a `prefers-reduced-motion`. A CLI é usada sob demanda e não é dependência da aplicação.
