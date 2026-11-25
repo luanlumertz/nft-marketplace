@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
-import { mockRequest } from './helpers'
+import { mockRequest, returnToCatalog } from './helpers'
 
 const list = (page: Page) => page.getByRole('list', { name: 'NFTs da coleção' })
 const mobile = (page: Page) => (page.viewportSize()?.width ?? 1440) < 768
@@ -89,7 +89,7 @@ test('combina filtros, preço, busca e ordenação e restaura pelo histórico e 
   await expect(
     page.getByRole('heading', { name: 'Ivory Baron #088' }),
   ).toBeVisible()
-  await page.getByRole('link', { name: 'Voltar à coleção' }).click()
+  await returnToCatalog(page)
   await expect(list(page).getByRole('listitem')).toHaveCount(2)
   await expect(page).toHaveURL(/sort=price-desc/)
 })
@@ -166,7 +166,9 @@ test('recompõe filtros e ordem quando um preço muda pelo Socket.IO', async ({
   await expect(list(page).getByRole('listitem')).toHaveCount(2)
   await expect(list(page)).not.toContainText('Emerald Ape')
   await page.goto('/nfts/emerald-ape-042')
-  await expect(page.getByText('2.5 ETH', { exact: true })).toBeVisible()
+  await expect(
+    page.getByText('2.5 ETH', { exact: true }).filter({ visible: true }),
+  ).toBeVisible()
   await expect(page.getByText('Edição esgotada', { exact: true })).toBeVisible()
 })
 

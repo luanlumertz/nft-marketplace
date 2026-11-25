@@ -1,7 +1,8 @@
 import { useEffect } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
-import { ChevronLeft, ChevronRight, Heart, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { FavoriteButton } from '@/features/favorites/favorite-button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { QueryError } from '@/components/query-feedback'
 import { nftListOptions } from '../queries'
@@ -17,18 +18,18 @@ import { useCatalogNavigation } from '../use-catalog-navigation'
 import { CatalogFilters, FilterDrawer } from './catalog-controls'
 
 export function NftGrid() {
-  const { search, update, navigate } = useCatalogNavigation()
+  const { search, update, navigate, isPreview } = useCatalogNavigation()
   const query = useQuery(nftListOptions(search))
   const data = query.data
   useEffect(() => {
-    if (data && data.page !== search.page) {
+    if (!isPreview && data && data.page !== search.page) {
       void navigate({
         search: { ...search, page: data.page },
         replace: true,
         resetScroll: false,
       })
     }
-  }, [data, search, navigate])
+  }, [data, search, navigate, isPreview])
   const active =
     !!search.q ||
     search.collections.length > 0 ||
@@ -277,14 +278,11 @@ export function NftGrid() {
                     )}
                   </Link>
                   {index === 0 && (
-                    <button
+                    <FavoriteButton
+                      id={nft.id}
+                      name={nft.name}
                       className="card-favorite hidden mobile:grid mobile:place-items-center mobile:absolute mobile:top-3 mobile:right-3 mobile:w-7 mobile:h-7 mobile:rounded-[50%] mobile:bg-card mobile:text-primary mobile:[border:1px_solid_var(--primary)]"
-                      disabled
-                      aria-label="Favoritos indisponíveis nesta demonstração"
-                      title="Favoritos indisponíveis nesta demonstração"
-                    >
-                      <Heart size={17} />
-                    </button>
+                    />
                   )}
                 </li>
               ))}

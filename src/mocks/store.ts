@@ -10,6 +10,10 @@ export const scenarioSchema = z.enum([
   'network-error',
   'catalog-error',
   'empty',
+  'session-expired',
+  'favorite-error',
+  'registration-conflict',
+  'auth-error',
 ])
 
 const storeSchema = z.object({

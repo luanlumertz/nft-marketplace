@@ -4,10 +4,9 @@ import {
   RouterProvider,
   defaultParseSearch,
 } from '@tanstack/react-router'
-import { createQueryClient } from '@/lib/query-client'
+import { queryClient } from '@/lib/query-client'
 import { routeTree } from './routeTree.gen'
 
-const queryClient = createQueryClient()
 const router = createRouter({
   routeTree,
   context: { queryClient },
@@ -26,6 +25,9 @@ const router = createRouter({
 declare module '@tanstack/react-router' {
   interface Register {
     router: typeof router
+  }
+  interface StaticDataRouteOption {
+    requiresAuth?: boolean
   }
 }
 

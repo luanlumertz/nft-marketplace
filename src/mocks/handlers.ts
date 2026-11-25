@@ -10,6 +10,9 @@ import { mockStore, scenarioSchema } from './store'
 import { broadcastNftUpdated, socketHandler, subscriberCount } from './socket'
 import { parseCatalogSearch } from '@/features/nfts/catalog-search'
 import { queryCatalog } from './catalog'
+import { accounts } from './accounts'
+import { accountHandlers } from './account-handlers'
+import { detailFor, relatedFor } from './nft-details'
 
 const base = env.apiUrl.replace(/\/$/, '')
 const nftPatchSchema = z
@@ -32,6 +35,7 @@ async function readJson(request: Request): Promise<unknown> {
 async function simulateNetwork() {
   const { scenario } = mockStore.getState()
   await delay(scenario === 'slow' ? 1800 : 120)
+  if (scenario === 'network-error') return HttpResponse.error()
   if (scenario === 'catalog-error')
     return HttpResponse.json(
       {
@@ -43,6 +47,18 @@ async function simulateNetwork() {
 }
 
 export const handlers = [
+  ...accountHandlers,
+  http.get(`${base}/nfts/:id/related`, async ({ params }) => {
+    const error = await simulateNetwork()
+    if (error) return error
+    const nft = mockStore.getState().nfts.find((item) => item.id === params.id)
+    return nft
+      ? HttpResponse.json({ items: relatedFor(nft, mockStore.getState().nfts) })
+      : HttpResponse.json(
+          { code: 'NOT_FOUND', message: 'NFT não encontrado.' },
+          { status: 404 },
+        )
+  }),
   http.get(`${base}/nfts`, async ({ request }) => {
     const search = parseCatalogSearch(
       Object.fromEntries(new URL(request.url).searchParams),
@@ -64,7 +80,7 @@ export const handlers = [
     if (error) return error
     const nft = mockStore.getState().nfts.find((item) => item.id === params.id)
     return nft
-      ? HttpResponse.json(nft)
+      ? HttpResponse.json(detailFor(nft))
       : HttpResponse.json(
           { code: 'NOT_FOUND', message: 'NFT não encontrado.' },
           { status: 404 },
@@ -74,6 +90,7 @@ export const handlers = [
   // Controles exclusivos do ambiente MSW: nunca sao importados pela interface.
   http.post(`${base}/__mock/reset`, () => {
     mockStore.reset()
+    accounts.reset()
     return new HttpResponse(null, { status: 204 })
   }),
   http.get(`${base}/__mock/state`, () =>

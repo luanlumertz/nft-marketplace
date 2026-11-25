@@ -1,26 +1,35 @@
 import { Link, Outlet, useRouterState } from '@tanstack/react-router'
-import {
-  Home,
-  Heart,
-  ScanLine,
-  ShoppingCart,
-  UserRound,
-  LogIn,
-} from 'lucide-react'
+import { Home, Heart, ScanLine, ShoppingCart } from 'lucide-react'
 import { useCatalogEvents } from '@/features/nfts/use-catalog-events'
 import { HeaderSearch } from '@/features/nfts/components/catalog-controls'
 import { SiteFooter } from './site-footer'
+import { AccountButton } from '@/features/auth/account-button'
+import { SessionBoundary } from '@/features/auth/session-boundary'
+import { SessionNotice } from '@/features/auth/session-notice'
+import { safeReturnTo } from '@/features/auth/contracts'
 
 export function AppLayout() {
   const announcement = useCatalogEvents()
-  const home = useRouterState({
-    select: (state) => state.location.pathname === '/',
+  const pathname = useRouterState({
+    select: (state) => {
+      const path = state.location.pathname
+      return path === '/login' || path === '/cadastro'
+        ? new URL(
+            safeReturnTo(state.location.search.redirect),
+            window.location.origin,
+          ).pathname
+        : path
+    },
   })
+  const home = pathname === '/'
+  const detail = pathname.startsWith('/nfts/')
 
   return (
     <div
-      className={`app-shell min-h-svh ${home ? 'home-layout mobile:[&_.site-main]:pt-10' : ''}`}
+      className={`app-shell min-h-svh ${home ? 'home-layout mobile:[&_.site-main]:pt-10' : ''} ${detail ? 'detail-layout mobile:[&_.site-main]:w-full mobile:[&_.site-main]:p-0 mobile:[&_.mobile-navigation]:hidden' : ''}`}
     >
+      <SessionBoundary />
+      <SessionNotice />
       <a
         href="#conteudo"
         className="skip-link fixed top-3 left-3 z-50 -translate-y-24 rounded bg-primary px-4 py-3 text-primary-foreground focus:translate-y-0"
@@ -50,7 +59,7 @@ export function AppLayout() {
             to="/"
             hash="catalogo"
             activeProps={{ className: '' }}
-            className={!home ? 'active' : ''}
+            className={detail ? 'active' : ''}
           >
             Mercado
           </Link>
@@ -68,14 +77,7 @@ export function AppLayout() {
           >
             <ShoppingCart />
           </button>
-          <button
-            className="account-trigger flex items-center gap-1.5 rounded-sm p-[7px_10px] bg-primary text-background text-[16px] font-medium"
-            disabled
-            title="Acesso à conta indisponível nesta demonstração"
-          >
-            <LogIn size={19} />
-            Entrar
-          </button>
+          <AccountButton />
         </div>
       </header>
       <main
@@ -85,7 +87,12 @@ export function AppLayout() {
       >
         <Outlet />
       </main>
-      <div role="status" aria-live="polite" className="sr-only">
+      <div
+        role="status"
+        aria-live="polite"
+        aria-label="Atualizações do catálogo"
+        className="sr-only"
+      >
         {announcement}
       </div>
       <SiteFooter />
@@ -100,12 +107,9 @@ export function AppLayout() {
         >
           <Home size={20} />
         </Link>
-        <button
-          disabled
-          aria-label="Favoritos indisponíveis nesta demonstração"
-        >
+        <Link to="/favoritos" aria-label="Meus favoritos">
           <Heart size={22} fill="currentColor" />
-        </button>
+        </Link>
         <a
           href={home ? '#catalogo' : '/#catalogo'}
           className="mobile-explore"
@@ -116,9 +120,7 @@ export function AppLayout() {
         <button disabled aria-label="Carrinho indisponível nesta demonstração">
           <ShoppingCart size={22} />
         </button>
-        <button disabled aria-label="Perfil indisponível nesta demonstração">
-          <UserRound size={21} />
-        </button>
+        <AccountButton mobile />
       </nav>
     </div>
   )

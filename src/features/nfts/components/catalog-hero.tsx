@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ArrowRight } from 'lucide-react'
+import { CarouselDots } from '@/components/carousel-dots'
 
 const slides = [
   {
@@ -76,21 +77,14 @@ export function CatalogHero() {
         height={450}
         fetchPriority="high"
       />
-      <div
-        className="hero-dots absolute bottom-7.75 left-[calc(50%-16px)] flex gap-0 [&_button]:grid [&_button]:place-items-center [&_button]:w-6 [&_button]:h-6 [&_span]:w-2 [&_span]:h-2 [&_span]:rounded-[50%] [&_span]:bg-primary [&_span]:opacity-45 [&_span]:[transition:width_150ms,border-radius_150ms,opacity_150ms] [&_button[aria-pressed='true']_span]:w-5 [&_button[aria-pressed='true']_span]:rounded-md [&_button[aria-pressed='true']_span]:opacity-100 [&_button[aria-pressed='true']_span]:[box-shadow:0_0_0_2px_var(--background),0_0_0_3px_var(--primary)] tablet:bottom-0 mobile:bottom-0 mobile:left-[calc(50%-36px)]"
-        aria-label="Selecionar destaque"
-      >
-        {slides.map((item, index) => (
-          <button
-            key={item.image}
-            aria-label={`Destaque ${index + 1}`}
-            aria-pressed={index === active}
-            onClick={() => setActive(index)}
-          >
-            <span />
-          </button>
-        ))}
-      </div>
+      <CarouselDots
+        count={slides.length}
+        active={active}
+        onSelect={setActive}
+        label="Selecionar destaque"
+        buttonLabel="Destaque"
+        className="hero-dots absolute bottom-7.75 left-[calc(50%-16px)] tablet:bottom-0 mobile:bottom-0 mobile:left-[calc(50%-36px)]"
+      />
     </section>
   )
 }

@@ -3,53 +3,49 @@ import {
   Link,
   stripSearchParams,
 } from '@tanstack/react-router'
-import {
-  validateCatalogSearch,
-  catalogDefaults,
-} from '@/features/nfts/catalog-search'
 import { useQuery } from '@tanstack/react-query'
 import { isAxiosError } from 'axios'
 import { nftDetailOptions } from '@/features/nfts/queries'
+import { validateDetailSearch } from '@/features/nfts/detail-contracts'
+import {
+  parseCatalogSearch,
+  catalogDefaults,
+} from '@/features/nfts/catalog-search'
+import {
+  NftDetailContent,
+  NftDetailSkeleton,
+} from '@/features/nfts/components/nft-detail'
 import { QueryError } from '@/components/query-feedback'
-import { Skeleton } from '@/components/ui/skeleton'
 
 export const Route = createFileRoute('/nfts/$nftId')({
+  validateSearch: validateDetailSearch,
+  search: {
+    middlewares: [
+      stripSearchParams({
+        ...catalogDefaults,
+        edition: undefined,
+        quantity: 1,
+      }),
+    ],
+  },
   component: NftDetailPage,
-  validateSearch: validateCatalogSearch,
-  search: { middlewares: [stripSearchParams(catalogDefaults)] },
 })
-
 function NftDetailPage() {
-  const { nftId } = Route.useParams()
-  const search = Route.useSearch()
+  const { nftId } = Route.useParams(),
+    search = Route.useSearch()
   const query = useQuery(nftDetailOptions(nftId))
-
-  if (query.isPending)
-    return (
-      <div
-        role="status"
-        aria-label="Carregando NFT"
-        className="grid gap-8 md:grid-cols-2"
-      >
-        <Skeleton className="aspect-square rounded-3xl" />
-        <div className="space-y-5">
-          <Skeleton className="h-10 w-4/5" />
-          <Skeleton className="h-8 w-1/3" />
-          <Skeleton className="h-28 w-full" />
-        </div>
-      </div>
-    )
+  if (query.isPending) return <NftDetailSkeleton />
   if (
     query.isError &&
     isAxiosError(query.error) &&
     query.error.response?.status === 404
   )
     return (
-      <section className="space-y-5">
+      <section className="space-y-5 mobile:p-6">
         <h1 className="text-3xl font-bold">NFT não encontrado</h1>
         <Link
           to="/"
-          search={search}
+          search={parseCatalogSearch(search)}
           hash="catalogo"
           className="text-primary underline"
         >
@@ -65,56 +61,5 @@ function NftDetailPage() {
         }}
       />
     )
-
-  const nft = query.data
-  return (
-    <>
-      <Link
-        to="/"
-        search={search}
-        hash="catalogo"
-        className="mb-8 inline-block text-sm text-primary underline"
-      >
-        Voltar à coleção
-      </Link>
-      <article className="grid items-start gap-8 md:grid-cols-2 md:gap-12">
-        <img
-          src={nft.imageUrl}
-          alt={`Arte de ${nft.name}`}
-          width={500}
-          height={500}
-          className="aspect-square w-full rounded-3xl bg-card object-cover"
-        />
-        <div>
-          <h1 className="text-3xl leading-snug font-bold">{nft.name}</h1>
-          <p className="mt-4 text-2xl font-semibold break-all text-primary tabular-nums">
-            {nft.priceEth} ETH
-          </p>
-          <p className="mt-6 text-sm leading-7 text-muted-foreground">
-            {nft.description}
-          </p>
-          <dl className="mt-8 space-y-4 text-sm">
-            <div>
-              <dt className="font-semibold">Edição</dt>
-              <dd className="mt-1 text-muted-foreground">{nft.edition}</dd>
-            </div>
-            <div>
-              <dt className="font-semibold">Rede</dt>
-              <dd className="mt-1 text-muted-foreground capitalize">
-                {nft.network}
-              </dd>
-            </div>
-            <div>
-              <dt className="font-semibold">Disponibilidade</dt>
-              <dd className="mt-1 text-muted-foreground">
-                {nft.available === 0
-                  ? 'Edição esgotada'
-                  : `${nft.available} unidades disponíveis`}
-              </dd>
-            </div>
-          </dl>
-        </div>
-      </article>
-    </>
-  )
+  return <NftDetailContent key={nftId} nft={query.data} search={search} />
 }
