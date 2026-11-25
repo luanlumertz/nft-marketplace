@@ -20,7 +20,9 @@ test('abre a coleção, navega para o NFT e preserva o acesso após refresh', as
   await expect(
     page.getByRole('heading', { name: 'Emerald Ape #042' }),
   ).toBeVisible()
-  await expect(page.getByText('1.19 ETH', { exact: true })).toBeVisible()
+  await expect(
+    page.getByText('1.19 ETH', { exact: true }).filter({ visible: true }),
+  ).toBeVisible()
   expect(errors).toEqual([])
 })
 
@@ -95,12 +97,14 @@ test('atualiza pelo Socket.IO, ignora evento antigo e mantém a mudança após r
     }),
   )
   await expect(
-    page.getByText('2.123456789123456789 ETH', { exact: true }),
+    page
+      .getByText('2.123456789123456789 ETH', { exact: true })
+      .filter({ visible: true }),
   ).toBeVisible()
   await expect(page.getByText('Edição esgotada', { exact: true })).toBeVisible()
-  await expect(page.getByRole('status')).toContainText(
-    'Preço ou disponibilidade',
-  )
+  await expect(
+    page.getByRole('status', { name: 'Atualizações do catálogo' }),
+  ).toContainText('Preço ou disponibilidade')
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth,
@@ -114,7 +118,9 @@ test('atualiza pelo Socket.IO, ignora evento antigo e mantém a mudança após r
     data: { ...event.data, version: 1, priceEth: '0.01', available: 99 },
   })
   await expect(
-    page.getByText('2.123456789123456789 ETH', { exact: true }),
+    page
+      .getByText('2.123456789123456789 ETH', { exact: true })
+      .filter({ visible: true }),
   ).toBeVisible()
   await page.getByRole('link', { name: 'Voltar à coleção' }).click()
   const nft = page.getByRole('listitem').filter({ hasText: 'Emerald Ape #042' })

@@ -6,9 +6,9 @@ Solução para o [desafio frontend da Jungle](https://github.com/junglegaming/fr
 
 Catálogo responsivo com destaques, busca, filtros combináveis, ordenação e paginação na URL, com 36 NFTs simulados. A interface segue as referências desktop/mobile fornecidas, com barra lateral no desktop, painel de filtros acessível no mobile e navegação para o detalhe. React + TypeScript + Vite, TanStack Router/Query, Axios, Tailwind CSS, shadcn/ui, MSW e Socket.IO participam dos fluxos.
 
-O detalhe continua simplificado. Autenticação, favoritos, carrinho, compra, perfil e carteiras serão implementados nas próximas etapas; suas ações aparecem indisponíveis nesta versão.
+O detalhe possui galeria com ampliação, edições, quantidade limitada pelo estoque, informações, avaliações e itens relacionados, com versões desktop/mobile. Login, cadastro, sessão, logout e favoritos por usuário estão integrados à API simulada. Carrinho, compra, perfil e carteiras continuam para as próximas etapas; suas ações permanecem indisponíveis.
 
-A estilização do início e dos componentes compartilhados usa classes Tailwind, incluindo estados e variantes responsivas. Button, Skeleton, Dialog e Slider são componentes shadcn/ui locais adaptados ao visual do projeto. O CSS global mantém o tema, fontes, estilos de base e animações.
+A estilização usa classes Tailwind, incluindo estados e variantes responsivas. Button, Skeleton, Dialog, Slider, Input e Tabs são componentes shadcn/ui locais adaptados ao visual do projeto. O CSS global mantém o tema, fontes, estilos de base e animações.
 
 Aplicação de produção: [nft-marketplace-chi-five.vercel.app](https://nft-marketplace-chi-five.vercel.app/). A produção acompanha `main`; alterações em PR ficam no preview da Vercel até o merge.
 
@@ -37,7 +37,18 @@ Não é necessário criar `.env` para iniciar. Para personalizar, copie `.env.ex
 | `VITE_API_URL` | `/api` | Base das chamadas REST |
 | `VITE_SOCKET_URL` | origem da aplicação | Origem do Socket.IO, por exemplo `https://api.example.com` |
 
-Variáveis `VITE_*` são públicas e incorporadas ao build. Nunca coloque segredos nelas. Não há credenciais de demonstração nesta etapa: autenticação ainda não foi implementada.
+Variáveis `VITE_*` são públicas e incorporadas ao build. Nunca coloque segredos nelas.
+
+## Contas de demonstração
+
+| E-mail fictício | Senha | Favorito inicial |
+| --- | --- | --- |
+| `ana@kurio.demo` | `Kurio123!` | Sage Nomad |
+| `bruno@kurio.demo` | `Kurio123!` | Golden Beat |
+
+Também é possível criar uma conta em `/cadastro`. No desktop, login/cadastro abrem em modal sobre o catálogo; no mobile, ocupam a tela. O retorno preserva a URL anterior, inclusive edição/quantidade do NFT. Favoritar sem sessão abre o login e retoma a inclusão após autenticar.
+
+`/favoritos` exige sessão. Conta e favoritos persistem após refresh; logout e troca de usuário removem o cache privado. A sessão dura 15 minutos e é revalidada pela API ao retomar a janela e a cada 15 segundos enquanto a aba está ativa. Senhas ficam no store simulado como hashes PBKDF2-SHA256 com salt individual, nunca em claro.
 
 ## Comandos
 
@@ -57,6 +68,10 @@ Variáveis `VITE_*` são públicas e incorporadas ao build. Nunca coloque segred
 ## Cenários e reset
 
 Os cenários atuais são `default`, `slow` (1,8 s), `out-of-order` (buscas com até três caracteres demoram 1,4 s; as demais, 80 ms, além da latência padrão), `network-error` (falha de conexão), `catalog-error` (HTTP 503) e `empty`. Eles e os dados do catálogo são persistidos na chave `kurio:mock:v2` do `localStorage`. A versão anterior do catálogo não é reutilizada após a mudança de schema. O cache do Query é apenas em memória; após refresh, a interface consulta novamente a API simulada.
+
+Conta/favoritos acrescentam `favorite-error` (HTTP 503 com rollback), `registration-conflict` (HTTP 409), `auth-error` (HTTP 503) e `session-expired` (invalida a sessão na próxima consulta protegida). Contas, sessões e favoritos ficam em `kurio:accounts:v1`; a credencial opaca do cliente fica em `kurio:session-token`. O reset abaixo restaura também as duas contas, seus favoritos iniciais e o estado anônimo.
+
+Para expirar as sessões existentes sem alterar outros dados, execute `await fetch('/api/__mock/session/expire', { method: 'POST' })`. A próxima operação protegida ou revalidação abre o login com o contexto anterior preservado.
 
 Com a aplicação aberta, use o console do navegador para selecionar um cenário:
 

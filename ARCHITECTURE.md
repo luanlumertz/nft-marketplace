@@ -2,7 +2,7 @@
 
 ## Escopo atual
 
-O início implementa a composição desktop/mobile das referências, com destaque selecionável, catálogo, busca, coleções, redes, faixa de preço, abas, ordenação, paginação, banners, seções editoriais e rodapé. Há 36 NFTs determinísticos, nove por página. O detalhe permanece básico; galeria, quantidade, favoritos, conta, carrinho, cotação e pedidos pertencem às próximas etapas.
+O início implementa a composição desktop/mobile das referências, com destaque selecionável, catálogo, busca, coleções, redes, faixa de preço, abas, ordenação, paginação, banners, seções editoriais e rodapé. Há 36 NFTs determinísticos, nove por página. O detalhe inclui galeria, ampliação, edições, quantidade, informações, avaliações e relacionados. Login, cadastro, sessão, logout e favoritos são funcionais com MSW. Carrinho, compra, cotação, pedidos, perfil e carteiras pertencem às próximas etapas.
 
 ## Organização
 
@@ -10,6 +10,8 @@ O início implementa a composição desktop/mobile das referências, com destaqu
 src/
   components/       layout, feedback e componentes shadcn/ui
   features/nfts/    contratos, queries, subscription e apresentação dos NFTs
+  features/auth/    autenticação, sessão e formulários
+  features/favorites/ favoritos por usuário, mutations e apresentação
   lib/              configuração, Axios, QueryClient e utilitários
   mocks/            fixtures, persistência, handlers REST e Socket.IO
   routes/           rotas por arquivo do TanStack Router
@@ -27,7 +29,14 @@ O plugin do Router roda antes do plugin React, gera a árvore de rotas e separa 
 | Método | Endpoint | Resposta |
 | --- | --- | --- |
 | GET | `/api/nfts` | `{ items, total, page, pageSize, totalPages, facets, featured }` |
-| GET | `/api/nfts/:id` | `Nft`, ou HTTP 404 |
+| GET | `/api/nfts/:id` | `NftDetail` (estende `Nft`), ou HTTP 404 |
+| GET | `/api/nfts/:id/related` | `{ items: Nft[] }`, ou HTTP 404 |
+| GET | `/api/session` | `{ user, expiresAt }`; anônimo sem credencial; 401 se inválida/expirada |
+| POST | `/api/session/login` | Recebe `{ email, password }`, retorna `{ user, expiresAt, token }` |
+| POST | `/api/session/register` | Recebe `{ name, email, password, confirmPassword }`, retorna sessão (201) |
+| POST | `/api/session/logout` | Revoga a credencial; HTTP 204 |
+| GET | `/api/favorites` | `{ ids: string[] }`; exige sessão |
+| PUT / DELETE | `/api/favorites/:id` | Inclusão/remoção idempotente; retorna `{ ids }`; exige sessão |
 
 ```ts
 type Nft = {
@@ -131,7 +140,27 @@ O acesso direto ao Figma não foi liberado pela integração; foram usadas as im
 
 “Limpar filtros” aparece somente com busca, coleções, redes, faixa de preço ou aba restritiva ativos. Ordenação e paginação isoladas não ativam esse botão. O item Mercado do header aponta para `/#catalogo`; não existe uma rota própria para Mercado nesta etapa.
 
-Conteúdo editorial e newsletter são somente apresentação; links de coleções e banners navegam para consultas reais. Ações de conta, favoritos e carrinho permanecem desabilitadas até os respectivos fluxos serem implementados, sem mensagens fictícias de sucesso.
+Conteúdo editorial e newsletter são somente apresentação; links de coleções e banners navegam para consultas reais. Conta e favoritos estão ativos. Carrinho/compra, login social e recuperação de senha permanecem indisponíveis, sem mensagens fictícias de sucesso.
+
+## Detalhe, conta e favoritos
+
+`NftDetail` acrescenta galeria (`url`, `alt`), edições (`id`, `label`, `available`, `priceEth`), edição padrão, metadados, descrição completa e avaliações. Os quatro itens da galeria reutilizam a arte original do NFT, como nas miniaturas das referências fornecidas. Nenhuma imagem alternativa foi inventada. Relacionados vêm de um endpoint público. Avaliações são somente leitura, com dados determinísticos.
+
+Edição e quantidade ficam na URL; trocar edição reinicia a quantidade. O estoque retornado pela API limita os controles, incluindo edição esgotada. Atualizações `nft.updated` preservam os campos adicionais no cache até a reconciliação REST. O total é calculado com `BigInt` e convertido para string decimal, sem `Number`. `PurchaseSelection` define o contrato de NFT/edição/quantidade para integrar o carrinho na próxima etapa; não cria pedidos.
+
+Login/cadastro usam rotas públicas, modal desktop e tela mobile. Os schemas Zod são compartilhados com os handlers MSW. E-mail é normalizado; nome, senha e confirmação são validados. Erros 422 possuem `fieldErrors`; conflitos de e-mail retornam 409, credenciais incorretas retornam 400 e falhas transitórias retornam 503. Input e Tabs vêm dos registros oficiais shadcn/ui `new-york-v4`, com classes Tailwind adaptadas à interface.
+
+O cliente envia a credencial opaca em `Authorization: Bearer`. O store MSW mantém sessões com expiração de 15 minutos, contas e favoritos em `kurio:accounts:v1`; o cliente guarda somente a credencial em `kurio:session-token`. Os hashes são PBKDF2-SHA256 com 100.000 iterações, salt individual e 256 bits. As respostas públicas de usuário contêm apenas `id`, `name` e `email`. É autenticação simulada no navegador, sem servidor privado externo.
+
+A sessão é consultada por REST após refresh, reconexão/foco e a cada 15 segundos com aba ativa; um timer também respeita `expiresAt`. Em 401 da credencial atual, o cliente limpa a sessão, cancela/remove queries privadas e abre `/login?redirect=...&reason=expired`. A URL de retorno aceita somente caminhos internos e conserva filtros, edição e quantidade. Favoritar como visitante transporta o identificador e retoma um PUT após autenticar. Uma falha nessa retomada é informada sem afirmar que o favorito foi salvo.
+
+Queries privadas usam `['private', userId, 'favorites']`. Logout e autenticação de outra conta cancelam/remove queries desse prefixo. Requisições privadas capturam a credencial de origem; callbacks verificam se ela ainda é atual antes de alterar o cache. Respostas 401 antigas não encerram uma sessão nova. Eventos `storage` reconciliam troca de sessão entre abas. O socket atual transporta somente catálogo público; não existem subscriptions privadas nesta etapa, e seus listeners continuam com cleanup de ciclo de vida.
+
+A mutation de favorito cancela a consulta, captura o snapshot e atualiza otimisticamente o conjunto de identificadores. Em falha, restaura o snapshot; em sucesso, usa a resposta da API e invalida a consulta. PUT/DELETE operam com um conjunto no store e não duplicam favoritos. Não há retry automático de mutations nem de queries privadas/sessão.
+
+`session-expired`, `favorite-error`, `registration-conflict` e `auth-error` exercitam os fluxos privados. `POST /api/__mock/session/expire` invalida as sessões existentes; a próxima operação protegida/revalidação detecta isso. O reset integral restaura contas, favoritos iniciais, catálogo e cenário e remove a credencial do cliente; recarregue para renovar o cache em memória.
+
+Foram adicionados cenários E2E para seleção/galeria, retorno após login, persistência, rollback, expiração, troca de usuário e cadastro/conflito. Nesta revisão, foram feitas conferências dirigidas no Vite e verificação de tipos; build, lint, suíte completa e Lighthouse não foram reexecutados. Baselines do detalhe e a auditoria final de início/detalhe continuam pendentes.
 
 ## Verificação e entrega
 

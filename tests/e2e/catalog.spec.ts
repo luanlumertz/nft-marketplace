@@ -166,7 +166,9 @@ test('recompõe filtros e ordem quando um preço muda pelo Socket.IO', async ({
   await expect(list(page).getByRole('listitem')).toHaveCount(2)
   await expect(list(page)).not.toContainText('Emerald Ape')
   await page.goto('/nfts/emerald-ape-042')
-  await expect(page.getByText('2.5 ETH', { exact: true })).toBeVisible()
+  await expect(
+    page.getByText('2.5 ETH', { exact: true }).filter({ visible: true }),
+  ).toBeVisible()
   await expect(page.getByText('Edição esgotada', { exact: true })).toBeVisible()
 })
 
