@@ -530,7 +530,7 @@ export function NftDetailContent({
                   ?.scrollIntoView({ behavior: 'smooth' })
               }}
             >
-              <span className="flex gap-0.5 text-amber-400" aria-hidden="true">
+              <span className="flex gap-0.5 text-primary" aria-hidden="true">
                 {Array.from({ length: 5 }, (_, i) => (
                   <Star
                     key={i}
