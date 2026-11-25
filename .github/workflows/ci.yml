@@ -15,15 +15,24 @@ concurrency:
 
 jobs:
   checks:
-    name: Tipos, lint e build
+    name: Tipos, lint e build (npm ${{ matrix.npm-version }})
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - node-version: '24.13.0'
+            npm-version: '11.6.2'
+          - node-version: '24.15.0'
+            npm-version: '12.2.3'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version-file: .node-version
+          node-version: ${{ matrix.node-version }}
           cache: npm
+      - run: npm install --global npm@${{ matrix.npm-version }}
       - run: npm ci
       - run: npm run typecheck
       - run: npm run lint

@@ -113,6 +113,8 @@ Uma medição rápida valida a infraestrutura, mas não substitui as três medi�
 
 GitHub Actions executa instalação pelo lockfile, tipos, lint, build e Playwright em PRs para `main` e pushes em `main`.
 
+A instalação, os tipos, o lint e o build são verificados em Node 24.13.0/npm 11.6.2 e Node 24.15.0/npm 12.2.3. Essa matriz detecta diferenças na resolução de dependências opcionais entre versões do npm, incluindo os fallbacks WebAssembly do bundler. Após alterar dependências, mantenha o lockfile completo e confira as duas verificações antes de mesclar o PR.
+
 Para publicar na Vercel:
 
 1. Importe o repositório GitHub na sua conta Vercel.
