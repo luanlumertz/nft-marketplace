@@ -1,5 +1,5 @@
 import { Link, Outlet, useRouterState } from '@tanstack/react-router'
-import { Home, Heart, ScanLine, ShoppingCart } from 'lucide-react'
+import { Home, Heart, ScanLine } from 'lucide-react'
 import { useCatalogEvents } from '@/features/nfts/use-catalog-events'
 import { HeaderSearch } from '@/features/nfts/components/catalog-controls'
 import { SiteFooter } from './site-footer'
@@ -7,6 +7,7 @@ import { AccountButton } from '@/features/auth/account-button'
 import { SessionBoundary } from '@/features/auth/session-boundary'
 import { SessionNotice } from '@/features/auth/session-notice'
 import { safeReturnTo } from '@/features/auth/contracts'
+import { CartLink } from '@/features/cart/cart-link'
 
 export function AppLayout() {
   const announcement = useCatalogEvents()
@@ -23,10 +24,11 @@ export function AppLayout() {
   })
   const home = pathname === '/'
   const detail = pathname.startsWith('/nfts/')
+  const cart = pathname === '/carrinho'
 
   return (
     <div
-      className={`app-shell min-h-svh ${home ? 'home-layout mobile:[&_.site-main]:pt-10' : ''} ${detail ? 'detail-layout mobile:[&_.site-main]:w-full mobile:[&_.site-main]:p-0 mobile:[&_.mobile-navigation]:hidden' : ''}`}
+      className={`app-shell min-h-svh ${home ? 'home-layout mobile:[&_.site-main]:pt-10 mobile:[&_.site-main]:pb-12' : ''} ${detail ? 'detail-layout mobile:[&_.site-main]:w-full mobile:[&_.site-main]:p-0 mobile:[&_.mobile-navigation]:hidden' : ''} ${cart ? 'cart-layout mobile:[&_.site-main]:w-full mobile:[&_.site-main]:p-0 mobile:[&_.mobile-navigation]:hidden' : ''}`}
     >
       <SessionBoundary />
       <SessionNotice />
@@ -46,7 +48,7 @@ export function AppLayout() {
         </Link>
         <nav
           aria-label="Navegação principal"
-          className="desktop-navigation flex gap-10 h-full items-center text-[16px] tracking-[0.4px] [&_a]:flex [&_a]:h-full [&_a]:items-center [&_a]:[border-bottom:3px_solid_transparent] [&_.active]:text-primary [&_.active]:border-b-primary [&_.active]:font-semibold tablet:gap-4.5 tablet:text-[14px]"
+          className="desktop-navigation flex h-full items-stretch gap-10 text-[16px] tracking-[0.4px] [&_a]:relative [&_a]:flex [&_a]:items-center [&_span]:flex [&_span]:items-center [&_.active]:text-primary [&_.active]:font-semibold [&_.active]:after:absolute [&_.active]:after:inset-x-0 [&_.active]:after:bottom-0 [&_.active]:after:h-0.75 [&_.active]:after:bg-primary tablet:gap-4.5 tablet:text-[14px]"
         >
           <Link
             to="/"
@@ -59,7 +61,7 @@ export function AppLayout() {
             to="/"
             hash="catalogo"
             activeProps={{ className: '' }}
-            className={detail ? 'active' : ''}
+            className={detail || cart ? 'active' : ''}
           >
             Mercado
           </Link>
@@ -70,13 +72,7 @@ export function AppLayout() {
         </nav>
         <div className="header-actions flex justify-end items-center gap-5.5 tablet:gap-3">
           <HeaderSearch />
-          <button
-            className="icon-control w-7 h-10 grid place-items-center"
-            disabled
-            aria-label="Carrinho indisponível nesta demonstração"
-          >
-            <ShoppingCart />
-          </button>
+          <CartLink />
           <AccountButton />
         </div>
       </header>
@@ -95,7 +91,7 @@ export function AppLayout() {
       >
         {announcement}
       </div>
-      <SiteFooter />
+      <SiteFooter showOnMobile={home} />
       <nav
         className="mobile-navigation hidden mobile:fixed mobile:bottom-0 mobile:left-0 mobile:right-0 mobile:h-23.75 mobile:p-[24px_24px_max(18px,env(safe-area-inset-bottom))] mobile:rounded-[32px_32px_0_0] mobile:bg-card mobile:flex mobile:items-center mobile:justify-around mobile:text-muted-foreground mobile:z-40 mobile:[&_>_a]:grid mobile:[&_>_a]:place-items-center mobile:[&_>_a]:min-w-11 mobile:[&_>_a]:min-h-11 mobile:[&_>_button]:grid mobile:[&_>_button]:place-items-center mobile:[&_>_button]:min-w-11 mobile:[&_>_button]:min-h-11 mobile:**:aria-[current='page']:text-primary mobile:[&_.mobile-explore]:relative mobile:[&_.mobile-explore]:-top-10 mobile:[&_.mobile-explore]:w-16 mobile:[&_.mobile-explore]:h-16 mobile:[&_.mobile-explore]:rounded-[50%] mobile:[&_.mobile-explore]:[border:8px_solid_#21150eee] mobile:[&_.mobile-explore]:[background:linear-gradient(110deg,#f2c28a,#b77538)] mobile:[&_.mobile-explore]:text-foreground mobile:[&_.mobile-explore]:[box-shadow:0_8px_0_#1b110b]"
         aria-label="Navegação mobile"
@@ -117,9 +113,7 @@ export function AppLayout() {
         >
           <ScanLine size={28} />
         </a>
-        <button disabled aria-label="Carrinho indisponível nesta demonstração">
-          <ShoppingCart size={22} />
-        </button>
+        <CartLink mobile />
         <AccountButton mobile />
       </nav>
     </div>

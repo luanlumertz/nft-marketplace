@@ -3,6 +3,8 @@ import { env } from '@/lib/env'
 import { loginSchema, registerSchema } from '@/features/auth/contracts'
 import { accounts, requestToken } from './accounts'
 import { mockStore } from './store'
+import { carts } from './carts'
+import { cartGuest } from './cart-handlers'
 
 const base = env.apiUrl.replace(/\/$/, '')
 const expired = () =>
@@ -65,6 +67,7 @@ export const accountHandlers = [
     const user = await accounts.login(parsed.data.email, parsed.data.password)
     if (user) {
       accounts.revoke(requestToken(request))
+      carts.mergeGuest(cartGuest(request), user.id)
       return HttpResponse.json(accounts.authenticate(user))
     }
     return HttpResponse.json(
@@ -91,6 +94,7 @@ export const accountHandlers = [
         : await accounts.register(parsed.data)
     if (user) {
       accounts.revoke(requestToken(request))
+      carts.mergeGuest(cartGuest(request), user.id)
       return HttpResponse.json(accounts.authenticate(user), { status: 201 })
     }
     return HttpResponse.json(

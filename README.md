@@ -6,7 +6,7 @@ Solução para o [desafio frontend da Jungle](https://github.com/junglegaming/fr
 
 Catálogo responsivo com destaques, busca, filtros combináveis, ordenação e paginação na URL, com 36 NFTs simulados. A interface segue as referências desktop/mobile fornecidas, com barra lateral no desktop, painel de filtros acessível no mobile e navegação para o detalhe. React + TypeScript + Vite, TanStack Router/Query, Axios, Tailwind CSS, shadcn/ui, MSW e Socket.IO participam dos fluxos.
 
-O detalhe possui galeria com ampliação, edições, quantidade limitada pelo estoque, informações, avaliações e itens relacionados, com versões desktop/mobile. Login, cadastro, sessão, logout e favoritos por usuário estão integrados à API simulada. Carrinho, compra, perfil e carteiras continuam para as próximas etapas; suas ações permanecem indisponíveis.
+O detalhe possui galeria com ampliação, edições, quantidade limitada pelo estoque, informações, avaliações e itens relacionados, com versões desktop/mobile. Login, cadastro, sessão, logout e favoritos por usuário estão integrados à API simulada. O carrinho permite adicionar a seleção do detalhe, editar quantidades, remover itens, aplicar cupom e consultar valores atualizados pela API e pelo Socket.IO. Pagamento, pedidos, perfil e carteiras continuam para as próximas etapas.
 
 A estilização usa classes Tailwind, incluindo estados e variantes responsivas. Button, Skeleton, Dialog, Slider, Input e Tabs são componentes shadcn/ui locais adaptados ao visual do projeto. O CSS global mantém o tema, fontes, estilos de base e animações.
 
@@ -49,6 +49,20 @@ Variáveis `VITE_*` são públicas e incorporadas ao build. Nunca coloque segred
 Também é possível criar uma conta em `/cadastro`. No desktop, login/cadastro abrem em modal sobre a página de retorno, preservando os filtros do catálogo ou a edição/quantidade do NFT; no mobile, ocupam a tela. Ao cancelar ou concluir, o retorno preserva a URL anterior. Favoritar sem sessão abre o login e retoma a inclusão após autenticar. O logout mantém a página pública atual e redireciona ao catálogo apenas ao sair de uma página privada, como Favoritos.
 
 `/favoritos` exige sessão. Conta e favoritos persistem após refresh; logout e troca de usuário removem o cache privado. A sessão dura 15 minutos e é revalidada pela API ao retomar a janela e a cada 15 segundos enquanto a aba está ativa. Senhas ficam no store simulado como hashes PBKDF2-SHA256 com salt individual, nunca em claro.
+
+## Explorar o carrinho
+
+No detalhe, selecione edição e quantidade e clique em **COMPRAR** (desktop) ou **Comprar NFT** (mobile) para adicionar e abrir `/carrinho`. No mobile, o botão com ícone de carrinho adiciona sem sair do detalhe. O ícone do header/navegação abre o carrinho e exibe a soma das quantidades.
+
+O carrinho funciona para visitantes, persiste após refresh e é transferido para a conta ao entrar ou cadastrar. Itens da mesma edição são somados aos já salvos na conta; se a soma superar o estoque, o carrinho solicita ajuste sem descartar itens. Logout abre um carrinho anônimo vazio, mantendo o carrinho privado salvo para o próximo login. Outra conta não recebe os itens da conta anterior.
+
+Use **KURIO10** para desconto de 10%, **EXPIRADO** para um cupom expirado ou outro código para erro de cupom inválido. O desconto é truncado na menor unidade de ETH (18 casas). A taxa simulada é `0.016 ETH` para carrinhos com itens e zero para carrinho vazio. Subtotal, desconto, taxa e total vêm da API; os exemplos do Figma usam dados diferentes, e o resumo acompanha os itens reais da simulação.
+
+Eventos `nft.updated` reconsultam o carrinho e a cotação. Preço novo aparece no resumo; estoque insuficiente preserva a seleção e oferece **Ajustar quantidade**. Edições esgotadas precisam ser removidas. Quantidades válidas são rechecadas pelo handler nas inclusões/alterações, com HTTP 409 para conflito.
+
+**Conectar e finalizar** abre o login do visitante com retorno ao carrinho. A criação do pagamento/pedido ainda não pertence a esta etapa; após autenticar, o botão permanece desabilitado. Nenhuma compra é simulada como concluída.
+
+Os cenários `cart-error`, `coupon-invalid` e `coupon-expired` exercitam falha transitória do carrinho e erros de cupom. O estado dos carrinhos fica em `kurio:carts:v1`, e o identificador anônimo em `kurio:cart-guest`. O reset integral limpa os carrinhos de visitantes e contas junto aos demais dados.
 
 ## Comandos
 
@@ -116,9 +130,9 @@ npm run test:e2e
 
 No Linux/CI, use `npx playwright install --with-deps chromium`.
 
-Cada teste recebe um contexto de navegador novo, com armazenamento isolado. Os testes usam o build otimizado, requisições REST interceptadas pelo MSW e o cliente Socket.IO real. As verificações cobrem filtros combinados, parâmetros da API, histórico, refresh, paginação, respostas obsoletas, precisão decimal, abertura do detalhe, 404, skeletons, falha e recuperação, resultado vazio, eventos novos/duplicados/antigos e recomposição da lista, persistência, teclado, foco dos diálogos e overflow em 390/768/1440 px.
+Cada teste recebe um contexto de navegador novo, com armazenamento isolado. Os testes usam o build otimizado, requisições REST interceptadas pelo MSW e o cliente Socket.IO real. As verificações cobrem filtros combinados, parâmetros da API, histórico, refresh, paginação, respostas obsoletas, precisão decimal, abertura do detalhe, 404, skeletons, falha e recuperação, resultado vazio, eventos novos/duplicados/antigos e recomposição da lista, persistência, teclado, foco dos diálogos, autenticação e favoritos. O carrinho acrescenta quantidades, remoção, edições separadas, conflitos de estoque, cupom inválido/expirado, transferência no login, isolamento de contas, atualização de preço/estoque e precisão de 18 casas. Os fluxos automatizados usam 390 e 1440 px; o layout também foi conferido em 768 px.
 
-Relatórios ficam em `playwright-report/`; screenshots e traces de falhas em `test-results/`. A CI publica essas pastas como artefato. As baselines de início desktop/mobile estão versionadas em `tests/e2e/__screenshots__/`, separadas por projeto e sistema (`win32` e `linux`), pois fontes e controles nativos podem alterar métricas e quebras de linha. As imagens Linux foram obtidas e conferidas a partir do artefato da CI. Para atualizar após uma alteração visual intencional, use `npm run test:e2e -- --grep composição --update-snapshots=all` no respectivo sistema e confira as imagens antes de versionar. A comparação mantém até 3.000 pixels divergentes dentro do mesmo sistema; relógio/dados/carrossel são estáveis e animações desativadas na captura. As outras telas e os fluxos restantes terão cobertura nas próximas etapas.
+Relatórios ficam em `playwright-report/`; screenshots e traces de falhas em `test-results/`. A CI publica essas pastas como artefato. As baselines de início e carrinho desktop/mobile estão versionadas em `tests/e2e/__screenshots__/`, separadas por projeto e sistema (`win32` e `linux`), pois fontes e controles nativos podem alterar métricas e quebras de linha. As imagens Linux do início vieram do artefato da CI; as do carrinho foram capturadas no Chromium do Ubuntu/WSL com o build otimizado e conferidas visualmente. Para atualizar após uma alteração visual intencional, use `npm run test:e2e -- --grep composição --update-snapshots=all` no respectivo sistema e confira as imagens antes de versionar. A comparação mantém até 3.000 pixels divergentes dentro do mesmo sistema; dados/carrossel são estáveis e animações desativadas na captura. As outras telas e os fluxos restantes terão cobertura nas próximas etapas.
 
 ## Lighthouse
 

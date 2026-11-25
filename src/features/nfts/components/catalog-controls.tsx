@@ -163,7 +163,7 @@ function PriceFilter({
           setError('')
         }}
       />
-      <div className="price-inputs flex gap-1.25 items-center text-[11px] [&_label]:min-w-0 [&_label]:flex-[0_1_auto] [&_input]:w-full [&_input]:block [&_input]:p-[2px_0] [&_input]:text-foreground [&_input]:bg-transparent [&_input]:text-inherit">
+      <div className="price-inputs flex gap-1.25 items-center text-[11px] [&_label]:min-w-0 [&_label]:flex-[0_1_auto] [&_input]:w-full [&_input]:block [&_input]:p-[2px_0] [&_input]:text-foreground [&_input]:bg-transparent">
         <span>Preço:</span>
         <label style={{ width: `${Math.max(min.length, 4)}ch` }}>
           <span className="sr-only">De</span>

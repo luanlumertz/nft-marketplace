@@ -35,11 +35,19 @@ function Slider({
           className="price-range absolute h-full rounded-[inherit] bg-primary"
         />
       </SliderPrimitive.Track>
-      {values.map((_, index) => (
+      {values.map((current, index) => (
         <SliderPrimitive.Thumb
           key={index}
           data-slot="slider-thumb"
           aria-label={thumbLabels?.[index]}
+          // Compensa o recuo do Radix sem reduzir a área de interação de 24 px.
+          style={
+            value
+              ? {
+                  transform: `translateX(${((max > min ? (current - min) / (max - min) : 0) - 0.5) * 100}%)`,
+                }
+              : undefined
+          }
           className="price-thumb grid place-items-center w-6 h-6 rounded-[50%] cursor-pointer before:content-[''] before:w-3.5 before:h-3.5 before:rounded-[50%] before:bg-primary hover:[outline:2px_solid_var(--foreground)] hover:outline-offset-[3px] focus-visible:[outline:2px_solid_var(--foreground)] focus-visible:outline-offset-[3px]"
         />
       ))}

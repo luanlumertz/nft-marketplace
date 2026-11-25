@@ -35,6 +35,8 @@ export function useSession() {
 export async function clearPrivateData() {
   await queryClient.cancelQueries({ queryKey: privateKey })
   queryClient.removeQueries({ queryKey: privateKey })
+  await queryClient.cancelQueries({ queryKey: ['cart-guest'] })
+  queryClient.removeQueries({ queryKey: ['cart-guest'] })
 }
 export async function acceptAuthentication(payload: unknown) {
   const authenticated = authenticationSchema.parse(payload)

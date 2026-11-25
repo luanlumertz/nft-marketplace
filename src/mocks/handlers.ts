@@ -12,6 +12,8 @@ import { parseCatalogSearch } from '@/features/nfts/catalog-search'
 import { queryCatalog } from './catalog'
 import { accounts } from './accounts'
 import { accountHandlers } from './account-handlers'
+import { cartHandlers } from './cart-handlers'
+import { carts } from './carts'
 import { detailFor, relatedFor } from './nft-details'
 
 const base = env.apiUrl.replace(/\/$/, '')
@@ -48,6 +50,7 @@ async function simulateNetwork() {
 
 export const handlers = [
   ...accountHandlers,
+  ...cartHandlers,
   http.get(`${base}/nfts/:id/related`, async ({ params }) => {
     const error = await simulateNetwork()
     if (error) return error
@@ -91,6 +94,7 @@ export const handlers = [
   http.post(`${base}/__mock/reset`, () => {
     mockStore.reset()
     accounts.reset()
+    carts.reset()
     return new HttpResponse(null, { status: 204 })
   }),
   http.get(`${base}/__mock/state`, () =>
