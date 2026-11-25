@@ -1,5 +1,11 @@
 import type { ReactNode } from 'react'
-import { Dialog } from 'radix-ui'
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { X } from 'lucide-react'
 
 export default function CatalogDialog({
@@ -20,33 +26,33 @@ export default function CatalogDialog({
   children: ReactNode
 }) {
   return (
-    <Dialog.Root
+    <Dialog
       open
       onOpenChange={(open) => {
         if (!open) onClose()
       }}
     >
-      <Dialog.Portal>
-        <Dialog.Overlay className="dialog-overlay" />
-        <Dialog.Content
-          className={className}
-          onCloseAutoFocus={(event) => {
-            event.preventDefault()
-            returnFocus()
-          }}
+      <DialogContent
+        className={className}
+        onCloseAutoFocus={(event) => {
+          event.preventDefault()
+          returnFocus()
+        }}
+      >
+        <DialogTitle className="mb-2 text-xl font-semibold">
+          {title}
+        </DialogTitle>
+        <DialogDescription className="mb-5 text-sm text-muted-foreground">
+          {description}
+        </DialogDescription>
+        {children}
+        <DialogClose
+          className="dialog-close absolute right-3 top-3 [padding:8px] text-primary"
+          aria-label={closeLabel}
         >
-          <Dialog.Title className="mb-2 text-xl font-semibold">
-            {title}
-          </Dialog.Title>
-          <Dialog.Description className="mb-5 text-sm text-muted-foreground">
-            {description}
-          </Dialog.Description>
-          {children}
-          <Dialog.Close className="dialog-close" aria-label={closeLabel}>
-            <X size={20} />
-          </Dialog.Close>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+          <X size={20} />
+        </DialogClose>
+      </DialogContent>
+    </Dialog>
   )
 }

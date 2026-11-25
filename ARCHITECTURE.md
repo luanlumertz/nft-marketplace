@@ -115,11 +115,15 @@ Os controles de eventos mantêm REST coerente com a versão mais recente. Não i
 
 ## Interface e assets
 
+Layout, tipografia, cores, espaçamentos, estados e responsividade usam utilitários Tailwind nos componentes. `catalog.css` foi removido. Valores arbitrários preservam as medidas exatas da versão visual aprovada; as classes semânticas restantes servem como identificadores, sem regras CSS próprias. As variantes `mobile` (até 767 px), `tablet` (768–1199 px) e `tablet-compact` (768–1023 px) mantêm os intervalos anteriores. O CSS global concentra tema, fontes, estilos de base, shimmer e movimento reduzido.
+
 O Tailwind procura classes somente em `src/`, por meio de `source(".")` em `src/styles.css`. Relatórios HTML de auditoria não participam da geração do CSS. A fonte base também é declarada explicitamente na raiz, e o teste visual verifica sua família e carregamento.
 
 Os quatro PNGs originais enviados em `jungles.zip` estão em `public/nfts/`. Nenhuma imagem depende de host externo. Roboto Mono foi escolhida provisoriamente com base nas referências e é servida localmente via Fontsource; a família exata ainda precisa ser confirmada no Figma. Cores iniciais foram aproximadas pelas referências e o contraste do texto secundário foi reforçado.
 
 Button e Skeleton foram gerados pelo CLI shadcn/ui 4.23.0, estilo `new-york`. Os imports de `cn` apontam para o utilitário local; Skeleton foi adaptado para shimmer com dimensões estáveis, e há respeito a `prefers-reduced-motion`. A CLI é usada sob demanda e não é dependência da aplicação.
+
+Dialog e Slider em `src/components/ui/` foram adaptados dos registros oficiais shadcn/ui [dialog](https://ui.shadcn.com/r/styles/new-york-v4/dialog.json) e [slider](https://ui.shadcn.com/r/styles/new-york-v4/slider.json). Mantêm a fundação Radix, composição, atributos `data-slot`, props e `cn`, com classes Tailwind ajustadas para conservar o visual aprovado, sem os estilos ou animações padrão do registro. O catálogo consome esses componentes locais.
 
 Existem link para pular ao conteúdo, landmarks, hierarquia de títulos, foco visível, alt nas imagens e mensagens acessíveis de carregamento/erro/atualização. Busca e painel de filtros usam Dialog do Radix (mesma fundação dos componentes shadcn/ui instalados), com portal, overlay, foco contido, Escape e retorno ao acionador. A faixa de preço usa Slider do Radix com dois controles na mesma barra, arraste, teclado e valores sincronizados nos inputs; a consulta só muda ao aplicar. Inputs de preço possuem labels e erro associado; abas suportam setas, Home e End. Skeletons conservam a geometria da grade e respeitam movimento reduzido.
 

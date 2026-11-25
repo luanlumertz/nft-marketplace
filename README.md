@@ -8,6 +8,8 @@ Catálogo responsivo com destaques, busca, filtros combináveis, ordenação e p
 
 O detalhe continua simplificado. Autenticação, favoritos, carrinho, compra, perfil e carteiras serão implementados nas próximas etapas; suas ações aparecem indisponíveis nesta versão.
 
+A estilização do início e dos componentes compartilhados usa classes Tailwind, incluindo estados e variantes responsivas. Button, Skeleton, Dialog e Slider são componentes shadcn/ui locais adaptados ao visual do projeto. O CSS global mantém o tema, fontes, estilos de base e animações.
+
 Aplicação de produção: [nft-marketplace-chi-five.vercel.app](https://nft-marketplace-chi-five.vercel.app/). A produção acompanha `main`; alterações em PR ficam no preview da Vercel até o merge.
 
 ## Explorar o catálogo
