@@ -121,7 +121,6 @@
   border-radius: 24px;
   object-fit: cover;
 }
-.hero-mini-image,
 .hero-mobile-title {
   display: none;
 }
@@ -143,9 +142,19 @@
   height: 8px;
   border-radius: 50%;
   background: var(--primary);
+  opacity: 0.45;
+  transition:
+    width 150ms,
+    border-radius 150ms,
+    opacity 150ms;
 }
 .hero-dots button[aria-pressed='true'] span {
-  box-shadow: 0 0 0 2px var(--background);
+  width: 20px;
+  border-radius: 8px;
+  opacity: 1;
+  box-shadow:
+    0 0 0 2px var(--background),
+    0 0 0 3px var(--primary);
 }
 .mobile-catalog-tools,
 .mobile-navigation {
@@ -209,39 +218,65 @@
   margin-top: 32px;
   margin-bottom: 36px;
 }
-.price-sliders {
+.price-slider {
+  position: relative;
   display: flex;
-  gap: 8px;
-  margin: 10px 12px 14px;
+  align-items: center;
+  height: 28px;
+  margin: 2px 7px 0;
+  touch-action: none;
+  user-select: none;
 }
-.price-sliders input {
-  width: 50%;
-  min-width: 0;
-  height: 8px;
-  accent-color: var(--primary);
+.price-track {
+  position: relative;
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--border);
+}
+.price-range {
+  position: absolute;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--primary);
+}
+.price-thumb {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
   cursor: pointer;
+}
+.price-thumb::before {
+  content: '';
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+.price-thumb:hover,
+.price-thumb:focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 3px;
 }
 .price-inputs {
   display: flex;
   gap: 5px;
-  align-items: flex-end;
+  align-items: center;
   font-size: 11px;
 }
 .price-inputs label {
   min-width: 0;
-  flex: 1;
+  flex: 0 1 auto;
 }
 .price-inputs input {
   width: 100%;
   display: block;
-  border-bottom: 1px solid var(--border);
-  padding: 5px 2px;
+  padding: 2px 0;
   color: var(--foreground);
   background: transparent;
-  font-size: 12px;
-}
-.price-inputs > span {
-  padding-bottom: 5px;
+  font-size: inherit;
 }
 .clear-filters {
   display: block;
@@ -340,7 +375,8 @@
   background: var(--card);
   aspect-ratio: 258/300;
   width: 100%;
-  padding: 24px 4px;
+  padding: 24px 12px;
+  border-radius: 12px;
   overflow: hidden;
 }
 .card-art img {
@@ -650,21 +686,34 @@
 }
 .social-icons {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   color: var(--primary);
 }
 .social-icons span {
-  padding: 4px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
   border: 1px solid var(--primary);
   border-radius: 4px;
 }
+.social-icons svg {
+  width: 16px;
+  height: 16px;
+}
 .wallet-badge {
-  padding: 5px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 7px 8px;
   border: 1px solid var(--border);
   border-radius: 4px;
-  font-size: 9px;
+  font-size: 10px;
   color: var(--primary);
-  white-space: normal;
+  white-space: nowrap;
 }
 .footer-copyright {
   text-align: center;
@@ -905,7 +954,10 @@
     clip-path: none;
   }
   .catalog-hero {
-    display: block;
+    grid-template-columns: minmax(0, 1fr) 38%;
+    gap: 12px;
+    align-items: start;
+    padding: 12px 16px 34px;
     min-height: 190px;
     margin-bottom: 14px;
     background: radial-gradient(
@@ -918,10 +970,8 @@
     overflow: hidden;
   }
   .hero-copy {
-    padding: 6px 16px 20px;
-    width: 70%;
-    position: relative;
-    z-index: 1;
+    padding: 0;
+    min-width: 0;
   }
   .hero-eyebrow {
     font-size: 11px;
@@ -929,12 +979,12 @@
     margin-bottom: 4px;
   }
   .catalog-hero h1 {
-    font-size: 18px;
-    line-height: 28px;
+    font-size: clamp(15px, 4.5vw, 18px);
+    line-height: 1.5;
     letter-spacing: -0.4px;
   }
   .hero-description {
-    max-width: min(196px, calc((100vw - 48px) * 0.62 - 32px));
+    max-width: none;
     margin-top: 7px;
     font-size: clamp(11px, 2.9vw, 12px);
     line-height: 18px;
@@ -958,23 +1008,10 @@
     display: block;
   }
   .hero-image {
-    position: absolute;
-    right: 16px;
-    top: 10px;
-    width: 38%;
+    width: 100%;
     height: auto;
     aspect-ratio: 1;
     border-radius: 18px;
-  }
-  .hero-mini-image {
-    display: block;
-    position: absolute;
-    right: 22%;
-    top: 100px;
-    width: 60px;
-    height: 60px;
-    object-fit: cover;
-    border-radius: 16px;
   }
   .hero-dots {
     bottom: 0;
@@ -1007,7 +1044,7 @@
   }
   .card-art {
     aspect-ratio: 175/200;
-    padding: 12px 4px 18px;
+    padding: 12px 9px 18px;
     border-radius: 28px;
   }
   .card-art img {

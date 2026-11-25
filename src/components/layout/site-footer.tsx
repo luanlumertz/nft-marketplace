@@ -1,4 +1,11 @@
 import { Link } from '@tanstack/react-router'
+import {
+  FaFacebookF,
+  FaInstagram,
+  FaXTwitter,
+  FaLinkedinIn,
+  FaYoutube,
+} from 'react-icons/fa6'
 import { catalogDefaults, collections } from '@/features/nfts/catalog-search'
 
 const unavailable = 'Indisponível nesta demonstração'
@@ -118,25 +125,36 @@ export function SiteFooter() {
         <div>
           <h3>Redes sociais</h3>
           <div className="social-icons">
-            {[
-              ['f', 'Facebook'],
-              ['◎', 'Instagram'],
-              ['X', 'X'],
-              ['in', 'LinkedIn'],
-              ['▶', 'YouTube'],
-            ].map(([icon, label]) => (
+            {(
+              [
+                [FaFacebookF, 'Facebook'],
+                [FaInstagram, 'Instagram'],
+                [FaXTwitter, 'X'],
+                [FaLinkedinIn, 'LinkedIn'],
+                [FaYoutube, 'YouTube'],
+              ] as const
+            ).map(([Icon, label]) => (
               <span
                 key={label}
                 aria-disabled="true"
                 aria-label={label}
                 title={`${label}: ${unavailable}`}
               >
-                {icon}
+                <Icon aria-hidden="true" focusable="false" />
               </span>
             ))}
           </div>
           <h3 className="mt-6">Carteiras compatíveis</h3>
-          <p className="wallet-badge">METAMASK · WALLETCONNECT · COINBASE</p>
+          <div
+            className="wallet-badge"
+            aria-label="Carteiras compatíveis: MetaMask, WalletConnect e Coinbase"
+          >
+            <span>METAMASK</span>
+            <span aria-hidden="true">·</span>
+            <span>WALLETCONNECT</span>
+            <span aria-hidden="true">·</span>
+            <span>COINBASE</span>
+          </div>
         </div>
       </div>
       <p className="footer-copyright">

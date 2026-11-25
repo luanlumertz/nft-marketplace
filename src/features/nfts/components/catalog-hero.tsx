@@ -69,13 +69,6 @@ export function CatalogHero() {
         height={450}
         fetchPriority="high"
       />
-      <img
-        className="hero-mini-image"
-        src="/nfts/jungle-violet.png"
-        alt=""
-        width={60}
-        height={60}
-      />
       <div className="hero-dots" aria-label="Selecionar destaque">
         {slides.map((item, index) => (
           <button

@@ -239,6 +239,86 @@ test('controla foco do painel de filtros ou do diálogo de busca', async ({
   await expect(trigger).toBeFocused()
 })
 
+test('ajusta os dois preços na mesma barra e só mostra limpar com filtros ativos', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await expect(list(page).getByRole('listitem')).toHaveCount(9)
+  const filters = await openFilters(page)
+  const clear = filters.getByRole('button', {
+    name: 'Limpar filtros',
+    exact: true,
+  })
+  await expect(clear).toHaveCount(0)
+  const minimum = filters.getByRole('slider', { name: 'Ajustar preço mínimo' })
+  const maximum = filters.getByRole('slider', { name: 'Ajustar preço máximo' })
+  await minimum.scrollIntoViewIfNeeded()
+  const track = await filters.locator('.price-track').boundingBox()
+  if (!track) throw new Error('Barra de preço não encontrada')
+  for (const [thumb, fraction] of [
+    [minimum, 0.25],
+    [maximum, 0.75],
+  ] as const) {
+    const box = await thumb.boundingBox()
+    if (!box) throw new Error('Controle de preço não encontrado')
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(
+      track.x + track.width * fraction,
+      track.y + track.height / 2,
+    )
+    await page.mouse.up()
+  }
+  const minInput = filters.getByLabel('De', { exact: true })
+  const maxInput = filters.getByLabel('Até', { exact: true })
+  const lower = Number(await minInput.inputValue())
+  const upper = Number(await maxInput.inputValue())
+  expect(lower).toBeGreaterThan(3)
+  expect(lower).toBeLessThan(3.2)
+  expect(upper).toBeGreaterThan(9.1)
+  expect(upper).toBeLessThan(9.4)
+  await minimum.focus()
+  await page.keyboard.press('ArrowRight')
+  await expect(minInput).toHaveValue((lower + 0.01).toFixed(2))
+  await maximum.focus()
+  await page.keyboard.press('ArrowLeft')
+  await expect(maxInput).toHaveValue((upper - 0.01).toFixed(2))
+  await filters.getByRole('button', { name: 'Aplicar', exact: true }).click()
+  await expect(clear).toBeVisible()
+  await expect(page).toHaveURL(/minPrice=/)
+  await clear.click()
+  await expect(clear).toHaveCount(0)
+  await expect(minInput).toHaveValue('0')
+  await expect(maxInput).toHaveValue('12.3')
+  await filters.getByRole('checkbox', { name: /Ethereum/ }).check()
+  await expect(clear).toBeVisible()
+  await filters.getByRole('checkbox', { name: /Ethereum/ }).uncheck()
+  await expect(clear).toHaveCount(0)
+})
+
+test('alterna o destaque e mantém texto e imagem separados no mobile', async ({
+  page,
+}) => {
+  await page.goto('/')
+  const hero = page.getByRole('region', { name: 'Destaques da Kurio' })
+  for (const index of [1, 2, 0]) {
+    const dot = hero.getByRole('button', { name: `Destaque ${index + 1}` })
+    await dot.click()
+    await expect(dot).toHaveAttribute('aria-pressed', 'true')
+    await expect(hero.locator('button[aria-pressed="true"]')).toHaveCount(1)
+    await expect(hero.getByRole('img')).toHaveCount(1)
+    if (mobile(page)) {
+      for (const width of [320, 390, 414]) {
+        await page.setViewportSize({ width, height: 844 })
+        const copy = await hero.locator('.hero-copy').boundingBox()
+        const image = await hero.getByRole('img').boundingBox()
+        if (!copy || !image) throw new Error('Destaque não encontrado')
+        expect(copy.x + copy.width).toBeLessThanOrEqual(image.x)
+      }
+    }
+  }
+})
+
 test('mantém a composição visual do início', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')

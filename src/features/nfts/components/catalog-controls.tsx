@@ -2,6 +2,7 @@ import { lazy, Suspense, useId, useRef, useState, type FormEvent } from 'react'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { Search, SlidersHorizontal } from 'lucide-react'
+import { Slider } from 'radix-ui'
 import { Button } from '@/components/ui/button'
 import {
   collections,
@@ -145,35 +146,38 @@ function PriceFilter({
   return (
     <form onSubmit={apply} className="price-filter">
       <h3>Faixa de preço</h3>
-      <div className="price-sliders">
-        <label className="sr-only" htmlFor={`${id}-min`}>
-          Ajustar preço mínimo
-        </label>
-        <input
-          id={`${id}-min`}
-          type="range"
-          min="0"
-          max="12.3"
-          step="0.01"
-          value={Math.min(Number(min) || 0, 12.3)}
-          onChange={(e) => setMin(e.target.value)}
+      <Slider.Root
+        className="price-slider"
+        min={0}
+        max={12.3}
+        step={0.01}
+        preserveThumbOrder
+        value={[
+          Math.min(Math.max(Number(min) || 0, 0), 12.3),
+          Math.min(Math.max(Number(max) || 0, 0), 12.3),
+        ].sort((a, b) => a - b)}
+        onValueChange={([minimum, maximum]) => {
+          setMin(minimum.toFixed(2))
+          setMax(maximum.toFixed(2))
+          setError('')
+        }}
+      >
+        <Slider.Track className="price-track">
+          <Slider.Range className="price-range" />
+        </Slider.Track>
+        <Slider.Thumb
+          className="price-thumb"
+          aria-label="Ajustar preço mínimo"
         />
-        <label className="sr-only" htmlFor={`${id}-max`}>
-          Ajustar preço máximo
-        </label>
-        <input
-          id={`${id}-max`}
-          type="range"
-          min="0"
-          max="12.3"
-          step="0.01"
-          value={Math.min(Number(max) || 0, 12.3)}
-          onChange={(e) => setMax(e.target.value)}
+        <Slider.Thumb
+          className="price-thumb"
+          aria-label="Ajustar preço máximo"
         />
-      </div>
+      </Slider.Root>
       <div className="price-inputs">
-        <label>
-          De
+        <span>Preço:</span>
+        <label style={{ width: `${Math.max(min.length, 4)}ch` }}>
+          <span className="sr-only">De</span>
           <input
             aria-describedby={error ? `${id}-error` : undefined}
             aria-invalid={!!error}
@@ -183,8 +187,8 @@ function PriceFilter({
           />
         </label>
         <span aria-hidden="true">–</span>
-        <label>
-          Até
+        <label style={{ width: `${Math.max(max.length, 4)}ch` }}>
+          <span className="sr-only">Até</span>
           <input
             aria-describedby={error ? `${id}-error` : undefined}
             aria-invalid={!!error}
@@ -220,6 +224,13 @@ export function CatalogFilters({
   update: UpdateCatalog
   facets?: NftList['facets']
 }) {
+  const hasFilters =
+    !!search.q ||
+    search.collections.length > 0 ||
+    search.networks.length > 0 ||
+    search.minPrice !== catalogDefaults.minPrice ||
+    search.maxPrice !== catalogDefaults.maxPrice ||
+    search.tab !== catalogDefaults.tab
   return (
     <div className="catalog-filters">
       <fieldset>
@@ -277,9 +288,14 @@ export function CatalogFilters({
           </label>
         ))}
       </fieldset>
-      <button className="clear-filters" onClick={() => update(catalogDefaults)}>
-        Limpar filtros
-      </button>
+      {hasFilters && (
+        <button
+          className="clear-filters"
+          onClick={() => update(catalogDefaults)}
+        >
+          Limpar filtros
+        </button>
+      )}
       <label className="filter-sort">
         Ordenar por
         <select
