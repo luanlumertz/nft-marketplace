@@ -2,7 +2,7 @@ import { useNavigate, useSearch } from '@tanstack/react-router'
 import { parseCatalogSearch, type CatalogSearch } from './catalog-search'
 
 export function useCatalogNavigation() {
-  const search = useSearch({ from: '/' })
+  const search = parseCatalogSearch(useSearch({ strict: false }))
   const navigate = useNavigate({ from: '/' })
   const update = (patch: Partial<CatalogSearch>) => {
     void navigate({

@@ -27,11 +27,14 @@ function DialogOverlay({
 function DialogContent({
   children,
   className,
+  overlayClassName,
   ...props
-}: ComponentProps<typeof DialogPrimitive.Content>) {
+}: ComponentProps<typeof DialogPrimitive.Content> & {
+  overlayClassName?: string
+}) {
   return (
     <DialogPrimitive.Portal>
-      <DialogOverlay />
+      <DialogOverlay className={overlayClassName} />
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(className)}
