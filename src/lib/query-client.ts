@@ -10,7 +10,8 @@ export function createQueryClient() {
         refetchOnWindowFocus: true,
         refetchOnReconnect: true,
         retry: (failureCount, error) => {
-          if (failureCount >= 1 || isCancel(error) || !isAxiosError(error)) return false
+          if (failureCount >= 1 || isCancel(error) || !isAxiosError(error))
+            return false
           return !error.response || error.response.status >= 500
         },
       },
@@ -18,3 +19,5 @@ export function createQueryClient() {
     },
   })
 }
+
+export const queryClient = createQueryClient()

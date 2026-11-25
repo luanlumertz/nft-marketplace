@@ -4,10 +4,9 @@ import {
   RouterProvider,
   defaultParseSearch,
 } from '@tanstack/react-router'
-import { createQueryClient } from '@/lib/query-client'
+import { queryClient } from '@/lib/query-client'
 import { routeTree } from './routeTree.gen'
 
-const queryClient = createQueryClient()
 const router = createRouter({
   routeTree,
   context: { queryClient },

@@ -1,6 +1,8 @@
 import { queryOptions } from '@tanstack/react-query'
 import { http } from '@/lib/http'
 import { nftListSchema, nftSchema } from './contracts'
+import { detailSchema } from './detail-contracts'
+import { z } from 'zod'
 import {
   catalogDefaults,
   catalogApiParams,
@@ -35,7 +37,23 @@ export function nftDetailOptions(id: string) {
         `/nfts/${encodeURIComponent(id)}`,
         { signal },
       )
-      return nftSchema.parse(response.data)
+      return detailSchema.parse(response.data)
     },
+  })
+}
+
+export function relatedNftsOptions(id: string) {
+  return queryOptions({
+    queryKey: ['nfts', 'related', id],
+    queryFn: async ({ signal }) =>
+      z
+        .object({ items: z.array(nftSchema) })
+        .parse(
+          (
+            await http.get(`/nfts/${encodeURIComponent(id)}/related`, {
+              signal,
+            })
+          ).data,
+        ),
   })
 }

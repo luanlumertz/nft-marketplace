@@ -72,7 +72,9 @@ export function useCatalogEvents() {
               : current,
         )
         queryClient.setQueryData<Nft>(nftKeys.detail(nft.id), (current) =>
-          current ? replace(current) : current,
+          current && current.version < nft.version
+            ? { ...current, ...nft }
+            : current,
         )
         setAnnouncement(`Preço ou disponibilidade de ${nft.name} atualizado.`)
         // Preço afeta ordenação, faixa e paginação; somente REST recompõe a lista.
