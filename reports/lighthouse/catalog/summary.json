@@ -1,0 +1,157 @@
+{
+  "generatedAt": "2026-11-25T13:22:17.626Z",
+  "runs": 3,
+  "medians": [
+    {
+      "page": "home",
+      "profile": "mobile",
+      "scores": {
+        "performance": 89,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "largest-contentful-paint": 3221.4491999999996,
+        "cumulative-layout-shift": 0.00007917127422567173,
+        "total-blocking-time": 246
+      }
+    },
+    {
+      "page": "home",
+      "profile": "desktop",
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "largest-contentful-paint": 802.477,
+        "cumulative-layout-shift": 0.0000218669594216887,
+        "total-blocking-time": 0
+      }
+    }
+  ],
+  "measurements": [
+    {
+      "page": "home",
+      "profile": "mobile",
+      "run": 1,
+      "lighthouseVersion": "13.6.0",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.0.0 Safari/537.36",
+      "scores": {
+        "performance": 83,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "largest-contentful-paint": 3347.333,
+        "cumulative-layout-shift": 0.00007917127422567173,
+        "total-blocking-time": 365
+      }
+    },
+    {
+      "page": "home",
+      "profile": "mobile",
+      "run": 2,
+      "lighthouseVersion": "13.6.0",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.0.0 Safari/537.36",
+      "scores": {
+        "performance": 89,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "largest-contentful-paint": 3221.4491999999996,
+        "cumulative-layout-shift": 0,
+        "total-blocking-time": 232
+      }
+    },
+    {
+      "page": "home",
+      "profile": "mobile",
+      "run": 3,
+      "lighthouseVersion": "13.6.0",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.0.0 Safari/537.36",
+      "scores": {
+        "performance": 89,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "largest-contentful-paint": 3220.8311000000003,
+        "cumulative-layout-shift": 0.00007917127422567173,
+        "total-blocking-time": 246
+      }
+    },
+    {
+      "page": "home",
+      "profile": "desktop",
+      "run": 1,
+      "lighthouseVersion": "13.6.0",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.0.0 Safari/537.36",
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "largest-contentful-paint": 794.7347499999998,
+        "cumulative-layout-shift": 0.0000218669594216887,
+        "total-blocking-time": 0
+      }
+    },
+    {
+      "page": "home",
+      "profile": "desktop",
+      "run": 2,
+      "lighthouseVersion": "13.6.0",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.0.0 Safari/537.36",
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "largest-contentful-paint": 802.477,
+        "cumulative-layout-shift": 0.0000218669594216887,
+        "total-blocking-time": 0
+      }
+    },
+    {
+      "page": "home",
+      "profile": "desktop",
+      "run": 3,
+      "lighthouseVersion": "13.6.0",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.0.0 Safari/537.36",
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "largest-contentful-paint": 802.93625,
+        "cumulative-layout-shift": 0.0000218669594216887,
+        "total-blocking-time": 0
+      }
+    }
+  ],
+  "environment": {
+    "node": "v24.13.0",
+    "platform": "win32",
+    "release": "10.0.26300",
+    "cpu": "AMD Ryzen 5 7535HS with Radeon Graphics        ",
+    "memoryGiB": 15,
+    "playwright": "1.65.1",
+    "vite": "8.3.8",
+    "mocks": "Cenário padrão MSW, build otimizado, assets e fontes locais.",
+    "throttling": "Configuração padrão Lighthouse mobile/desktop; medições sequenciais na mesma máquina."
+  }
+}

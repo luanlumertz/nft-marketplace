@@ -2,8 +2,15 @@ import { z } from 'zod'
 import { nftSchema, type Nft } from '@/features/nfts/contracts'
 import { nftFixtures } from './fixtures/nfts'
 
-export const MOCK_STORAGE_KEY = 'kurio:mock:v1'
-export const scenarioSchema = z.enum(['default', 'slow', 'catalog-error', 'empty'])
+export const MOCK_STORAGE_KEY = 'kurio:mock:v2'
+export const scenarioSchema = z.enum([
+  'default',
+  'slow',
+  'out-of-order',
+  'network-error',
+  'catalog-error',
+  'empty',
+])
 
 const storeSchema = z.object({
   scenario: scenarioSchema,
@@ -45,7 +52,7 @@ export const mockStore = {
   updateNft(nft: Nft) {
     const current = state.nfts.find((item) => item.id === nft.id)
     if (!current || current.version >= nft.version) return
-    state.nfts = state.nfts.map((item) => item.id === nft.id ? nft : item)
+    state.nfts = state.nfts.map((item) => (item.id === nft.id ? nft : item))
     persist()
   },
 }

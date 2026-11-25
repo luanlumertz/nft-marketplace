@@ -4,7 +4,19 @@ Solução para o [desafio frontend da Jungle](https://github.com/junglegaming/fr
 
 ## Etapa atual
 
-Base técnica: React + TypeScript + Vite, TanStack Router e Query, Axios, Tailwind CSS, componentes shadcn/ui, MSW e Socket.IO. Uma seleção inicial de quatro NFTs e um detalhe simplificado validam a integração. O layout completo e os fluxos de conta, carrinho e compra ainda serão implementados.
+Catálogo responsivo com destaques, busca, filtros combináveis, ordenação e paginação na URL, com 36 NFTs simulados. A interface segue as referências desktop/mobile fornecidas, com barra lateral no desktop, painel de filtros acessível no mobile e navegação para o detalhe. React + TypeScript + Vite, TanStack Router/Query, Axios, Tailwind CSS, shadcn/ui, MSW e Socket.IO participam dos fluxos.
+
+O detalhe continua simplificado. Autenticação, favoritos, carrinho, compra, perfil e carteiras serão implementados nas próximas etapas; suas ações aparecem indisponíveis nesta versão.
+
+A estilização do início e dos componentes compartilhados usa classes Tailwind, incluindo estados e variantes responsivas. Button, Skeleton, Dialog e Slider são componentes shadcn/ui locais adaptados ao visual do projeto. O CSS global mantém o tema, fontes, estilos de base e animações.
+
+Aplicação de produção: [nft-marketplace-chi-five.vercel.app](https://nft-marketplace-chi-five.vercel.app/). A produção acompanha `main`; alterações em PR ficam no preview da Vercel até o merge.
+
+## Explorar o catálogo
+
+A URL guarda `q`, `collections`, `networks`, `minPrice`, `maxPrice`, `sort`, `tab` e `page`. Busca é enviada ao confirmar o formulário. Coleções e redes aceitam múltiplas escolhas (OU dentro do grupo, E entre os grupos). Preços são inclusivos; mudar um filtro, busca, aba ou ordenação reinicia a página. As contagens da barra lateral representam o catálogo completo.
+
+Exemplo: `/?networks=ethereum&sort=price-asc&page=2`. Os parâmetros normalizados são enviados ao Axios e integram a chave do Query. Refresh, voltar/avançar e retorno do detalhe preservam a consulta. A API corrige páginas acima do limite e a URL é ajustada sem criar outra entrada no histórico.
 
 ## Executar localmente
 
@@ -44,7 +56,7 @@ Variáveis `VITE_*` são públicas e incorporadas ao build. Nunca coloque segred
 
 ## Cenários e reset
 
-Os cenários atuais são `default`, `slow` (1,8 s), `catalog-error` (HTTP 503) e `empty`. Eles e os dados do catálogo são persistidos na chave `kurio:mock:v1` do `localStorage`. O cache do Query é apenas em memória; após refresh, a interface consulta novamente a API simulada.
+Os cenários atuais são `default`, `slow` (1,8 s), `out-of-order` (buscas com até três caracteres demoram 1,4 s; as demais, 80 ms, além da latência padrão), `network-error` (falha de conexão), `catalog-error` (HTTP 503) e `empty`. Eles e os dados do catálogo são persistidos na chave `kurio:mock:v2` do `localStorage`. A versão anterior do catálogo não é reutilizada após a mudança de schema. O cache do Query é apenas em memória; após refresh, a interface consulta novamente a API simulada.
 
 Com a aplicação aberta, use o console do navegador para selecionar um cenário:
 
@@ -89,9 +101,9 @@ npm run test:e2e
 
 No Linux/CI, use `npx playwright install --with-deps chromium`.
 
-Cada teste recebe um contexto de navegador novo, com armazenamento isolado. Os testes usam o build otimizado, requisições REST interceptadas pelo MSW e o cliente Socket.IO real. As verificações atuais cobrem abertura, navegação, refresh do detalhe, 404, skeletons, falha e recuperação, resultado vazio, eventos novos/duplicados/antigos, persistência do catálogo, teclado e overflow em 390/768/1440 px.
+Cada teste recebe um contexto de navegador novo, com armazenamento isolado. Os testes usam o build otimizado, requisições REST interceptadas pelo MSW e o cliente Socket.IO real. As verificações cobrem filtros combinados, parâmetros da API, histórico, refresh, paginação, respostas obsoletas, precisão decimal, abertura do detalhe, 404, skeletons, falha e recuperação, resultado vazio, eventos novos/duplicados/antigos e recomposição da lista, persistência, teclado, foco dos diálogos e overflow em 390/768/1440 px.
 
-Relatórios ficam em `playwright-report/`; screenshots e traces de falhas em `test-results/`. A CI publica essas pastas como artefato. Os fluxos completos do enunciado e os baselines de regressão visual ainda serão acrescentados.
+Relatórios ficam em `playwright-report/`; screenshots e traces de falhas em `test-results/`. A CI publica essas pastas como artefato. As baselines de início desktop/mobile estão versionadas em `tests/e2e/__screenshots__/`, separadas por projeto e sistema (`win32` e `linux`), pois fontes e controles nativos podem alterar métricas e quebras de linha. As imagens Linux foram obtidas e conferidas a partir do artefato da CI. Para atualizar após uma alteração visual intencional, use `npm run test:e2e -- --grep composição --update-snapshots=all` no respectivo sistema e confira as imagens antes de versionar. A comparação mantém até 3.000 pixels divergentes dentro do mesmo sistema; relógio/dados/carrossel são estáveis e animações desativadas na captura. As outras telas e os fluxos restantes terão cobertura nas próximas etapas.
 
 ## Lighthouse
 
@@ -109,6 +121,8 @@ npm run audit:lighthouse -- --runs=1 --profile=desktop --page=home
 
 Uma medição rápida valida a infraestrutura, mas não substitui as três medições de cada página/perfil exigidas na entrega final.
 
+A auditoria do início desta etapa está versionada em [reports/lighthouse/catalog](./reports/lighthouse/catalog/README.md), com três execuções por perfil e relatórios HTML/JSON. Medianas: Performance **89 mobile / 100 desktop**; Accessibility, Best Practices e SEO **100** em ambos. A meta de performance mobile ainda não foi atingida; as causas observadas, a variabilidade e as otimizações aplicadas estão documentadas no relatório. A auditoria do detalhe completo permanece para a respectiva etapa.
+
 ## CI e deploy
 
 GitHub Actions executa instalação pelo lockfile, tipos, lint, build e Playwright em PRs para `main` e pushes em `main`.
@@ -125,6 +139,6 @@ Para publicar na Vercel:
 
 `vercel.json` configura o fallback das rotas para `index.html` e evita cache persistente do script do Service Worker. O deploy ocorre pela integração Git da Vercel; a CI executa as verificações. O merge deve ocorrer após CI e preview validados.
 
-**Status:** configuração de deploy preparada; nenhuma URL pública é declarada como validada nesta etapa.
+**Status:** integração Vercel conectada e base validada na URL pública. O catálogo desta etapa deve ser conferido no preview do PR antes de atualizar a produção.
 
 Veja [ARCHITECTURE.md](./ARCHITECTURE.md) para contratos, responsabilidades e limitações atuais.
