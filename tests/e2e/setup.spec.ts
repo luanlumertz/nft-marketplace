@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { nftUpdatedSchema } from '../../src/features/nfts/contracts'
-import { mockRequest } from './helpers'
+import { mockRequest, returnToCatalog } from './helpers'
 
 test('abre a coleção, navega para o NFT e preserva o acesso após refresh', async ({
   page,
@@ -122,7 +122,7 @@ test('atualiza pelo Socket.IO, ignora evento antigo e mantém a mudança após r
       .getByText('2.123456789123456789 ETH', { exact: true })
       .filter({ visible: true }),
   ).toBeVisible()
-  await page.getByRole('link', { name: 'Voltar à coleção' }).click()
+  await returnToCatalog(page)
   const nft = page.getByRole('listitem').filter({ hasText: 'Emerald Ape #042' })
   await expect(nft).toContainText('2.123456789123456789 ETH')
   await page.reload()
