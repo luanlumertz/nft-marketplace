@@ -13,6 +13,7 @@ import { queryCatalog } from './catalog'
 import { accounts } from './accounts'
 import { accountHandlers } from './account-handlers'
 import { cartHandlers } from './cart-handlers'
+import { collectorHandlers } from './collector-handlers'
 import { carts } from './carts'
 import { detailFor, relatedFor } from './nft-details'
 
@@ -51,6 +52,7 @@ async function simulateNetwork() {
 export const handlers = [
   ...accountHandlers,
   ...cartHandlers,
+  ...collectorHandlers,
   http.get(`${base}/nfts/:id/related`, async ({ params }) => {
     const error = await simulateNetwork()
     if (error) return error

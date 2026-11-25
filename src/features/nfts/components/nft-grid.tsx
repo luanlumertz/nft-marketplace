@@ -1,8 +1,7 @@
-import { useEffect } from 'react'
+import { Fragment, useEffect } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
-import { ChevronLeft, ChevronRight, X } from 'lucide-react'
-import { FavoriteButton } from '@/features/favorites/favorite-button'
+import { ChevronDown, ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { QueryError } from '@/components/query-feedback'
 import { nftListOptions } from '../queries'
@@ -72,61 +71,75 @@ export function NftGrid() {
         )}
       </aside>
       <div className="catalog-main min-w-0">
-        <div className="catalog-toolbar min-h-7 flex items-start justify-between gap-3.5 mb-5.5 mobile:mb-4 mobile:min-h-6">
+        <div className="catalog-toolbar min-h-8 flex items-center justify-between gap-3.5 mb-5.5 mobile:mb-4 mobile:min-h-6">
           <div
             role="tablist"
             aria-label="Seleção de NFTs"
-            className="catalog-tabs flex justify-start gap-5.5 whitespace-nowrap [&_button]:[border-bottom:2px_solid_transparent] [&_button]:text-[14px] [&_button]:pb-1 [&_button]:min-h-7 [&_button[aria-selected='true']]:text-primary [&_button[aria-selected='true']]:border-b-primary tablet:gap-3 tablet:[&_button]:text-[12px] mobile:flex-wrap mobile:gap-x-4 mobile:gap-y-2 mobile:w-full mobile:[&_button]:text-[12px] mobile:[&_button]:min-h-6"
+            className="catalog-tabs flex items-center justify-start gap-2 whitespace-nowrap [&_button]:[border-bottom:2px_solid_transparent] [&_button]:text-[16px] [&_button]:min-h-8 [&_button[aria-selected='true']]:text-primary [&_button[aria-selected='true']]:border-b-primary tablet:[&_button]:text-[14px] mobile:flex-wrap mobile:gap-x-1 mobile:gap-y-2 mobile:w-full mobile:[&_button]:text-[14px] mobile:[&_button]:min-h-8"
           >
             {tabs.map(([value, label], index) => (
-              <button
-                key={value}
-                role="tab"
-                id={`tab-${value}`}
-                tabIndex={search.tab === value ? 0 : -1}
-                aria-selected={search.tab === value}
-                aria-controls="catalog-panel"
-                onClick={() => update({ tab: value })}
-                onKeyDown={(event) => {
-                  if (
-                    !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(
-                      event.key,
+              <Fragment key={value}>
+                {index > 0 && (
+                  <span
+                    aria-hidden="true"
+                    className="size-1 shrink-0 rounded-full bg-muted-foreground"
+                  />
+                )}
+                <button
+                  role="tab"
+                  id={`tab-${value}`}
+                  tabIndex={search.tab === value ? 0 : -1}
+                  aria-selected={search.tab === value}
+                  aria-controls="catalog-panel"
+                  onClick={() => update({ tab: value })}
+                  onKeyDown={(event) => {
+                    if (
+                      !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(
+                        event.key,
+                      )
                     )
-                  )
-                    return
-                  event.preventDefault()
-                  const target =
-                    event.key === 'Home'
-                      ? 0
-                      : event.key === 'End'
-                        ? tabs.length - 1
-                        : (index +
-                            (event.key === 'ArrowRight' ? 1 : -1) +
-                            tabs.length) %
-                          tabs.length
-                  document.getElementById(`tab-${tabs[target][0]}`)?.focus()
-                  update({ tab: tabs[target][0] })
-                }}
-              >
-                {label}
-              </button>
+                      return
+                    event.preventDefault()
+                    const target =
+                      event.key === 'Home'
+                        ? 0
+                        : event.key === 'End'
+                          ? tabs.length - 1
+                          : (index +
+                              (event.key === 'ArrowRight' ? 1 : -1) +
+                              tabs.length) %
+                            tabs.length
+                    document.getElementById(`tab-${tabs[target][0]}`)?.focus()
+                    update({ tab: tabs[target][0] })
+                  }}
+                >
+                  {label}
+                </button>
+              </Fragment>
             ))}
           </div>
-          <label className="catalog-sort flex items-center gap-1 whitespace-nowrap text-[13px] mt-px [&_select]:bg-background [&_select]:max-w-48 [&_select]:cursor-pointer tablet:text-[11px] tablet:[&_select]:max-w-40 tablet-compact:ml-auto mobile:hidden">
+          <label className="catalog-sort flex min-h-8 shrink-0 items-center gap-1 whitespace-nowrap text-[14px] tablet:text-[13px] tablet-compact:ml-auto mobile:hidden">
             Ordenar por:
-            <select
-              aria-label="Ordenar NFTs"
-              value={search.sort}
-              onChange={(e) =>
-                update({ sort: e.target.value as CatalogSearch['sort'] })
-              }
-            >
-              {sortOptions.map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
+            <span className="relative flex items-center">
+              <select
+                aria-label="Ordenar NFTs"
+                className="h-8 w-[25ch] cursor-pointer appearance-none bg-background pr-6"
+                value={search.sort}
+                onChange={(e) =>
+                  update({ sort: e.target.value as CatalogSearch['sort'] })
+                }
+              >
+                {sortOptions.map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown
+                aria-hidden="true"
+                className="pointer-events-none absolute right-0 size-4"
+              />
+            </span>
           </label>
           <div className="tablet-filter hidden tablet-compact:block tablet-compact:[&_.filter-trigger]:h-8 tablet-compact:[&_.filter-trigger]:w-9 tablet-compact:[&_.filter-trigger]:rounded-md mobile:hidden">
             <FilterDrawer {...filters} />
@@ -239,7 +252,7 @@ export function NftGrid() {
               aria-label="NFTs da coleção"
               className="nft-grid grid grid-cols-3 gap-x-8.5 gap-y-16 tablet:gap-x-5 tablet:gap-y-10 mobile:grid-cols-2 mobile:gap-x-6 mobile:gap-y-5"
             >
-              {data?.items.map((nft, index) => (
+              {data?.items.map((nft) => (
                 <li
                   key={nft.id}
                   className="nft-card min-w-0 relative [&_h3]:text-[15px] [&_h3]:mt-2.5 [&_h3]:leading-6 tablet:[&_h3]:text-[13px] mobile:even:mt-8 mobile:even:-mb-8 mobile:[&_h3]:text-[13px] mobile:[&_h3]:leading-5 mobile:[&_h3]:m-[10px_7px_0]"
@@ -277,13 +290,6 @@ export function NftGrid() {
                       </span>
                     )}
                   </Link>
-                  {index === 0 && (
-                    <FavoriteButton
-                      id={nft.id}
-                      name={nft.name}
-                      className="card-favorite hidden mobile:grid mobile:place-items-center mobile:absolute mobile:top-3 mobile:right-3 mobile:w-7 mobile:h-7 mobile:rounded-[50%] mobile:bg-card mobile:text-primary mobile:[border:1px_solid_var(--primary)]"
-                    />
-                  )}
                 </li>
               ))}
             </ul>

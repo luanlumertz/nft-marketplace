@@ -6,7 +6,7 @@ Solução para o [desafio frontend da Jungle](https://github.com/junglegaming/fr
 
 Catálogo responsivo com destaques, busca, filtros combináveis, ordenação e paginação na URL, com 36 NFTs simulados. A interface segue as referências desktop/mobile fornecidas, com barra lateral no desktop, painel de filtros acessível no mobile e navegação para o detalhe. React + TypeScript + Vite, TanStack Router/Query, Axios, Tailwind CSS, shadcn/ui, MSW e Socket.IO participam dos fluxos.
 
-O detalhe possui galeria com ampliação, edições, quantidade limitada pelo estoque, informações, avaliações e itens relacionados, com versões desktop/mobile. Login, cadastro, sessão, logout e favoritos por usuário estão integrados à API simulada. O carrinho permite adicionar a seleção do detalhe, editar quantidades, remover itens, aplicar cupom e consultar valores atualizados pela API e pelo Socket.IO. Pagamento, pedidos, perfil e carteiras continuam para as próximas etapas.
+O detalhe possui galeria com ampliação, edições, quantidade limitada pelo estoque, informações, avaliações e itens relacionados, com versões desktop/mobile. Login, cadastro, sessão, logout e favoritos por usuário estão integrados à API simulada. O carrinho permite adicionar a seleção do detalhe, editar quantidades, remover itens, aplicar cupom e consultar valores atualizados pela API e pelo Socket.IO. Perfil, avatar, alteração de senha e carteiras principal/secundária também persistem pela API simulada. Pagamento e pedidos continuam para a próxima etapa.
 
 A estilização usa classes Tailwind, incluindo estados e variantes responsivas. Button, Skeleton, Dialog, Slider, Input e Tabs são componentes shadcn/ui locais adaptados ao visual do projeto. O CSS global mantém o tema, fontes, estilos de base e animações.
 
@@ -48,7 +48,7 @@ Variáveis `VITE_*` são públicas e incorporadas ao build. Nunca coloque segred
 
 Também é possível criar uma conta em `/cadastro`. No desktop, login/cadastro abrem em modal sobre a página de retorno, preservando os filtros do catálogo ou a edição/quantidade do NFT; no mobile, ocupam a tela. Ao cancelar ou concluir, o retorno preserva a URL anterior. Favoritar sem sessão abre o login e retoma a inclusão após autenticar. O logout mantém a página pública atual e redireciona ao catálogo apenas ao sair de uma página privada, como Favoritos.
 
-`/favoritos` exige sessão. Conta e favoritos persistem após refresh; logout e troca de usuário removem o cache privado. A sessão dura 15 minutos e é revalidada pela API ao retomar a janela e a cada 15 segundos enquanto a aba está ativa. Senhas ficam no store simulado como hashes PBKDF2-SHA256 com salt individual, nunca em claro.
+`/favoritos` exige sessão. Conta e favoritos persistem após refresh; logout e troca de usuário removem o cache privado. Novas sessões duram 24 horas e são revalidadas pela API ao retomar a janela e a cada 15 segundos enquanto a aba está ativa. Sessões abertas antes dessa alteração conservam a validade original; saia e entre novamente para obter o novo prazo. Senhas ficam no store simulado como hashes PBKDF2-SHA256 com salt individual, nunca em claro.
 
 ## Explorar o carrinho
 
@@ -63,6 +63,20 @@ Eventos `nft.updated` reconsultam o carrinho e a cotação. Preço novo aparece 
 **Conectar e finalizar** abre o login do visitante com retorno ao carrinho. A criação do pagamento/pedido ainda não pertence a esta etapa; após autenticar, o botão permanece desabilitado. Nenhuma compra é simulada como concluída.
 
 Os cenários `cart-error`, `coupon-invalid` e `coupon-expired` exercitam falha transitória do carrinho e erros de cupom. O estado dos carrinhos fica em `kurio:carts:v1`, e o identificador anônimo em `kurio:cart-guest`. O reset integral limpa os carrinhos de visitantes e contas junto aos demais dados.
+
+## Perfil e carteiras
+
+Abra **Dados do perfil** ou **Carteiras** no menu da conta, ou acesse `/perfil` e `/carteiras`. Ambas exigem login e preservam a rota de retorno após autenticar. A navegação lateral do desktop vira uma faixa horizontal no mobile, com todas as opções e setas quando houver conteúdo fora da tela. Seções ainda indisponíveis permanecem identificadas e sem ação.
+
+No perfil, edite nome de exibição, nome de usuário, e-mail, nome ENS e apelido da carteira. **Alterar** seleciona um avatar PNG, JPEG ou WebP de até **512 KB**; **Remover** limpa a prévia. Clique em **Salvar** para confirmar dados/avatar. Para trocar a senha, preencha os três campos de senha antes de salvar. Se qualquer validação falhar, inclusive senha atual incorreta ou e-mail/nome de usuário em uso, a alteração inteira é recusada. A nova senha substitui a credencial de login e revoga outras sessões da conta; a sessão atual permanece aberta. Senhas nunca são persistidas em claro.
+
+Em Carteiras, complete os campos do frame e clique em **Salvar carteira**. Após salvar, **Editar** reabre o formulário. A carteira secundária pode ser cadastrada separadamente ou usar **Igual à carteira principal**; nesse modo, alterações confirmadas na principal também atualizam a secundária. Desmarcar abre a edição independente, confirmada ao salvar.
+
+Ethereum/Polygon aceitam endereços `0x` com 40 dígitos hexadecimais, exceto o endereço zero. Solana exige Base58 que represente 32 bytes. Nome ENS usa um nome ASCII de 3 a 63 caracteres seguido de `.eth`; não existe resolução ENS ou conexão real com blockchain. No campo alternativo, ENS é aceito na Ethereum. Código de indicação é textual e obrigatório conforme o frame, sem integração externa.
+
+Exemplos fictícios para demonstrar o formulário: rede Ethereum, endereço `0x1111111111111111111111111111111111111111`, tipo MetaMask, ENS `ana.eth` e código de indicação `KURIO`. Carteiras começam vazias e ficam separadas por conta. Dados de perfil/carteiras são adicionados ao store `kurio:accounts:v1`, mantendo compatibilidade com contas anteriores; o reset integral restaura tudo.
+
+Use `profile-error` e `wallets-error` para falhas 503; `profile-conflict` força conflito de e-mail e `wallet-conflict` força conflito ao vincular carteira. `slow` e `session-expired` também se aplicam. Essas telas apenas cadastram dados que serão usados no pagamento; não simulam conexão ou compra concluída.
 
 ## Comandos
 

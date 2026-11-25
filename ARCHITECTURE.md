@@ -2,7 +2,7 @@
 
 ## Escopo atual
 
-O início implementa a composição desktop/mobile das referências, com destaque selecionável, catálogo, busca, coleções, redes, faixa de preço, abas, ordenação, paginação, banners, seções editoriais e rodapé. Há 36 NFTs determinísticos, nove por página. O detalhe inclui galeria, ampliação, edições, quantidade, informações, avaliações e relacionados. Login, cadastro, sessão, logout, favoritos, carrinho e cotação são funcionais com MSW. Pagamento, pedidos, perfil e carteiras pertencem às próximas etapas.
+O início implementa a composição desktop/mobile das referências, com destaque selecionável, catálogo, busca, coleções, redes, faixa de preço, abas, ordenação, paginação, banners, seções editoriais e rodapé. Há 36 NFTs determinísticos, nove por página. O detalhe inclui galeria, ampliação, edições, quantidade, informações, avaliações e relacionados. Login, cadastro, sessão, logout, favoritos, carrinho, cotação, perfil, avatar, senha e carteiras são funcionais com MSW. Pagamento e pedidos pertencem à próxima etapa.
 
 ## Organização
 
@@ -13,6 +13,7 @@ src/
   features/auth/    autenticação, sessão e formulários
   features/favorites/ favoritos por usuário, mutations e apresentação
   features/cart/    contratos, consultas, mutations e apresentação do carrinho
+  features/account/ perfil, avatar, senha, carteiras e formulários compartilhados
   lib/              configuração, Axios, QueryClient e utilitários
   mocks/            fixtures, persistência, handlers REST e Socket.IO
   routes/           rotas por arquivo do TanStack Router
@@ -43,6 +44,10 @@ O plugin do Router roda antes do plugin React, gera a árvore de rotas e separa 
 | PATCH | `/api/cart/items/:nftId/:editionId` | Recebe `{ quantity }`; substitui quantidade e retorna carrinho |
 | DELETE | `/api/cart/items/:nftId/:editionId` | Remove a seleção e retorna carrinho; repetição não duplica efeitos |
 | POST | `/api/cart/quote` | Recebe `{ code: string ou null }`; aplica/remove cupom e retorna carrinho com cotação |
+| GET | `/api/profile` | Retorna o perfil do usuário autenticado; nunca retorna hash/salt |
+| PATCH | `/api/profile` | Recebe dados do perfil, `avatarUrl` e `passwordChange` opcional; valida e salva atomicamente |
+| GET | `/api/wallets` | `{ items: Wallet[] }` da conta autenticada, até uma por slot |
+| PUT | `/api/wallets/:slot` | `primary` ou `secondary`; salva/edita campos ou espelha a principal com `{ sameAsPrimary: true }` |
 
 ```ts
 type Nft = {
@@ -158,7 +163,7 @@ Edição e quantidade ficam na URL; trocar edição reinicia a quantidade. O est
 
 Login/cadastro usam rotas públicas, modal desktop e tela mobile. Os schemas Zod são compartilhados com os handlers MSW. E-mail é normalizado; nome, senha e confirmação são validados. Erros 422 possuem `fieldErrors`; conflitos de e-mail retornam 409, credenciais incorretas retornam 400 e falhas transitórias retornam 503. Input e Tabs vêm dos registros oficiais shadcn/ui `new-york-v4`, com classes Tailwind adaptadas à interface.
 
-O cliente envia a credencial opaca em `Authorization: Bearer`. O store MSW mantém sessões com expiração de 15 minutos, contas e favoritos em `kurio:accounts:v1`; o cliente guarda somente a credencial em `kurio:session-token`. Os hashes são PBKDF2-SHA256 com 100.000 iterações, salt individual e 256 bits. As respostas públicas de usuário contêm apenas `id`, `name` e `email`. É autenticação simulada no navegador, sem servidor privado externo.
+O cliente envia a credencial opaca em `Authorization: Bearer`. O store MSW mantém sessões com expiração de 24 horas para novas sessões, contas e favoritos em `kurio:accounts:v1`; o cliente guarda somente a credencial em `kurio:session-token`. Os hashes são PBKDF2-SHA256 com 100.000 iterações, salt individual e 256 bits. As respostas públicas de usuário contêm apenas `id`, `name` e `email`. É autenticação simulada no navegador, sem servidor privado externo.
 
 A sessão é consultada por REST após refresh, reconexão/foco e a cada 15 segundos com aba ativa; um timer também respeita `expiresAt`. Em 401 da credencial atual, o cliente limpa a sessão, cancela/remove queries privadas e abre `/login?redirect=...&reason=expired`. A URL de retorno aceita somente caminhos internos e conserva filtros, edição e quantidade. Favoritar como visitante transporta o identificador e retoma um PUT após autenticar. Uma falha nessa retomada é informada sem afirmar que o favorito foi salvo.
 
@@ -186,13 +191,29 @@ Queries usam `['cart-guest', guestId]` para visitantes e `['private', userId, 'c
 
 Desktop usa tabela visual e resumo lateral; mobile usa cards e resumo abaixo, adaptados às imagens fornecidas, com Tailwind e componentes shadcn/ui. Rótulos de edição e remoção explícita complementam a referência para distinguir linhas e permitir remover qualquer item. Os totais seguem as respostas da API, inclusive quando diferem dos números ilustrativos do Figma. “Conectar e finalizar” abre o login do visitante e preserva o carrinho ao retornar; pagamento ainda fica desabilitado após autenticar, sem simular compra concluída.
 
+## Perfil e carteiras
+
+As rotas `/perfil` e `/carteiras` usam `requiresAuth` e o guard REST compartilhado `requireSession`. O menu da conta abre as duas telas; logout usa o mesmo hook no menu e na navegação lateral. O modal de login preserva essas páginas como fundo sem consultar dados privados anônimos. Desktop segue os frames fornecidos, incluindo sidebar, duas colunas, avatar e senha; mobile usa abas e formulários de uma coluna. O footer é omitido nessas telas conforme os frames. Campos e erros usam `AccountField` sobre o Input shadcn/ui; ações usam Button shadcn/ui e classes Tailwind.
+
+Queries de perfil e carteiras usam `['private', userId, 'profile']` e `['private', userId, 'wallets']`, com `retry: false`, cancelamento via Axios e credencial capturada. Mutations capturam credencial/proprietário; respostas antigas não preenchem o cache de outra sessão. Salvar perfil cancela snapshots de sessão anteriores, atualiza nome/e-mail na sessão e invalida o perfil. Carteiras atualizam e invalidam a chave da conta, com bloqueio de mutations simultâneas no formulário. Os formulários mantêm o rascunho local separado do snapshot do Query durante edição. Senhas ficam apenas em memória e nunca integram o DTO persistido.
+
+O store `kurio:accounts:v1` ganhou mapas de perfis/carteiras com defaults compatíveis com dados anteriores. O perfil contém id, nome, username, e-mail, ENS, apelido da carteira e avatar. PATCH aceita esses campos e `passwordChange: { currentPassword, newPassword, confirmPassword }` opcional. Validações de campos são compartilhadas com MSW; e-mail e username duplicados retornam 409 com `fieldErrors`. Senha atual incorreta retorna 422. A derivação PBKDF2 usa salt novo e é seguida de nova checagem da sessão, hash anterior e unicidade antes do commit. Nome/e-mail da conta, perfil e senha são confirmados juntos. Outras sessões dessa conta são revogadas quando a senha muda. Gravações novas substituem o estado em memória somente depois de confirmar a persistência; falta de espaço retorna 503.
+
+Avatar é um data URL de PNG/JPEG/WebP com até 512 KB decodificados. O cliente verifica MIME, tamanho e decodificação da imagem; o schema verifica tamanho e assinatura do formato. A prévia e a remoção só são persistidas ao salvar o perfil. Não são aceitos SVGs, URLs externas nem senhas em campos extras: o schema projeta apenas os atributos permitidos. Não há upload para serviço externo.
+
+Wallet contém id estável, slot, nome de exibição, apelido, rede, nome do perfil, endereço, endereço alternativo, tipo, código de indicação, e-mail, ENS e `sameAsPrimary`. Todos os recursos são resolvidos pela sessão; não há userId selecionável no endpoint. PUT mantém o id ao editar e salva uma carteira por slot. Endereços são validados por formato da rede (EVM hexadecimal não zero ou Solana Base58/32 bytes). ENS é validado como texto `.eth`, sem resolução onchain. Campos de referência seguem o layout e não fazem integração externa. A secundária espelhada é uma cópia persistida da principal e acompanha alterações posteriores desta no mesmo commit. Desmarcar abre edição independente; a alteração é aplicada em Salvar carteira.
+
+As operações usam a conta da sessão: credenciais inválidas retornam 401, slots inexistentes 404, validações 422 e conflitos determinísticos 409. `profile-error`, `wallets-error`, `profile-conflict` e `wallet-conflict` completam os cenários. O reset integral também restaura perfis e carteiras. Os novos E2E cobrem acesso privado, validações, conflito, persistência, avatar, senha atômica, credenciais novas/antigas, carteiras por rede, espelhamento, edição independente, recuperação de falhas, isolamento por conta e expiração com retorno.
+
 ## Verificação e entrega
 
-A CI verifica tipos, lint e build com npm 11 e 12, além de E2E em Chromium desktop/mobile. Playwright testa o build otimizado com contextos novos e MSW ativo, registra relatório HTML e retém traces de falhas. A suíte cobre catálogo, histórico, precisão, erros, eventos, foco, autenticação, favoritos e carrinho. Os cenários do carrinho verificam seleção/edição, quantidades, limites, remoção, cupom, refresh, transferência no login, isolamento por conta, eventos de preço/estoque e recuperação de falhas. Pagamento, pedidos, perfil e carteiras ainda não estão cobertos.
+A CI verifica tipos, lint e build com npm 11 e 12, além de E2E em Chromium desktop/mobile. Playwright testa o build otimizado com contextos novos e MSW ativo, registra relatório HTML e retém traces de falhas. A suíte cobre catálogo, histórico, precisão, erros, eventos, foco, autenticação, favoritos, carrinho, perfil, avatar, senha e carteiras. Os cenários do carrinho verificam seleção/edição, quantidades, limites, remoção, cupom, refresh, transferência no login, isolamento por conta, eventos de preço/estoque e recuperação de falhas. Pagamento e pedidos ainda não estão cobertos.
 
 Baselines de início e carrinho desktop/mobile são separadas por projeto e sistema (`win32`/`linux`), com dados estáveis e animações desativadas na captura. A tolerância de 3.000 pixels é mantida dentro do mesmo sistema, sem mascarar diferenças de métricas de fontes/controles entre plataformas. As capturas Linux do início foram extraídas do artefato da CI; as do carrinho usam Chromium no Ubuntu/WSL com o build otimizado. Detalhe e pagamento ainda terão baselines próprias.
 
 Na entrega da etapa de carrinho, tipos, lint e build passaram. A suíte completa passou com 54 testes no Windows e 54 no Ubuntu/WSL, em Chromium desktop/mobile, sem retries. Os testes no Linux usaram o mesmo `dist/` otimizado servido localmente, com MSW e o cliente Socket.IO ativos. Lighthouse não foi reexecutado nesta etapa.
+
+Na entrega de perfil e carteiras, tipos, lint e build passaram. A suíte completa passou com 68 testes no Windows e 68 no Ubuntu/WSL, em Chromium desktop/mobile, sem retries, usando o mesmo build otimizado. Os 14 casos novos cobrem os fluxos privados descritos acima. Perfil e carteiras também foram conferidos em 390, 768 e 1440 px, sem overflow horizontal. Lighthouse não foi reexecutado nesta etapa.
 
 `scripts/lighthouse.mjs` usa o Chromium do Playwright, serve o build e executa três rodadas por página/perfil por padrão. Gera relatórios completos e medianas de Performance, Accessibility, Best Practices e SEO, além de LCP/CLS/TBT e ambiente. As metas devem ser verificadas novamente com todas as funcionalidades e layouts implementados.
 

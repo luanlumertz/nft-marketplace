@@ -13,6 +13,8 @@ import { FavoritesPage } from '@/features/favorites/favorites-page'
 import { QueryError } from '@/components/query-feedback'
 import { safeReturnTo } from './contracts'
 import { CartPage } from '@/features/cart/cart-page'
+import { ProfilePage } from '@/features/account/profile-page'
+import { WalletsPage } from '@/features/account/wallets-page'
 
 function originSearch(target: URL) {
   const parsed: Record<string, unknown> = {
@@ -51,6 +53,8 @@ export function AuthBackground({ redirect }: { redirect: string }) {
     )
   if (target.pathname === '/favoritos') return <FavoritesPage />
   if (target.pathname === '/carrinho') return <CartPage />
+  if (target.pathname === '/perfil') return <ProfilePage />
+  if (target.pathname === '/carteiras') return <WalletsPage />
   return (
     <CatalogPreviewContext value={parseCatalogSearch(originSearch(target))}>
       <CatalogHome />

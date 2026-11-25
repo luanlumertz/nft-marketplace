@@ -17,6 +17,10 @@ export const scenarioSchema = z.enum([
   'cart-error',
   'coupon-invalid',
   'coupon-expired',
+  'profile-error',
+  'profile-conflict',
+  'wallets-error',
+  'wallet-conflict',
 ])
 
 const storeSchema = z.object({

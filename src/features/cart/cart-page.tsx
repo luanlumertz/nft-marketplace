@@ -173,7 +173,7 @@ export function CartPage() {
   }
   const loading = cart.query.isPending
   return (
-    <>
+    <div className="mobile:flex mobile:min-h-svh mobile:flex-col">
       <nav
         aria-label="Caminho de navegação"
         className="mb-2 flex gap-2 text-[14px] font-semibold mobile:hidden"
@@ -230,7 +230,7 @@ export function CartPage() {
           </Button>
         </section>
       ) : (
-        <div className="grid grid-cols-[minmax(0,782px)_minmax(0,332px)] items-start gap-21.5 tablet:grid-cols-1 tablet:gap-8 mobile:block">
+        <div className="grid grid-cols-[minmax(0,782px)_minmax(0,332px)] items-start gap-21.5 tablet:grid-cols-1 tablet:gap-8 mobile:flex mobile:flex-1 mobile:flex-col mobile:items-stretch mobile:gap-8">
           <section
             aria-label="Itens do carrinho"
             className="min-w-0 mobile:px-7"
@@ -275,7 +275,7 @@ export function CartPage() {
           </section>
           <section
             aria-labelledby="cart-summary-title"
-            className="min-w-0 mobile:mt-1 mobile:rounded-t-[40px] mobile:bg-[#251610] mobile:px-6 mobile:pt-6 mobile:pb-9"
+            className="min-w-0 mobile:mt-auto mobile:rounded-t-[40px] mobile:bg-[#251610] mobile:px-6 mobile:pt-6 mobile:pb-[max(36px,env(safe-area-inset-bottom))]"
           >
             <h2
               id="cart-summary-title"
@@ -467,6 +467,6 @@ export function CartPage() {
           title="Colecionadores também viram"
         />
       )}
-    </>
+    </div>
   )
 }
