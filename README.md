@@ -184,7 +184,7 @@ Os testes de pagamento cobrem compra até o recibo, baixa do estoque, snapshot i
 
 Relatórios ficam em `playwright-report/`; screenshots e traces de falhas em `test-results/`. A CI publica essas pastas como artefato. As baselines de início, detalhe, avaliações, carrinho e pagamento desktop/mobile estão versionadas em `tests/e2e/__screenshots__/`, separadas por projeto e sistema (`win32` e `linux`), pois fontes e controles nativos podem alterar métricas e quebras de linha. As imagens Linux atuais foram capturadas no Chromium do Ubuntu/WSL com o build otimizado e conferidas visualmente. Para atualizar após uma alteração visual intencional, use `npm run test:e2e -- --grep composição --update-snapshots=all` no respectivo sistema e confira as imagens antes de versionar. A comparação mantém até 3.000 pixels divergentes dentro do mesmo sistema; dados/carrossel são estáveis e animações desativadas na captura. O detalhe possui captura da página completa e do painel de avaliações, com fontes e imagens carregadas antes da comparação.
 
-A [conferência final](./reports/validation/README.md) registra 96 testes completos no Ubuntu/WSL, 16 testes visuais/de navegação no Windows e 20 testes dos fluxos publicados, todos sem retries. As oito novas baselines do detalhe/avaliações completam a regressão visual exigida.
+A [conferência final](./reports/validation/README.md) registra a execução completa anterior de 96 testes no Ubuntu/WSL e 20 testes dos fluxos publicados. Após a separação dos filtros, 32 testes dos fluxos afetados passaram por sistema (Windows e Ubuntu/WSL), sem retries; a suíte passa a ter 98 casos com a nova regressão de carregamento/redimensionamento. As oito novas baselines do detalhe/avaliações completam a regressão visual exigida.
 
 ## Lighthouse
 
@@ -202,14 +202,16 @@ npm run audit:lighthouse -- --runs=1 --profile=desktop --page=home
 
 Uma medição rápida valida a infraestrutura, mas não substitui as três medições de cada página/perfil exigidas na entrega final.
 
-A auditoria final está em [reports/lighthouse/final](./reports/lighthouse/final/README.md), com 12 medições e seus relatórios HTML/JSON, três por página/perfil, medianas, LCP/CLS/TBT, ferramentas e ambiente. O código funcional auditado é `a1a6d95`.
+A auditoria final está em [reports/lighthouse/final](./reports/lighthouse/final/README.md), com 12 medições e seus relatórios HTML/JSON, três por página/perfil, medianas, LCP/CLS/TBT, ferramentas e ambiente. O código funcional auditado é `e0805fe`.
 
 | Página | Performance mobile | Performance desktop | Accessibility | Best Practices | SEO |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Início | 81 | 98 | 100 | 100 | 100 |
-| Detalhe | 79 | 98 | 100 | 100 | 100 |
+| Detalhe | 77 | 98 | 100 | 100 | 100 |
 
 Accessibility, Best Practices e SEO tiveram 100 em ambos os perfis. **A meta de performance mobile (≥90) não foi atingida**: LCP próximo de quatro segundos e trabalho inicial de JavaScript/mocks são os limitadores observados. As causas, a variação entre execuções, os ajustes aplicados e as oportunidades restantes estão documentados no relatório, sem desativar funcionalidades, imagens ou fontes. A auditoria anterior somente do catálogo continua em [reports/lighthouse/catalog](./reports/lighthouse/catalog/README.md) como registro histórico.
+
+A separação dos filtros reduziu o JavaScript inicial mobile em cerca de 103 kB no catálogo e 67 kB no detalhe, antes da compressão. A nota mobile permaneceu em 81 no início e variou de 79 para 77 no detalhe: essa rodada não demonstra ganho de pontuação. A comparação e o resumo anterior estão preservados no relatório.
 
 ## CI e deploy
 

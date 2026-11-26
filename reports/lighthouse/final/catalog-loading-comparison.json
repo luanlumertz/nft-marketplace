@@ -1,0 +1,38 @@
+{
+  "beforeReportsCommit": "7924356",
+  "afterFunctionalCommit": "e0805fe",
+  "comparison": [
+    {
+      "page": "home",
+      "profile": "mobile",
+      "before": {
+        "scripts": 28,
+        "decodedBytes": 1214913,
+        "filterChunks": [
+          "select-D5o1MD5U.js"
+        ]
+      },
+      "after": {
+        "scripts": 25,
+        "decodedBytes": 1112116,
+        "filterChunks": []
+      }
+    },
+    {
+      "page": "detail",
+      "profile": "mobile",
+      "before": {
+        "scripts": 32,
+        "decodedBytes": 1235484,
+        "filterChunks": [
+          "select-D5o1MD5U.js"
+        ]
+      },
+      "after": {
+        "scripts": 31,
+        "decodedBytes": 1168471,
+        "filterChunks": []
+      }
+    }
+  ]
+}

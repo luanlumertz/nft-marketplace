@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-26T14:30:45.228Z",
+  "generatedAt": "2026-11-26T17:16:58.121Z",
   "runs": 3,
   "medians": [
     {
@@ -12,9 +12,9 @@
         "seo": 100
       },
       "metrics": {
-        "largest-contentful-paint": 3966.1991999999996,
+        "largest-contentful-paint": 3854.0928999999996,
         "cumulative-layout-shift": 0,
-        "total-blocking-time": 289.5
+        "total-blocking-time": 327.5
       }
     },
     {
@@ -27,8 +27,8 @@
         "seo": 100
       },
       "metrics": {
-        "largest-contentful-paint": 1091.6002,
-        "cumulative-layout-shift": 0.000002978586114714962,
+        "largest-contentful-paint": 1168.1007,
+        "cumulative-layout-shift": 0,
         "total-blocking-time": 0
       }
     },
@@ -36,15 +36,15 @@
       "page": "detail",
       "profile": "mobile",
       "scores": {
-        "performance": 79,
+        "performance": 77,
         "accessibility": 100,
         "best-practices": 100,
         "seo": 100
       },
       "metrics": {
-        "largest-contentful-paint": 3990.9608000000003,
+        "largest-contentful-paint": 3881.0756500000007,
         "cumulative-layout-shift": 0,
-        "total-blocking-time": 374.4999999999998
+        "total-blocking-time": 443
       }
     },
     {
@@ -57,9 +57,9 @@
         "seo": 100
       },
       "metrics": {
-        "largest-contentful-paint": 1141.1137250000002,
+        "largest-contentful-paint": 1138.9456,
         "cumulative-layout-shift": 0,
-        "total-blocking-time": 0
+        "total-blocking-time": 6
       }
     }
   ],
@@ -77,9 +77,9 @@
         "seo": 100
       },
       "metrics": {
-        "largest-contentful-paint": 3966.1280000000006,
+        "largest-contentful-paint": 3912.714,
         "cumulative-layout-shift": 0,
-        "total-blocking-time": 1053.6090000000002
+        "total-blocking-time": 1100.8809999999999
       }
     },
     {
@@ -89,15 +89,15 @@
       "lighthouseVersion": "13.6.0",
       "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.0.0 Safari/537.36",
       "scores": {
-        "performance": 82,
+        "performance": 81,
         "accessibility": 100,
         "best-practices": 100,
         "seo": 100
       },
       "metrics": {
-        "largest-contentful-paint": 3966.1991999999996,
+        "largest-contentful-paint": 3841.2689499999997,
         "cumulative-layout-shift": 0,
-        "total-blocking-time": 269.5
+        "total-blocking-time": 327
       }
     },
     {
@@ -113,9 +113,9 @@
         "seo": 100
       },
       "metrics": {
-        "largest-contentful-paint": 3984.767599999999,
+        "largest-contentful-paint": 3854.0928999999996,
         "cumulative-layout-shift": 0,
-        "total-blocking-time": 289.5
+        "total-blocking-time": 327.5
       }
     },
     {
@@ -131,8 +131,8 @@
         "seo": 100
       },
       "metrics": {
-        "largest-contentful-paint": 1091.6002,
-        "cumulative-layout-shift": 0.000002978586114714962,
+        "largest-contentful-paint": 1168.1007,
+        "cumulative-layout-shift": 0,
         "total-blocking-time": 0
       }
     },
@@ -143,15 +143,15 @@
       "lighthouseVersion": "13.6.0",
       "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.0.0 Safari/537.36",
       "scores": {
-        "performance": 98,
+        "performance": 97,
         "accessibility": 100,
         "best-practices": 100,
         "seo": 100
       },
       "metrics": {
-        "largest-contentful-paint": 1079.5693999999999,
-        "cumulative-layout-shift": 0.000002978586114714962,
-        "total-blocking-time": 0
+        "largest-contentful-paint": 1200.26485,
+        "cumulative-layout-shift": 0,
+        "total-blocking-time": 16
       }
     },
     {
@@ -167,9 +167,9 @@
         "seo": 100
       },
       "metrics": {
-        "largest-contentful-paint": 1148.35285,
-        "cumulative-layout-shift": 0.000002978586114714962,
-        "total-blocking-time": 7
+        "largest-contentful-paint": 1159.9484,
+        "cumulative-layout-shift": 0,
+        "total-blocking-time": 0
       }
     },
     {
@@ -179,15 +179,15 @@
       "lighthouseVersion": "13.6.0",
       "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.0.0 Safari/537.36",
       "scores": {
-        "performance": 79,
+        "performance": 77,
         "accessibility": 100,
         "best-practices": 100,
         "seo": 100
       },
       "metrics": {
-        "largest-contentful-paint": 4031.575500000001,
+        "largest-contentful-paint": 3881.0756500000007,
         "cumulative-layout-shift": 0,
-        "total-blocking-time": 364
+        "total-blocking-time": 443
       }
     },
     {
@@ -197,15 +197,15 @@
       "lighthouseVersion": "13.6.0",
       "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.0.0 Safari/537.36",
       "scores": {
-        "performance": 79,
+        "performance": 74,
         "accessibility": 100,
         "best-practices": 100,
         "seo": 100
       },
       "metrics": {
-        "largest-contentful-paint": 3960.3115000000007,
+        "largest-contentful-paint": 3944.5851499999994,
         "cumulative-layout-shift": 0,
-        "total-blocking-time": 374.4999999999998
+        "total-blocking-time": 540
       }
     },
     {
@@ -215,15 +215,15 @@
       "lighthouseVersion": "13.6.0",
       "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.0.0 Safari/537.36",
       "scores": {
-        "performance": 79,
+        "performance": 77,
         "accessibility": 100,
         "best-practices": 100,
         "seo": 100
       },
       "metrics": {
-        "largest-contentful-paint": 3990.9608000000003,
+        "largest-contentful-paint": 3859.1741000000006,
         "cumulative-layout-shift": 0,
-        "total-blocking-time": 374.5
+        "total-blocking-time": 442
       }
     },
     {
@@ -239,9 +239,9 @@
         "seo": 100
       },
       "metrics": {
-        "largest-contentful-paint": 1140.9492499999997,
+        "largest-contentful-paint": 1138.9456,
         "cumulative-layout-shift": 0,
-        "total-blocking-time": 0
+        "total-blocking-time": 9
       }
     },
     {
@@ -257,9 +257,9 @@
         "seo": 100
       },
       "metrics": {
-        "largest-contentful-paint": 1141.1137250000002,
+        "largest-contentful-paint": 1144.2648,
         "cumulative-layout-shift": 0,
-        "total-blocking-time": 0
+        "total-blocking-time": 6
       }
     },
     {
@@ -275,9 +275,9 @@
         "seo": 100
       },
       "metrics": {
-        "largest-contentful-paint": 1177.3543000000004,
+        "largest-contentful-paint": 1127.1444,
         "cumulative-layout-shift": 0,
-        "total-blocking-time": 5
+        "total-blocking-time": 4
       }
     }
   ],
@@ -293,9 +293,9 @@
     "throttling": "Configuração padrão Lighthouse mobile/desktop; medições sequenciais na mesma máquina."
   },
   "source": {
-    "functionalCommit": "a1a6d95",
-    "baseCommit": "ead1e9c",
-    "command": "npm run audit:lighthouse",
+    "functionalCommit": "e0805fe",
+    "baseCommit": "7924356",
+    "command": "npm run build && node scripts/lighthouse.mjs",
     "origin": "http://127.0.0.1:4173",
     "deployed": false
   }

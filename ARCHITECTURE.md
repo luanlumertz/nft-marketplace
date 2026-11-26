@@ -259,6 +259,16 @@ O skeleton do detalhe reserva a altura aproximada dos blocos de informações e 
 
 ## Auditoria final
 
-Os 12 relatórios HTML/JSON de início/detalhe, com três execuções por perfil e ambiente completo, estão em [reports/lighthouse/final](./reports/lighthouse/final/README.md). Performance desktop teve mediana 98 nas duas páginas; mobile ficou em 81 no início e 79 no detalhe. Accessibility, Best Practices e SEO tiveram 100 em todas as combinações. CLS foi zero no detalhe e no início mobile, e ~0,000003 no início desktop.
+Os 12 relatórios HTML/JSON de início/detalhe, com três execuções por perfil e ambiente completo, estão em [reports/lighthouse/final](./reports/lighthouse/final/README.md). Performance desktop teve mediana 98 nas duas páginas; mobile ficou em 81 no início e 77 no detalhe. Accessibility, Best Practices e SEO tiveram 100 em todas as combinações. CLS teve mediana zero nas quatro combinações da rodada atual.
 
 A meta de performance mobile ≥90 permanece não atingida. LCP ~4 s, tarefas longas e trabalho de bootstrap/contratos/renderização limitam as medições. O MSW instala os interceptors antes do cliente Socket.IO; preservar essa ordem mantém os eventos simulados funcionais. Preloads adicionais de imagens e módulos foram testados e retirados por competição de banda. Os relatórios mantêm todas as medições e justificam os valores abaixo da meta, conforme solicitado pelo desafio.
+
+## Carregamento de busca e filtros
+
+O cabeçalho importa `header-search.tsx` e o formulário leve `catalog-search-form.tsx`, sem depender dos controles de preço/rede/ordenação. O drawer importa `catalog-filter-dialog.tsx` somente ao abrir, e esse módulo compõe os mesmos Dialog, CatalogFilters e Button. Os tipos compartilhados usam imports de tipo e não adicionam dependências ao bundle.
+
+No NftGrid, a sidebar só monta CatalogFilters em larguras ≥1024 px; a ordenação do toolbar carrega Select em ≥768 px. `useMediaQuery` usa matchMedia/useSyncExternalStore para acompanhar mudanças de largura e liberar os listeners no cleanup. Isso evita carregar os controles só para escondê-los por CSS. As classes e a composição final são preservadas, com skeleton na carga inicial da sidebar. Os filtros aplicados permanecem na URL e são repassados ao componente que estiver ativo após redimensionar.
+
+O novo teste passa por detalhe e catálogo mobile, confirma que os chunks de filtros/Select ainda não carregaram, abre o painel e verifica sua chegada. Depois aplica filtro de rede, preço e ordenação e alterna 390/1440/768 px, conferindo estado, foco e ausência de overflow. A revisão executa os 32 testes afetados de catálogo, detalhe, compra e regressão visual em cada sistema. As baselines existentes foram preservadas. A suíte completa contém 98 casos; a execução completa anterior de 96 e os 20 casos públicos estão mantidos como evidência histórica em reports/validation.
+
+A auditoria atual cobre o commit `e0805fe`. O JavaScript inicial mobile caiu 102,8 kB no catálogo e 67,0 kB no detalhe, antes da compressão. A nota não apresentou ganho demonstrado: início 81→81 e detalhe 79→77, com LCP menor e TBT maior nessa rodada. Os relatórios preservam o resumo anterior e a comparação, sem atribuir a variação de TBT a uma causa não medida. Antecipar consultas ou separar mocks não faz parte dessa mudança.

@@ -1,6 +1,6 @@
 # Conferência final — 26/11/2026
 
-Código funcional `a1a6d95`, baseado no merge `ead1e9c`. Build otimizado com MSW, fontes/imagens locais e Socket.IO ativos.
+Registro inicial do código funcional `a1a6d95`, baseado no merge `ead1e9c`. A revisão de carregamento `e0805fe` está descrita abaixo. Build otimizado com MSW, fontes/imagens locais e Socket.IO ativos.
 
 | Verificação | Resultado |
 | --- | --- |
@@ -43,4 +43,12 @@ Para atualizar uma baseline após mudança visual intencional, use `npm run test
 
 ## Limitação registrada
 
-Performance mobile ficou abaixo da meta de 90: mediana **81 no início e 79 no detalhe**. Desktop teve 98 nas duas páginas, e Accessibility/Best Practices/SEO tiveram 100 em todos os perfis. O relatório Lighthouse entrega as 12 execuções completas, métricas, ambiente e justificativas; a entrega não declara que atingiu a meta de performance mobile.
+Performance mobile ficou abaixo da meta de 90: mediana **81 no início e 77 no detalhe** na rodada atual (antes da separação dos filtros: 81/79). Desktop teve 98 nas duas páginas, e Accessibility/Best Practices/SEO tiveram 100 em todos os perfis. O relatório Lighthouse entrega as 12 execuções completas, métricas, ambiente e justificativas; a entrega não declara que atingiu a meta de performance mobile.
+
+## Revisão de carregamento dos filtros
+
+Sobre o código `e0805fe`, passaram **32/32 testes no Windows e 32/32 no Ubuntu/WSL**, sem retries. Foram exercitados catálogo completo, busca/filtros, URL/histórico, sliders, erros, Socket.IO, foco, galeria, compra até o recibo e todas as baselines. O novo caso verifica carregamento sob demanda e preservação do estado entre 390, 1440 e 768 px. As imagens de referência não foram alteradas.
+
+A suíte completa passa a ter **98 casos**. Esta revisão rodou os 32 casos afetados por sistema; os resultados de 96 completos e 20 públicos da tabela inicial se referem à versão anterior identificada no começo deste documento. Tipos, lint e build passaram na revisão.
+
+Uma nova rodada de 12 medições Lighthouse foi executada separadamente dos testes. O JavaScript inicial diminuiu, mas a pontuação mobile não melhorou: 81/77 contra 81/79 anteriormente. A comparação de recursos, as medianas, os dados anteriores e os relatórios atuais estão em [Lighthouse final](../lighthouse/final/README.md).
