@@ -343,7 +343,7 @@ export function NftDetailSkeleton() {
     <section
       role="status"
       aria-label="Carregando NFT"
-      className="grid grid-cols-[minmax(0,572px)_minmax(0,1fr)] gap-8 tablet:grid-cols-2 mobile:block"
+      className="grid min-h-338 grid-cols-[minmax(0,572px)_minmax(0,1fr)] content-start gap-8 tablet:grid-cols-2 mobile:block mobile:min-h-0"
     >
       <div className="grid grid-cols-[100px_minmax(0,1fr)] gap-7 tablet:grid-cols-[64px_minmax(0,1fr)] tablet:gap-3 mobile:block mobile:px-7 mobile:pt-16.5">
         <div className="flex flex-col gap-4 mobile:hidden">
@@ -636,7 +636,7 @@ export function NftDetailContent({
               <dd>{nft.attributes.join(', ')}</dd>
             </div>
           </dl>
-          <div className="mt-2 flex flex-wrap items-center gap-2 text-[14px] mobile:hidden">
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-[14px] [&>a]:grid [&>a]:size-6 [&>a]:place-items-center [&>button]:grid [&>button]:size-6 [&>button]:place-items-center mobile:hidden">
             <strong>Compartilhar este NFT:</strong>
             <a
               aria-label="Compartilhar no LinkedIn"

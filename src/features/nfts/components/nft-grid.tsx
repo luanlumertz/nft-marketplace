@@ -244,7 +244,7 @@ export function NftGrid() {
               aria-label="NFTs da coleção"
               className="nft-grid grid grid-cols-3 gap-x-8.5 gap-y-16 tablet:gap-x-5 tablet:gap-y-10 mobile:grid-cols-2 mobile:gap-x-6 mobile:gap-y-5"
             >
-              {data?.items.map((nft) => (
+              {data?.items.map((nft, index) => (
                 <li
                   key={nft.id}
                   className="nft-card min-w-0 relative [&_h3]:text-[15px] [&_h3]:mt-2.5 [&_h3]:leading-6 tablet:[&_h3]:text-[13px] mobile:[&_h3]:text-[13px] mobile:[&_h3]:leading-5 mobile:[&_h3]:m-[10px_7px_0]"
@@ -261,7 +261,7 @@ export function NftGrid() {
                         alt={`Arte de ${nft.name}`}
                         width={300}
                         height={300}
-                        loading="lazy"
+                        loading={index < 4 ? 'eager' : 'lazy'}
                       />
                       {nft.rare && (
                         <span className="rarity-label hidden mobile:block mobile:absolute mobile:top-4 mobile:left-0 mobile:bg-primary mobile:text-background mobile:p-[7px_10px] mobile:uppercase mobile:text-[12px]">
