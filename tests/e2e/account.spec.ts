@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
-import { mockRequest } from './helpers'
+import { chooseOption, mockRequest } from './helpers'
 
 const visibleButton = (page: Page, name: string | RegExp) =>
   page
@@ -35,12 +35,13 @@ async function fillWallet(
   await form
     .getByLabel('Apelido da carteira', { exact: false })
     .fill('Principal')
-  await form.getByLabel('Rede', { exact: false }).selectOption('ethereum')
+  await chooseOption(form.getByLabel('Rede', { exact: false }), 'ethereum')
   await form.getByLabel('Nome do perfil', { exact: false }).fill('ana')
   await form.getByLabel('Endereço da carteira', { exact: false }).fill(address)
-  await form
-    .getByLabel('Tipo de carteira', { exact: false })
-    .selectOption('metamask')
+  await chooseOption(
+    form.getByLabel('Tipo de carteira', { exact: false }),
+    'metamask',
+  )
   await form.getByLabel('Código de indicação', { exact: false }).fill('KURIO')
   await form.getByLabel('Nome ENS', { exact: false }).fill('ana')
   return form
@@ -240,7 +241,7 @@ test('cadastra, espelha e edita carteiras principal e secundária com persistên
   await page
     .getByRole('checkbox', { name: 'Igual à carteira principal' })
     .uncheck()
-  await secondary.getByLabel('Rede', { exact: false }).selectOption('polygon')
+  await chooseOption(secondary.getByLabel('Rede', { exact: false }), 'polygon')
   await secondary
     .getByLabel('Endereço da carteira', { exact: false })
     .fill('0x3333333333333333333333333333333333333333')
@@ -260,12 +261,112 @@ test('cadastra, espelha e edita carteiras principal e secundária com persistên
   ).toHaveText('0x3333333333333333333333333333333333333333')
 })
 
+test('exclui somente a carteira secundária, invalida sua conexão e preserva a principal', async ({
+  page,
+}) => {
+  await signIn(page, '/carteiras')
+  const form = await fillWallet(page)
+  await form
+    .getByRole('button', { name: 'Salvar carteira', exact: true })
+    .click()
+  const primary = page.getByRole('region', {
+    name: 'Carteira principal',
+    exact: true,
+  })
+  const secondary = page.getByRole('region', {
+    name: 'Carteira secundária',
+    exact: true,
+  })
+  await expect(primary.getByRole('status')).toHaveText(
+    'Carteira salva com sucesso.',
+  )
+  await page
+    .getByRole('checkbox', { name: 'Igual à carteira principal' })
+    .check()
+  await expect(secondary.getByRole('status')).toHaveText(
+    'Carteira salva com sucesso.',
+  )
+
+  // Exercise the same REST connection used by checkout, before removing that wallet.
+  const connected = await page.evaluate(async () => {
+    const headers = {
+      Authorization: `Bearer ${localStorage.getItem('kurio:session-token')}`,
+      'Content-Type': 'application/json',
+    }
+    const { items } = await (await fetch('/api/wallets', { headers })).json()
+    const wallet = items.find(
+      (item: { slot: string }) => item.slot === 'secondary',
+    )
+    const response = await fetch('/api/wallet-connections', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        walletId: wallet.id,
+        network: wallet.network,
+        provider: 'metamask',
+      }),
+    })
+    const primaryDeletion = await fetch('/api/wallets/primary', {
+      method: 'DELETE',
+      headers,
+    })
+    return {
+      connection: response.status,
+      primaryDeletion: primaryDeletion.status,
+    }
+  })
+  expect(connected).toEqual({ connection: 201, primaryDeletion: 405 })
+  await secondary.getByRole('button', { name: 'Editar', exact: true }).click()
+  await expect(
+    primary.getByRole('button', { name: 'Excluir carteira' }),
+  ).toHaveCount(0)
+  await mockRequest(page, 'scenario', 'wallets-error')
+  await secondary.getByRole('button', { name: 'Excluir carteira' }).click()
+  await expect(secondary.getByRole('alert')).toContainText(
+    'Não foi possível concluir',
+  )
+  await expect(
+    secondary.getByRole('button', { name: 'Excluir carteira' }),
+  ).toBeEnabled()
+  await mockRequest(page, 'scenario', 'default')
+  await secondary.getByRole('button', { name: 'Excluir carteira' }).click()
+  await expect(secondary.getByRole('status')).toHaveText(
+    'Carteira secundária excluída.',
+  )
+  await expect(secondary).toContainText(
+    'Você ainda não adicionou uma carteira secundária.',
+  )
+  const connection = await page.evaluate(
+    async () =>
+      (
+        await (
+          await fetch('/api/checkout', {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('kurio:session-token')}`,
+            },
+          })
+        ).json()
+      ).connection,
+  )
+  expect(connection).toBeNull()
+  await page.reload()
+  await expect(primary.getByLabel('Endereço da carteira principal')).toHaveText(
+    '0x1111111111111111111111111111111111111111',
+  )
+  await expect(secondary).toContainText(
+    'Você ainda não adicionou uma carteira secundária.',
+  )
+  await expect(
+    page.getByRole('checkbox', { name: 'Igual à carteira principal' }),
+  ).not.toBeChecked()
+})
+
 test('valida rede e recupera conflitos e indisponibilidade sem perder carteiras', async ({
   page,
 }) => {
   await signIn(page, '/carteiras')
   const form = await fillWallet(page)
-  await form.getByLabel('Rede', { exact: false }).selectOption('solana')
+  await chooseOption(form.getByLabel('Rede', { exact: false }), 'solana')
   await form
     .getByRole('button', { name: 'Salvar carteira', exact: true })
     .click()
@@ -338,11 +439,11 @@ test('isola o perfil entre contas e retoma a página após sessão expirada', as
     .filter({ visible: true })
     .click()
   await completeLogin(page, 'bruno@kurio.demo')
-  await visibleButton(page, 'Abrir conta de Bruno Lima').click()
   await page
-    .getByRole('dialog')
-    .getByRole('link', { name: 'Dados do perfil', exact: true })
+    .getByRole('link', { name: 'Ir ao perfil de Bruno Lima' })
+    .filter({ visible: true })
     .click()
+  await expect(page).toHaveURL('/perfil')
   await expect(
     form.getByLabel('Nome de exibição', { exact: false }),
   ).toHaveValue('Bruno Lima')

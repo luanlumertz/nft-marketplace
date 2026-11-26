@@ -2,8 +2,16 @@ import type { Nft } from '@/features/nfts/contracts'
 import type { NftDetail } from '@/features/nfts/detail-contracts'
 import { ethToWei } from '@/features/nfts/catalog-search'
 import { weiToEth } from '@/features/nfts/detail-contracts'
+import { commerce } from './commerce-store'
 
 export function detailFor(nft: Nft): NftDetail {
+  const inventory = commerce.read().inventory[nft.id]
+  const initialAvailable = nft.available + (inventory?.sold ?? 0)
+  const available = (edition: string, limit = initialAvailable) =>
+    Math.min(
+      nft.available,
+      Math.max(0, limit - (inventory?.editions[edition] ?? 0)),
+    )
   const networkName =
     nft.network === 'ethereum'
       ? 'Ethereum'
@@ -28,8 +36,12 @@ export function detailFor(nft: Nft): NftDetail {
       {
         id: 'ten',
         label: '1/10',
-        available:
-          nft.edition === '1/10' ? nft.available : Math.min(3, nft.available),
+        available: available(
+          'ten',
+          nft.edition === '1/10'
+            ? initialAvailable
+            : Math.min(3, initialAvailable),
+        ),
         priceEth:
           nft.edition === '1/10'
             ? nft.priceEth
@@ -38,13 +50,13 @@ export function detailFor(nft: Nft): NftDetail {
       {
         id: 'fifty',
         label: '1/50',
-        available: nft.available,
+        available: available('fifty'),
         priceEth: nft.priceEth,
       },
       {
         id: 'open',
         label: 'ABERTA',
-        available: nft.available,
+        available: available('open'),
         priceEth: nft.priceEth,
       },
     ],

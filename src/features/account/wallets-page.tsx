@@ -25,10 +25,12 @@ function WalletForm({
   slot,
   wallet,
   onSaved,
+  onDeleted,
 }: {
   slot: WalletSlot
   wallet?: Wallet
   onSaved: () => void
+  onDeleted?: () => void
 }) {
   const session = useSession()
   const [draft, setDraft] = useState<WalletDraft>(() =>
@@ -49,7 +51,7 @@ function WalletForm({
         },
   )
   const [fields, setFields] = useState<FieldErrors>({})
-  const { mutation, pending, save } = useSaveWallet()
+  const { mutation, pending, save, removeSecondary } = useSaveWallet()
   const failure = apiFailure(mutation.error),
     errors = { ...failure.fieldErrors, ...fields }
   const form = useRef<HTMLFormElement>(null)
@@ -184,20 +186,33 @@ function WalletForm({
           Confira os campos destacados.
         </p>
       )}
-      <Button
-        type="submit"
-        disabled={pending}
-        className="mt-8 h-10 rounded-xs font-semibold mobile:h-12 mobile:w-full mobile:rounded-lg"
-      >
-        {pending ? (
-          <>
-            <LoaderCircle className="animate-spin" />
-            Salvando…
-          </>
-        ) : (
-          'Salvar carteira'
+      <div className="mt-8 flex flex-wrap gap-3">
+        <Button
+          type="submit"
+          disabled={pending}
+          className="h-10 rounded-xs font-semibold mobile:h-12 mobile:w-full mobile:rounded-lg"
+        >
+          {pending ? (
+            <>
+              <LoaderCircle className="animate-spin" />
+              Salvando…
+            </>
+          ) : (
+            'Salvar carteira'
+          )}
+        </Button>
+        {onDeleted && (
+          <Button
+            type="button"
+            variant="outline"
+            disabled={pending}
+            className="h-10 rounded-xs border-destructive text-destructive hover:bg-destructive/10 hover:text-destructive mobile:h-12 mobile:w-full mobile:rounded-lg"
+            onClick={() => removeSecondary(onDeleted)}
+          >
+            Excluir carteira
+          </Button>
         )}
-      </Button>
+      </div>
     </form>
   )
 }
@@ -212,6 +227,7 @@ function WalletSection({
 }) {
   const [editing, setEditing] = useState(slot === 'primary' && !wallet)
   const [saved, setSaved] = useState(false)
+  const [deleted, setDeleted] = useState(false)
   const [mirrorRequested, setMirrorRequested] = useState(false)
   const { mutation, pending, save } = useSaveWallet()
   const title =
@@ -239,6 +255,7 @@ function WalletSection({
                 disabled={!primary || pending}
                 onChange={(event) => {
                   setSaved(false)
+                  setDeleted(false)
                   mutation.reset()
                   setMirrorRequested(event.target.checked)
                   if (event.target.checked)
@@ -259,6 +276,7 @@ function WalletSection({
             onClick={() => {
               setEditing(true)
               setSaved(false)
+              setDeleted(false)
               requestAnimationFrame(() =>
                 document
                   .getElementById(`wallet-${slot}`)
@@ -286,7 +304,18 @@ function WalletSection({
           onSaved={() => {
             setEditing(false)
             setSaved(true)
+            setDeleted(false)
           }}
+          onDeleted={
+            slot === 'secondary' && wallet
+              ? () => {
+                  setEditing(false)
+                  setSaved(false)
+                  setMirrorRequested(false)
+                  setDeleted(true)
+                }
+              : undefined
+          }
         />
       ) : wallet ? (
         <div className="mt-5 rounded-xl border border-border bg-card p-5 text-sm">
@@ -327,6 +356,11 @@ function WalletSection({
       {saved && (
         <p role="status" className="mt-4 text-sm text-primary">
           Carteira salva com sucesso.
+        </p>
+      )}
+      {deleted && (
+        <p role="status" className="mt-4 text-sm text-primary">
+          Carteira secundária excluída.
         </p>
       )}
     </section>

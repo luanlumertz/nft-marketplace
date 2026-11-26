@@ -2,7 +2,7 @@
 
 ## Escopo atual
 
-O início implementa a composição desktop/mobile das referências, com destaque selecionável, catálogo, busca, coleções, redes, faixa de preço, abas, ordenação, paginação, banners, seções editoriais e rodapé. Há 36 NFTs determinísticos, nove por página. O detalhe inclui galeria, ampliação, edições, quantidade, informações, avaliações e relacionados. Login, cadastro, sessão, logout, favoritos, carrinho, cotação, perfil, avatar, senha e carteiras são funcionais com MSW. Pagamento e pedidos pertencem à próxima etapa.
+O início implementa a composição desktop/mobile das referências, com destaque selecionável, catálogo, busca, coleções, redes, faixa de preço, abas, ordenação, paginação, banners, seções editoriais e rodapé. Há 36 NFTs determinísticos, nove por página. O detalhe inclui galeria, ampliação, edições, quantidade, informações, avaliações e relacionados. Login, cadastro, sessão, logout, favoritos, carrinho, cotação, perfil, avatar, senha, carteiras, pagamento e pedidos são funcionais com MSW. A auditoria final e as baselines de detalhe continuam pendentes.
 
 ## Organização
 
@@ -14,6 +14,7 @@ src/
   features/favorites/ favoritos por usuário, mutations e apresentação
   features/cart/    contratos, consultas, mutations e apresentação do carrinho
   features/account/ perfil, avatar, senha, carteiras e formulários compartilhados
+  features/checkout/ conexão simulada, revisão, tentativa idempotente, eventos e recibo
   lib/              configuração, Axios, QueryClient e utilitários
   mocks/            fixtures, persistência, handlers REST e Socket.IO
   routes/           rotas por arquivo do TanStack Router
@@ -48,6 +49,12 @@ O plugin do Router roda antes do plugin React, gera a árvore de rotas e separa 
 | PATCH | `/api/profile` | Recebe dados do perfil, `avatarUrl` e `passwordChange` opcional; valida e salva atomicamente |
 | GET | `/api/wallets` | `{ items: Wallet[] }` da conta autenticada, até uma por slot |
 | PUT | `/api/wallets/:slot` | `primary` ou `secondary`; salva/edita campos ou espelha a principal com `{ sameAsPrimary: true }` |
+| GET | `/api/checkout` | `{ connection: WalletConnection ou null }` da sessão atual |
+| POST | `/api/wallet-connections` | `{ walletId, network, provider }`; conexão simulada da carteira cadastrada (201) |
+| DELETE | `/api/wallet-connections/:id` | Desconecta a carteira da conta; HTTP 204 |
+| POST | `/api/orders` | Header `Idempotency-Key` UUID e `{ quoteVersion, connectionId, collector }`; retorna `Order` (201) |
+| GET | `/api/orders?attempt=UUID` | `{ order: Order ou null }` da tentativa da conta autenticada |
+| GET | `/api/orders/:id` | Snapshot e estado do pedido; 404 para inexistente ou pertencente a outra conta |
 
 ```ts
 type Nft = {
@@ -70,11 +77,11 @@ type Nft = {
 }
 ```
 
-O cenário de falha retorna HTTP 503 com `{ code: 'TRANSIENT_FAILURE', message: string }`; recursos ausentes retornam HTTP 404 com `NOT_FOUND`. Os controles rejeitam payloads inválidos com HTTP 422 e `VALIDATION_ERROR`. Outros contratos e classes de erro do desafio serão definidos junto aos respectivos fluxos.
+O cenário de falha retorna HTTP 503 com `{ code: 'TRANSIENT_FAILURE', message: string }`; recursos ausentes retornam HTTP 404 com `NOT_FOUND`. Os controles rejeitam payloads inválidos com HTTP 422 e `VALIDATION_ERROR`. Contratos e códigos específicos estão documentados nas seções dos respectivos recursos.
 
 `GET /api/nfts` aceita `q`, `collections` e `networks` (CSV), `minPrice`, `maxPrice`, `sort` (`recent`, `price-asc`, `price-desc`, `popular`), `tab` (`all`, `new`, `trending`) e `page`. Grupos de filtros são combinados por E; valores de um mesmo grupo, por OU. A busca ignora caixa e acentos. A ordenação é estável, com desempate pelo identificador. `facets` contém contagens globais e `featured` contém os destaques, separados dos resultados filtrados. `totalPages` é no mínimo 1; páginas excedentes são limitadas pela API.
 
-Valores ETH são strings no transporte, schemas, cache e apresentação. A comparação para filtro e ordenação converte strings para unidades inteiras de 18 casas com `BigInt`, sem usar ponto flutuante. O parser de URL preserva os preços mesmo em links manuais sem aspas, evitando a conversão implícita de decimais pelo parser JSON do Router. `Number` só ajusta a posição visual dos sliders; inputs textuais, requisições e comparações mantêm até 18 casas. Na compra, valores finais dependerão da cotação autoritativa da API.
+Valores ETH são strings no transporte, schemas, cache e apresentação. A comparação para filtro e ordenação converte strings para unidades inteiras de 18 casas com `BigInt`, sem usar ponto flutuante. O parser de URL preserva os preços mesmo em links manuais sem aspas, evitando a conversão implícita de decimais pelo parser JSON do Router. `Number` só ajusta a posição visual dos sliders; inputs textuais, requisições e comparações mantêm até 18 casas. Na compra, valores finais dependem da cotação autoritativa da API.
 
 ## Cache e cancelamento
 
@@ -82,17 +89,17 @@ Valores ETH são strings no transporte, schemas, cache e apresentação. A compa
 - `staleTime`: 30 segundos; descarte de queries inativas após cinco minutos.
 - Refetch ao recuperar conexão ou foco da janela, quando os dados estiverem obsoletos.
 - Uma tentativa adicional para falhas transitórias HTTP 5xx/sem resposta; nenhuma para cancelamento, HTTP 4xx ou schema inválido.
-- Mutations não possuem retry automático. Idempotência será implementada nos pedidos antes de qualquer reenvio.
+- Mutations não possuem retry automático. Pedidos persistem uma chave de idempotência e seu conteúdo antes do envio; recuperação consulta a mesma tentativa antes de reenviar.
 - O `AbortSignal` do Query chega ao Axios, permitindo cancelar requests de consultas que deixam de ser usadas.
 - O cache não é persistido. O store do mock é persistido e a API é consultada após refresh.
 
 O Router valida e normaliza todos os parâmetros. Arrays são deduplicados/ordenados e valores padrão são omitidos dos links. Busca/filtros/ordenação/aba reiniciam a página; só a API executa filtragem e paginação. Não há filtro de fixtures na interface. Novas consultas mostram skeleton; refetch da mesma consulta preserva o conteúdo e anuncia a atualização. Queries diferentes possuem chaves e sinais independentes, impedindo que uma resposta de uma busca anterior substitua a atual. As seleções e o rascunho de preço/busca são restaurados pelo histórico. O link do detalhe transporta a consulta para preservar o retorno.
 
-Com autenticação, queries privadas deverão incluir a identidade e ser removidas ao encerrar/trocar a sessão. Essa proteção ainda não existe porque não há recursos privados implementados.
+Queries privadas incluem a identidade do usuário e são canceladas/removidas ao encerrar ou trocar a sessão. Capturam a credencial de origem; callbacks antigos não atualizam a sessão nova.
 
 ## Tempo real
 
-O evento implementado nesta base é:
+O evento público do catálogo é:
 
 ```ts
 type NftUpdated = {
@@ -107,7 +114,7 @@ O cliente usa `socket.io-client`, transporte `websocket`, namespace padrão e pa
 
 Eventos são processados em sequência. Antes de aplicar um snapshot mais recente, consultas de NFT em andamento são canceladas; depois o cache é atualizado e REST é reconsultado. Isso impede uma resposta anterior ao evento de restaurar o preço antigo e recompõe filtros, ordenação, totais e paginação. Mesmo NFTs fora da página atual invalidam as listas, pois podem passar a pertencer à consulta.
 
-A subscription é instalada no layout raiz e removida no cleanup, junto com a conexão. Ela acompanha os eventos públicos do catálogo e invalida os carrinhos ativos para recalcular preços, disponibilidade e cotação pela REST autenticada. Na conexão/reconexão, catálogo e carrinho são reconciliados com a API. Subscriptions de pedidos por sessão e `order.updated` pertencem à etapa de pagamento.
+A subscription pública é instalada no layout raiz e removida no cleanup, junto com a conexão. Ela acompanha os eventos do catálogo e invalida os carrinhos ativos para recalcular preços, disponibilidade e cotação pela REST autenticada. Na conexão/reconexão, catálogo e carrinho são reconciliados com a API. Pedidos usam uma conexão separada, autenticada e limitada à sessão, descrita abaixo.
 
 ## Simulação
 
@@ -131,7 +138,7 @@ Controles de demonstração/testes (somente quando MSW está ativo):
 | POST | `/api/__mock/nfts/:id` | Altera `priceEth` e/ou `available`, incrementa versão e publica evento |
 | POST | `/api/__mock/events` | Injeta envelope `NftUpdated`, inclusive duplicatas/antigos |
 
-Os controles de eventos mantêm REST coerente com a versão mais recente. Não importam setters, componentes ou QueryClient. Testes chamam esses endpoints de dentro da página para passar pelo MSW. Os cenários mais complexos do enunciado ainda não estão implementados.
+Os controles de eventos mantêm REST coerente com a versão mais recente. Não importam setters, componentes ou QueryClient. Testes chamam esses endpoints de dentro da página para passar pelo MSW. Os controles específicos de pedidos estão documentados na seção de pagamento.
 
 ## Interface e assets
 
@@ -151,7 +158,7 @@ O acesso direto ao Figma não foi liberado pela integração; foram usadas as im
 
 “Limpar filtros” aparece somente com busca, coleções, redes, faixa de preço ou aba restritiva ativos. Ordenação e paginação isoladas não ativam esse botão. O item Mercado do header aponta para `/#catalogo`; não existe uma rota própria para Mercado nesta etapa.
 
-Conteúdo editorial e newsletter são somente apresentação; links de coleções e banners navegam para consultas reais. Conta, favoritos e carrinho estão ativos. Pagamento/pedidos, login social e recuperação de senha permanecem indisponíveis, sem mensagens fictícias de sucesso.
+Conteúdo editorial e newsletter são somente apresentação; links de coleções e banners navegam para consultas reais. Conta, favoritos, carrinho, pagamento e pedidos estão ativos. Login social e recuperação de senha permanecem indisponíveis, sem mensagens fictícias de sucesso.
 
 O catálogo mobile também apresenta os banners de coleções e o Diário da Cunhagem após a paginação. Os banners usam imagem e texto lado a lado; os cards editoriais usam duas colunas com título e metadados, omitindo o parágrafo de descrição para reduzir texto. O mesmo `SiteFooter` oferece no início mobile uma versão compacta com atalhos funcionais, coleções em disclosure nativo acessível, carteiras compatíveis e copyright. Blocos de benefícios, newsletter, contatos ilustrativos e links auxiliares ficam na versão desktop. O rodapé compacto reserva espaço para a navegação fixa. Estas extensões mobile foram autorizadas além do trecho disponível no frame original.
 
@@ -167,7 +174,7 @@ O cliente envia a credencial opaca em `Authorization: Bearer`. O store MSW mant�
 
 A sessão é consultada por REST após refresh, reconexão/foco e a cada 15 segundos com aba ativa; um timer também respeita `expiresAt`. Em 401 da credencial atual, o cliente limpa a sessão, cancela/remove queries privadas e abre `/login?redirect=...&reason=expired`. A URL de retorno aceita somente caminhos internos e conserva filtros, edição e quantidade. Favoritar como visitante transporta o identificador e retoma um PUT após autenticar. Uma falha nessa retomada é informada sem afirmar que o favorito foi salvo.
 
-Queries privadas usam `['private', userId, 'favorites']`. Logout e autenticação de outra conta cancelam/remove queries desse prefixo. Requisições privadas capturam a credencial de origem; callbacks verificam se ela ainda é atual antes de alterar o cache. Respostas 401 antigas não encerram uma sessão nova. Eventos `storage` reconciliam troca de sessão entre abas. O socket atual transporta somente catálogo público; não existem subscriptions privadas nesta etapa, e seus listeners continuam com cleanup de ciclo de vida.
+Queries de favoritos usam `['private', userId, 'favorites']`. Logout e autenticação de outra conta cancelam/remove queries do prefixo privado do usuário. Requisições privadas capturam a credencial de origem; callbacks verificam se ela ainda é atual antes de alterar o cache. Respostas 401 antigas não encerram uma sessão nova. Eventos `storage` reconciliam troca de sessão entre abas. O canal público do catálogo e o canal autenticado de pedidos têm cleanup independente de listeners e conexões.
 
 A mutation de favorito cancela a consulta, captura o snapshot e atualiza otimisticamente o conjunto de identificadores. Em falha, restaura o snapshot; em sucesso, usa a resposta da API e invalida a consulta. PUT/DELETE operam com um conjunto no store e não duplicam favoritos. Não há retry automático de mutations nem de queries privadas/sessão. Após logout, rotas marcadas com `staticData.requiresAuth`, como Favoritos, são substituídas pelo catálogo inicial; páginas públicas mantêm a URL e a seleção atual. No desktop, o fundo do modal de autenticação reproduz a página de retorno. O catálogo recebe os filtros por contexto e não normaliza a URL de paginação enquanto serve de fundo.
 
@@ -179,7 +186,7 @@ Os cenários E2E de conta cobrem seleção/galeria, retorno após login, persist
 
 `GET /cart` retorna os itens e o resumo autoritativo juntos. Cada item contém `nftId`, `editionId`, `quantity`, nome, imagem, token, rótulo da edição, `unitPriceEth`, `totalEth`, `available`, `nftVersion` e `issue` (`sold-out`, `insufficient` ou null). A identidade da linha é NFT + edição. POST soma quantidades, PATCH substitui e DELETE remove; inclusões/alterações validam inteiros de 1 a 999 e consultam a disponibilidade atual. Erros de seleção retornam 422, recurso inexistente 404 e estoque insuficiente 409, sem aplicar a alteração.
 
-O store MSW persiste apenas seleções, cupom e revisão em `kurio:carts:v1`. Os campos derivados vêm do mesmo catálogo e das mesmas edições do detalhe. `quote` contém `version`, `subtotalEth`, `discountEth`, `networkFeeEth`, `totalEth`, cupom/validade e `canCheckout`. A versão combina a revisão do carrinho, versões dos NFTs e validade do cupom. É uma referência para integrar a revalidação do checkout; esta etapa não cria pedidos nem reserva estoque.
+O store MSW persiste seleções, cupom e revisão em `kurio:commerce:v1`, junto aos pedidos, conexões e baixas de estoque. Carrinhos antigos de `kurio:carts:v1` são migrados automaticamente ao reidratar. Os campos derivados vêm do mesmo catálogo e das mesmas edições do detalhe. `quote` contém `version`, `subtotalEth`, `discountEth`, `networkFeeEth`, `totalEth`, cupom/validade e `canCheckout`. A versão combina a revisão do carrinho, versões dos NFTs e validade do cupom; o handler de pedidos revalida esse snapshot antes de aceitar uma compra.
 
 Todo valor monetário permanece string decimal. O handler converte para unidades inteiras de 18 casas com `BigInt`, soma os totais das linhas, aplica KURIO10 (10%, truncado na menor unidade) e soma a taxa simulada de `0.016 ETH` para carrinho não vazio. EXPIRADO retorna 422/COUPON_EXPIRED; outros códigos retornam 422/COUPON_INVALID. POST `/cart/quote` com `code: null` remove o cupom. Código inválido/expirado não substitui o cupom salvo. GET recalcula os valores e indica se um cupom previamente aplicado deixou de ser válido.
 
@@ -189,7 +196,7 @@ Queries usam `['cart-guest', guestId]` para visitantes e `['private', userId, 'c
 
 `nft.updated` aceito pelo controle de versões invalida a cotação pela REST; a reconexão também reconcilia o carrinho. Quantidades acima do estoque são mantidas com aviso e ação de ajuste; estoque zero exige remoção. A versão da cotação muda com o catálogo. O resumo não é recalculado em componentes nem por setters acionados pelos mocks. `cart-error`, `coupon-invalid` e `coupon-expired` completam os cenários determinísticos; o reset integral limpa todos os carrinhos.
 
-Desktop usa tabela visual e resumo lateral; mobile usa cards e resumo abaixo, adaptados às imagens fornecidas, com Tailwind e componentes shadcn/ui. Rótulos de edição e remoção explícita complementam a referência para distinguir linhas e permitir remover qualquer item. Os totais seguem as respostas da API, inclusive quando diferem dos números ilustrativos do Figma. “Conectar e finalizar” abre o login do visitante e preserva o carrinho ao retornar; pagamento ainda fica desabilitado após autenticar, sem simular compra concluída.
+Desktop usa tabela visual e resumo lateral; mobile usa cards e resumo abaixo, adaptados às imagens fornecidas, com Tailwind e componentes shadcn/ui. Rótulos de edição e remoção explícita complementam a referência para distinguir linhas e permitir remover qualquer item. Os totais seguem as respostas da API, inclusive quando diferem dos números ilustrativos do Figma. “Conectar e finalizar” abre o login do visitante e preserva o carrinho ao retornar; após autenticar, abre o pagamento quando a cotação está válida.
 
 ## Perfil e carteiras
 
@@ -205,15 +212,39 @@ Wallet contém id estável, slot, nome de exibição, apelido, rede, nome do per
 
 As operações usam a conta da sessão: credenciais inválidas retornam 401, slots inexistentes 404, validações 422 e conflitos determinísticos 409. `profile-error`, `wallets-error`, `profile-conflict` e `wallet-conflict` completam os cenários. O reset integral também restaura perfis e carteiras. Os novos E2E cobrem acesso privado, validações, conflito, persistência, avatar, senha atômica, credenciais novas/antigas, carteiras por rede, espelhamento, edição independente, recuperação de falhas, isolamento por conta e expiração com retorno.
 
+## Pagamento e pedidos
+
+`/pagamento` e `/pedidos/:orderId` usam o mesmo guard REST e `requiresAuth` das páginas da conta. Checkout reutiliza perfil, carteiras, `AccountField`, Button e Dialog shadcn/ui e a query do carrinho. Desktop usa formulário e resumo em duas colunas; **Usar outra carteira?**, entre os campos e a observação, revela o seletor ao lado. Mobile mostra carteiras, **Trocar carteira** (próxima da lista), três provedores, total e um único botão no rodapé. Não há seções extras de dados/resumo nem etapa visual de conexão. A escolha começa vazia e bloqueia a confirmação; a conexão ocorre automaticamente ao confirmar, antes da revisão em Dialog. Recibo ocupa uma página isolada: separadores verticais dos metadados só no desktop, labels de taxa/total na coluna central, sem linha entre eles nem identificação redundante ao final. Mobile mantém metadados em duas colunas e quantidades legíveis. O ícone de carta usa `MailOpen` do Lucide: não foi fornecido um asset separado do envelope “Thank you”. Imagens dos NFTs e demais componentes são locais e reaproveitados.
+
+Conexões recebem `{ walletId, network, provider }`. O handler resolve a carteira pelo usuário autenticado, exige a rede cadastrada e retorna `{ id, walletId, network, provider, address, expiresAt }`. A conexão fica vinculada à credencial atual, por 30 minutos, e é revalidada ao criar pedido; conexão ausente, expirada, de outra sessão ou carteira alterada retorna 409. Recusa simulada retorna 422. A escolha de provedor é simulada; não acessa extensões nem resolve ENS. Desconexão usa DELETE e novas conexões substituem a conexão anterior da mesma sessão.
+
+O cliente valida nome, username, nome do perfil, e-mail, ENS, código de indicação, endereço secundário e limite da observação. O endereço principal vem da carteira cadastrada. No mobile, os campos removidos da interface usam os dados válidos atuais de perfil/carteira, sem bloquear a compra por um rascunho antigo oculto. Rascunhos ficam em `kurio:checkout:<userId>` e a tentativa em `kurio:attempt:<userId>`, sem credenciais/senhas. `providerSelected` distingue uma escolha explícita dos defaults da versão anterior; um provedor pré-selecionado automaticamente no código antigo não habilita o botão novo. O rascunho não altera o perfil automaticamente. Antes do POST, a tentativa é persistida como `{ key, input }`; falha nessa persistência impede envio. O conteúdo inclui somente `quoteVersion`, `connectionId` e `collector`: valores e itens são reconstruídos pela API, nunca aceitos do cliente.
+
+POST `/orders` exige `Idempotency-Key` UUID. A mesma chave/conteúdo, no escopo do usuário, devolve o mesmo pedido inclusive após conclusão; conteúdo diferente retorna 409 `IDEMPOTENCY_CONFLICT`. A identidade de um pedido não depende de consulta ao carrinho depois de criado. Antes da criação, a API verifica a sessão novamente, conexão, endereço secundário, cupom, disponibilidade, reservas pendentes e a versão da cotação. Mudança retorna 409 `QUOTE_CHANGED`/`CART_CONFLICT`; o cliente descarta a tentativa não aceita, atualiza a cotação e exige nova revisão. O botão bloqueia envios simultâneos também por uma referência síncrona, antes do próximo render.
+
+`Order` contém id, dono, chave, versão, estado, datas, motivo, referência de transação e snapshots do colecionador/carteira/carrinho. O pedido começa `pending`; cenário e instante de conclusão são persistidos. O padrão confirma após 1,8 s e `payment-declined` recusa; `order-pending` exige controle explícito. Timers aceleram o feedback, mas GET reconcilia prazos persistidos após refresh e não depende do timer anterior. Confirmado e recusado são terminais. Somente `confirmed` apresenta recibo; `pending` e `declined` têm telas próprias e ações de recuperação.
+
+`commerce.change` clona e grava um único estado antes de substituir a memória. A conclusão confirma o pedido, gera a referência, baixa estoque por NFT/edição e subtrai apenas as quantidades compradas do carrinho no mesmo commit. Itens novos, outras edições e quantidades extras permanecem. O catálogo compartilha um estoque total por NFT e limites por edição; reservas são derivadas dos pedidos pendentes e recusas liberam essas quantidades. As baixas persistidas acrescentam versões monotônicas aos NFTs; eventos `nft.updated` sincronizam catálogo, detalhe e demais carrinhos. O recibo lê o snapshot persistido, sem recotar nem consultar preços atuais.
+
+Queries usam `['private', userId, 'checkout']` e `['private', userId, 'orders', 'detail'|'attempt', id]`, sem retry automático. Headers e callbacks capturam a credencial de origem. POST do pedido tem timeout de 4,5 s; `order-timeout` cria e atrasa sua resposta 6,5 s. Não se afirma recusa num erro de transporte: Recuperar pedido consulta GET por chave e só reenvia, com chave e conteúdo originais, se a API não encontrar pedido. Refresh e retorno após autenticar consultam a tentativa persistida. Uma resposta antiga não navega nem atualiza outra sessão.
+
+`useOrderEvents` usa `socket.io-client` e o binding MSW no mesmo transporte público já documentado. `orders.subscribe` envia a credencial opaca; o servidor verifica a sessão e só publica `order.updated` ao dono. O evento contém `{ eventId, resourceId, userId, version, status }`. O cliente valida o contrato, dono e versão, ignora versões repetidas/antigas e invalida queries; o snapshot autorizado e terminal vem da REST. Reconexão invalida pedidos e carrinho. Cleanup encerra conexão e listeners na saída ou troca da sessão. A conexão pública do catálogo permanece independente. O transporte usa eventos Engine.IO/Socket.IO reais interceptados pelo MSW, sem setters diretos na UI.
+
+Os controles `__mock/orders/:id/settle`, `__mock/order-events` e `__mock/orders-online` permitem finalizar pedidos, reenviar eventos antigos/duplicados e interromper apenas o canal privado. `__mock/state` informa `orderSubscribers`. Reset limpa timers e todo o estado de comércio. Os mocks vivem no navegador, sem servidor compartilhado entre dispositivos; reidratação após reload usa o estado local persistido. Não há processamento financeiro, RPC, explorer externo nem garantias de um backend real.
+
 ## Verificação e entrega
 
-A CI verifica tipos, lint e build com npm 11 e 12, além de E2E em Chromium desktop/mobile. Playwright testa o build otimizado com contextos novos e MSW ativo, registra relatório HTML e retém traces de falhas. A suíte cobre catálogo, histórico, precisão, erros, eventos, foco, autenticação, favoritos, carrinho, perfil, avatar, senha e carteiras. Os cenários do carrinho verificam seleção/edição, quantidades, limites, remoção, cupom, refresh, transferência no login, isolamento por conta, eventos de preço/estoque e recuperação de falhas. Pagamento e pedidos ainda não estão cobertos.
+A CI verifica tipos, lint e build com npm 11 e 12, além de E2E em Chromium desktop/mobile. Playwright testa o build otimizado com contextos novos e MSW ativo, registra relatório HTML e retém traces de falhas. A suíte cobre catálogo, histórico, precisão, erros, eventos, foco, autenticação, favoritos, carrinho, perfil, avatar, senha, carteiras e compra. Os cenários de pagamento cobrem recibo imutável e baixa de estoque, conexão/recusa/desconexão, revisão de cotação alterada, edição esgotada via Socket.IO, pagamento recusado, clique repetido, conflito de idempotência, timeout/503 com recuperação, reconexão de pedido pendente, eventos antigos/duplicados, quantidades adicionadas depois da compra, expiração, isolamento entre contas, skeleton e falha recuperável.
 
-Baselines de início e carrinho desktop/mobile são separadas por projeto e sistema (`win32`/`linux`), com dados estáveis e animações desativadas na captura. A tolerância de 3.000 pixels é mantida dentro do mesmo sistema, sem mascarar diferenças de métricas de fontes/controles entre plataformas. As capturas Linux do início foram extraídas do artefato da CI; as do carrinho usam Chromium no Ubuntu/WSL com o build otimizado. Detalhe e pagamento ainda terão baselines próprias.
+Baselines de início, carrinho e pagamento desktop/mobile são separadas por projeto e sistema (`win32`/`linux`), com dados estáveis e animações desativadas na captura. A tolerância de 3.000 pixels é mantida dentro do mesmo sistema, sem mascarar diferenças de métricas de fontes/controles entre plataformas. As capturas Linux atuais usam Chromium no Ubuntu/WSL com o build otimizado. Detalhe ainda terá baselines próprias na revisão final.
 
 Na entrega da etapa de carrinho, tipos, lint e build passaram. A suíte completa passou com 54 testes no Windows e 54 no Ubuntu/WSL, em Chromium desktop/mobile, sem retries. Os testes no Linux usaram o mesmo `dist/` otimizado servido localmente, com MSW e o cliente Socket.IO ativos. Lighthouse não foi reexecutado nesta etapa.
 
 Na entrega de perfil e carteiras, tipos, lint e build passaram. A suíte completa passou com 68 testes no Windows e 68 no Ubuntu/WSL, em Chromium desktop/mobile, sem retries, usando o mesmo build otimizado. Os 14 casos novos cobrem os fluxos privados descritos acima. Perfil e carteiras também foram conferidos em 390, 768 e 1440 px, sem overflow horizontal. Lighthouse não foi reexecutado nesta etapa.
+
+Na entrega de pagamento e pedidos, a suíte completa passou com 92 testes no Windows e 92 no Ubuntu/WSL, em Chromium desktop/mobile, sem retries. Foram adicionados 24 casos de pagamento. O ajuste final de retorno de foco e os snapshots de pagamento passaram novamente em quatro casos por sistema, sobre o build final; tipos, lint e build também passaram. Pagamento e recibo foram conferidos em 390, 768 e 1440 px, sem overflow. Lighthouse e baselines do detalhe permanecem para a revisão final.
+
+Na revisão de fidelidade de pagamento/recibo, passaram 28 testes por sistema (Windows e Ubuntu/WSL), sem retries: todos os fluxos de pagamento e a composição visual de início/carrinho/pagamento, em desktop/mobile. As quatro baselines de pagamento foram atualizadas. A conexão automática, a troca de carteira, o botão bloqueado sem provedor e a preservação da seleção na expiração foram exercitados; tipos, lint e build passaram. As telas também foram conferidas em 390, 768 e 1440 px.
 
 `scripts/lighthouse.mjs` usa o Chromium do Playwright, serve o build e executa três rodadas por página/perfil por padrão. Gera relatórios completos e medianas de Performance, Accessibility, Best Practices e SEO, além de LCP/CLS/TBT e ambiente. As metas devem ser verificadas novamente com todas as funcionalidades e layouts implementados.
 

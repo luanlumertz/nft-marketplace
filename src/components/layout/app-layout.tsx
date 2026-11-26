@@ -26,10 +26,12 @@ export function AppLayout() {
   const detail = pathname.startsWith('/nfts/')
   const cart = pathname === '/carrinho'
   const account = pathname === '/perfil' || pathname === '/carteiras'
+  const checkout = pathname === '/pagamento'
+  const order = pathname.startsWith('/pedidos/')
 
   return (
     <div
-      className={`app-shell min-h-svh ${home ? 'home-layout mobile:[&_.site-main]:pt-10 mobile:[&_.site-main]:pb-12' : ''} ${detail ? 'detail-layout mobile:[&_.site-main]:w-full mobile:[&_.site-main]:p-0 mobile:[&_.mobile-navigation]:hidden' : ''} ${cart ? 'cart-layout mobile:[&_.site-main]:w-full mobile:[&_.site-main]:p-0 mobile:[&_.mobile-navigation]:hidden' : ''}`}
+      className={`app-shell min-h-svh ${home ? 'home-layout mobile:[&_.site-main]:pt-10 mobile:[&_.site-main]:pb-12' : ''} ${detail ? 'detail-layout mobile:[&_.site-main]:w-full mobile:[&_.site-main]:p-0 mobile:[&_.mobile-navigation]:hidden' : ''} ${checkout ? 'checkout-layout mobile:[&_.site-main]:w-full mobile:[&_.site-main]:p-0 mobile:[&_.mobile-navigation]:hidden' : ''} ${order ? 'order-layout [&_.site-main]:pt-40 mobile:[&_.site-main]:pt-6 [&_.site-header]:hidden [&_.site-footer]:hidden mobile:[&_.site-main]:w-[calc(100%-32px)] mobile:[&_.mobile-navigation]:hidden' : ''} ${cart ? 'cart-layout mobile:[&_.site-main]:w-full mobile:[&_.site-main]:p-0 mobile:[&_.mobile-navigation]:hidden' : ''}`}
     >
       <SessionBoundary />
       <SessionNotice />
@@ -62,7 +64,7 @@ export function AppLayout() {
             to="/"
             hash="catalogo"
             activeProps={{ className: '' }}
-            className={detail || cart ? 'active' : ''}
+            className={detail || cart || checkout ? 'active' : ''}
           >
             Mercado
           </Link>
@@ -94,7 +96,7 @@ export function AppLayout() {
       </div>
       {!account && <SiteFooter showOnMobile={home} />}
       <nav
-        className="mobile-navigation hidden mobile:fixed mobile:bottom-0 mobile:left-0 mobile:right-0 mobile:h-23.75 mobile:p-[24px_24px_max(18px,env(safe-area-inset-bottom))] mobile:rounded-[32px_32px_0_0] mobile:before:absolute mobile:before:inset-0 mobile:before:rounded-[inherit] mobile:before:bg-card mobile:before:content-[''] mobile:before:pointer-events-none mobile:before:[mask-image:radial-gradient(circle_54px_at_50%_10px,transparent_53px,#000_54px)] mobile:[&>a]:relative mobile:[&>button]:relative mobile:flex mobile:items-center mobile:justify-around mobile:text-muted-foreground mobile:z-40 mobile:[&_>_a]:grid mobile:[&_>_a]:place-items-center mobile:[&_>_a]:min-w-11 mobile:[&_>_a]:min-h-11 mobile:[&_>_button]:grid mobile:[&_>_button]:place-items-center mobile:[&_>_button]:min-w-11 mobile:[&_>_button]:min-h-11 mobile:**:aria-[current='page']:text-primary mobile:[&_.mobile-explore]:relative mobile:[&_.mobile-explore]:-top-10 mobile:[&_.mobile-explore]:w-14 mobile:[&_.mobile-explore]:h-14 mobile:[&_.mobile-explore]:rounded-[50%] mobile:[&_.mobile-explore]:[background:linear-gradient(110deg,#f2c28a,#b77538)] mobile:[&_.mobile-explore]:text-foreground"
+        className="mobile-navigation hidden mobile:fixed mobile:bottom-0 mobile:left-0 mobile:right-0 mobile:h-23.75 mobile:p-[24px_24px_max(18px,env(safe-area-inset-bottom))] mobile:rounded-[32px_32px_0_0] mobile:before:absolute mobile:before:inset-0 mobile:before:rounded-[inherit] mobile:before:bg-card mobile:before:content-[''] mobile:before:pointer-events-none mobile:before:[mask-image:url('/mobile-nav-notch.svg'),linear-gradient(#000_0_0)] mobile:before:[mask-size:128px_64px,100%_100%] mobile:before:[mask-position:center_top,0_0] mobile:before:[mask-repeat:no-repeat] mobile:before:[mask-composite:exclude] mobile:[&>a]:relative mobile:[&>button]:relative mobile:flex mobile:items-center mobile:justify-around mobile:text-muted-foreground mobile:z-40 mobile:[&_>_a]:grid mobile:[&_>_a]:place-items-center mobile:[&_>_a]:min-w-11 mobile:[&_>_a]:min-h-11 mobile:[&_>_button]:grid mobile:[&_>_button]:place-items-center mobile:[&_>_button]:min-w-11 mobile:[&_>_button]:min-h-11 mobile:**:aria-[current='page']:text-primary mobile:[&_.mobile-explore]:relative mobile:[&_.mobile-explore]:-top-10 mobile:[&_.mobile-explore]:w-14 mobile:[&_.mobile-explore]:h-14 mobile:[&_.mobile-explore]:rounded-[50%] mobile:[&_.mobile-explore]:[background:linear-gradient(110deg,#f2c28a,#b77538)] mobile:[&_.mobile-explore]:text-foreground"
         aria-label="Navegação mobile"
       >
         <Link

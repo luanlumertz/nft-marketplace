@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { nftSchema, type Nft } from '@/features/nfts/contracts'
 import { nftFixtures } from './fixtures/nfts'
+import { commerce } from './commerce-store'
 
 export const MOCK_STORAGE_KEY = 'kurio:mock:v2'
 export const scenarioSchema = z.enum([
@@ -21,6 +22,15 @@ export const scenarioSchema = z.enum([
   'profile-conflict',
   'wallets-error',
   'wallet-conflict',
+  'checkout-error',
+  'wallet-rejected',
+  'wallet-disconnected',
+  'order-error',
+  'order-timeout',
+  'order-pending',
+  'payment-declined',
+  'price-changed',
+  'edition-sold-out',
 ])
 
 const storeSchema = z.object({
@@ -51,7 +61,19 @@ function persist() {
 }
 
 export const mockStore = {
-  getState: () => state,
+  getState: () => ({
+    ...state,
+    nfts: state.nfts.map((nft) => {
+      const inventory = commerce.read().inventory[nft.id]
+      return inventory
+        ? {
+            ...nft,
+            available: Math.max(0, nft.available - inventory.sold),
+            version: nft.version + inventory.version,
+          }
+        : nft
+    }),
+  }),
   reset() {
     state = initialState()
     persist()
@@ -62,8 +84,18 @@ export const mockStore = {
   },
   updateNft(nft: Nft) {
     const current = state.nfts.find((item) => item.id === nft.id)
-    if (!current || current.version >= nft.version) return
-    state.nfts = state.nfts.map((item) => (item.id === nft.id ? nft : item))
+    const inventory = commerce.read().inventory[nft.id]
+    if (!current || current.version + (inventory?.version ?? 0) >= nft.version)
+      return
+    state.nfts = state.nfts.map((item) =>
+      item.id === nft.id
+        ? {
+            ...nft,
+            available: nft.available + (inventory?.sold ?? 0),
+            version: nft.version - (inventory?.version ?? 0),
+          }
+        : item,
+    )
     persist()
   },
 }

@@ -6,9 +6,9 @@ Solução para o [desafio frontend da Jungle](https://github.com/junglegaming/fr
 
 Catálogo responsivo com destaques, busca, filtros combináveis, ordenação e paginação na URL, com 36 NFTs simulados. A interface segue as referências desktop/mobile fornecidas, com barra lateral no desktop, painel de filtros acessível no mobile e navegação para o detalhe. React + TypeScript + Vite, TanStack Router/Query, Axios, Tailwind CSS, shadcn/ui, MSW e Socket.IO participam dos fluxos.
 
-O detalhe possui galeria com ampliação, edições, quantidade limitada pelo estoque, informações, avaliações e itens relacionados, com versões desktop/mobile. Login, cadastro, sessão, logout e favoritos por usuário estão integrados à API simulada. O carrinho permite adicionar a seleção do detalhe, editar quantidades, remover itens, aplicar cupom e consultar valores atualizados pela API e pelo Socket.IO. Perfil, avatar, alteração de senha e carteiras principal/secundária também persistem pela API simulada. Pagamento e pedidos continuam para a próxima etapa.
+O detalhe possui galeria com ampliação, edições, quantidade limitada pelo estoque, informações, avaliações e itens relacionados, com versões desktop/mobile. Login, cadastro, sessão, logout e favoritos por usuário estão integrados à API simulada. O carrinho permite adicionar a seleção do detalhe, editar quantidades, remover itens, aplicar cupom e consultar valores atualizados pela API e pelo Socket.IO. Perfil, avatar, alteração de senha e carteiras principal/secundária também persistem pela API simulada. Pagamento e pedidos incluem conexão simulada da carteira, revisão, criação idempotente, estados pendente/confirmado/recusado, recuperação de falhas e recibo persistido.
 
-A estilização usa classes Tailwind, incluindo estados e variantes responsivas. Button, Skeleton, Dialog, Slider, Input e Tabs são componentes shadcn/ui locais adaptados ao visual do projeto. O CSS global mantém o tema, fontes, estilos de base e animações.
+A estilização usa classes Tailwind, incluindo estados e variantes responsivas. Button, Skeleton, Dialog, Slider, Input, Select e Tabs são componentes shadcn/ui locais adaptados ao visual do projeto. Os seletores compartilham menu escuro, destaque laranja, navegação por teclado e setas com espaço reservado. O CSS global mantém o tema, fontes, estilos de base e animações.
 
 Aplicação de produção: [nft-marketplace-chi-five.vercel.app](https://nft-marketplace-chi-five.vercel.app/). A produção acompanha `main`; alterações em PR ficam no preview da Vercel até o merge.
 
@@ -60,23 +60,52 @@ Use **KURIO10** para desconto de 10%, **EXPIRADO** para um cupom expirado ou out
 
 Eventos `nft.updated` reconsultam o carrinho e a cotação. Preço novo aparece no resumo; estoque insuficiente preserva a seleção e oferece **Ajustar quantidade**. Edições esgotadas precisam ser removidas. Quantidades válidas são rechecadas pelo handler nas inclusões/alterações, com HTTP 409 para conflito.
 
-**Conectar e finalizar** abre o login do visitante com retorno ao carrinho. A criação do pagamento/pedido ainda não pertence a esta etapa; após autenticar, o botão permanece desabilitado. Nenhuma compra é simulada como concluída.
+**Conectar e finalizar** abre o login do visitante com retorno ao carrinho. Após autenticar, o botão abre `/pagamento`, desde que os itens e a cotação estejam válidos.
 
-Os cenários `cart-error`, `coupon-invalid` e `coupon-expired` exercitam falha transitória do carrinho e erros de cupom. O estado dos carrinhos fica em `kurio:carts:v1`, e o identificador anônimo em `kurio:cart-guest`. O reset integral limpa os carrinhos de visitantes e contas junto aos demais dados.
+Os cenários `cart-error`, `coupon-invalid` e `coupon-expired` exercitam falha transitória do carrinho e erros de cupom. Carrinhos, pedidos, conexões e baixas de estoque ficam em `kurio:commerce:v1`; carrinhos antigos de `kurio:carts:v1` são migrados automaticamente. O identificador anônimo continua em `kurio:cart-guest`. O reset integral limpa os carrinhos de visitantes e contas junto aos demais dados.
 
 ## Perfil e carteiras
 
-Abra **Dados do perfil** ou **Carteiras** no menu da conta, ou acesse `/perfil` e `/carteiras`. Ambas exigem login e preservam a rota de retorno após autenticar. A navegação lateral do desktop vira uma faixa horizontal no mobile, com todas as opções e setas quando houver conteúdo fora da tela. Seções ainda indisponíveis permanecem identificadas e sem ação.
+O botão da conta abre diretamente `/perfil`; de lá, acesse **Carteiras** ou as demais seções disponíveis. `/perfil` e `/carteiras` exigem login e preservam a rota de retorno após autenticar. A navegação lateral do desktop vira uma faixa horizontal no mobile, com todas as opções e setas quando houver conteúdo fora da tela. O logout também tem o rótulo **Sair** no mobile. Seções ainda indisponíveis permanecem identificadas e sem ação.
 
 No perfil, edite nome de exibição, nome de usuário, e-mail, nome ENS e apelido da carteira. **Alterar** seleciona um avatar PNG, JPEG ou WebP de até **512 KB**; **Remover** limpa a prévia. Clique em **Salvar** para confirmar dados/avatar. Para trocar a senha, preencha os três campos de senha antes de salvar. Se qualquer validação falhar, inclusive senha atual incorreta ou e-mail/nome de usuário em uso, a alteração inteira é recusada. A nova senha substitui a credencial de login e revoga outras sessões da conta; a sessão atual permanece aberta. Senhas nunca são persistidas em claro.
 
 Em Carteiras, complete os campos do frame e clique em **Salvar carteira**. Após salvar, **Editar** reabre o formulário. A carteira secundária pode ser cadastrada separadamente ou usar **Igual à carteira principal**; nesse modo, alterações confirmadas na principal também atualizam a secundária. Desmarcar abre a edição independente, confirmada ao salvar.
+
+Ao editar uma secundária existente, **Excluir carteira** remove seu cadastro pela API simulada (`DELETE /wallets/secondary`). A principal é preservada e não permite exclusão. Conexões da carteira removida deixam de ser válidas para novas compras; pedidos já enviados conservam seu snapshot. Se a exclusão falhar, os dados permanecem e é possível tentar novamente.
 
 Ethereum/Polygon aceitam endereços `0x` com 40 dígitos hexadecimais, exceto o endereço zero. Solana exige Base58 que represente 32 bytes. Nome ENS usa um nome ASCII de 3 a 63 caracteres seguido de `.eth`; não existe resolução ENS ou conexão real com blockchain. No campo alternativo, ENS é aceito na Ethereum. Código de indicação é textual e obrigatório conforme o frame, sem integração externa.
 
 Exemplos fictícios para demonstrar o formulário: rede Ethereum, endereço `0x1111111111111111111111111111111111111111`, tipo MetaMask, ENS `ana.eth` e código de indicação `KURIO`. Carteiras começam vazias e ficam separadas por conta. Dados de perfil/carteiras são adicionados ao store `kurio:accounts:v1`, mantendo compatibilidade com contas anteriores; o reset integral restaura tudo.
 
 Use `profile-error` e `wallets-error` para falhas 503; `profile-conflict` força conflito de e-mail e `wallet-conflict` força conflito ao vincular carteira. `slow` e `session-expired` também se aplicam. Essas telas apenas cadastram dados que serão usados no pagamento; não simulam conexão ou compra concluída.
+
+## Pagamento e pedidos
+
+1. Adicione um NFT ao carrinho, entre na conta e cadastre pelo menos uma carteira em **Carteiras**. Os exemplos fictícios da seção anterior permitem preencher o cadastro.
+2. No carrinho, clique em **Conectar e finalizar**. Em `/pagamento`, confira a carteira e escolha WalletConnect, MetaMask ou Coinbase Wallet. Sem uma escolha de provedor, **Confirmar compra** fica desabilitado.
+3. No desktop, confira os dados do colecionador e a rede. **Usar outra carteira?** revela o seletor abaixo do formulário. No mobile, **Trocar carteira** alterna para a próxima carteira cadastrada; dados do colecionador vêm do perfil e da carteira, e o total aparece abaixo das três opções.
+4. Clique em **Confirmar compra**: a conexão simulada é feita automaticamente antes da revisão, vinculada à sessão atual e válida por 30 minutos. Mudar de carteira/provedor encerra a conexão anterior. **Confirmar e enviar pedido** revalida a cotação no servidor simulado. Se preço, disponibilidade ou cupom mudar, revise e confirme novamente.
+5. A rota `/pedidos/:id` acompanha o pedido. O cenário padrão confirma após aproximadamente 1,8 s; o recibo só aparece após confirmação da API. O recibo conserva os valores originais após alterações no catálogo. O explorador mostra a referência local simulada.
+
+O rascunho e a identificação da tentativa são guardados por usuário. Depois de timeout ou falha transitória, **Recuperar pedido** consulta a tentativa e reaproveita a mesma chave caso seja necessário reenviar. Refresh e retorno após login recuperam o contexto. Pedidos de outra conta retornam 404. Uma recusa mantém os itens e permite iniciar outra tentativa; confirmar remove somente as quantidades compradas, preservando inclusões posteriores, baixa o estoque e publica `nft.updated`.
+
+Não há integração com extensões, blockchain ou pagamentos reais. Os campos do colecionador usados no pagamento pertencem ao pedido e não alteram o perfil automaticamente. O mock compartilha disponibilidade entre as edições do mesmo NFT e também respeita os limites de cada edição; pedidos pendentes reservam as quantidades até seu resultado.
+
+| Cenário MSW | Como reproduzir |
+| --- | --- |
+| `wallet-rejected` | Antes de clicar em Confirmar compra: a carteira recusa a conexão automática |
+| `wallet-disconnected` | Depois de abrir a revisão, antes de enviar: o servidor exige nova conexão; volte a `default` e confirme novamente |
+| `price-changed` / `edition-sold-out` | Depois de abrir a revisão: o envio altera preço/estoque e exige revisar o carrinho |
+| `payment-declined` | Antes de enviar: o pedido termina recusado e preserva o carrinho |
+| `order-timeout` | Antes de enviar: cria o pedido, mas atrasa a resposta além do timeout; use Recuperar pedido ou refresh |
+| `order-error` | Antes de enviar: HTTP 503 sem criar pedido; volte a `default` e recupere a mesma tentativa |
+| `order-pending` | Mantém pendente até um controle de conclusão explícito |
+| `checkout-error` | Recarregue o pagamento para exibir falha 503; volte a `default` e tente novamente |
+
+Para concluir um pedido mantido pendente, use seu id da URL: `await fetch('/api/__mock/orders/ID/settle', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify('confirmed') })`. Troque por `declined` para recusa. Estados terminais não são alterados por repetições.
+
+Para testar interrupção durante um pedido pendente, execute `await fetch('/api/__mock/orders-online', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(false) })`. Conclua o pedido pelo controle acima e envie `true` ao mesmo endpoint para reconectar: Socket.IO reconcilia o pedido pela REST, sem nova compra. Refresh também recupera o estado persistido.
 
 ## Comandos
 
@@ -146,7 +175,9 @@ No Linux/CI, use `npx playwright install --with-deps chromium`.
 
 Cada teste recebe um contexto de navegador novo, com armazenamento isolado. Os testes usam o build otimizado, requisições REST interceptadas pelo MSW e o cliente Socket.IO real. As verificações cobrem filtros combinados, parâmetros da API, histórico, refresh, paginação, respostas obsoletas, precisão decimal, abertura do detalhe, 404, skeletons, falha e recuperação, resultado vazio, eventos novos/duplicados/antigos e recomposição da lista, persistência, teclado, foco dos diálogos, autenticação e favoritos. O carrinho acrescenta quantidades, remoção, edições separadas, conflitos de estoque, cupom inválido/expirado, transferência no login, isolamento de contas, atualização de preço/estoque e precisão de 18 casas. Os fluxos automatizados usam 390 e 1440 px; o layout também foi conferido em 768 px.
 
-Relatórios ficam em `playwright-report/`; screenshots e traces de falhas em `test-results/`. A CI publica essas pastas como artefato. As baselines de início e carrinho desktop/mobile estão versionadas em `tests/e2e/__screenshots__/`, separadas por projeto e sistema (`win32` e `linux`), pois fontes e controles nativos podem alterar métricas e quebras de linha. As imagens Linux do início vieram do artefato da CI; as do carrinho foram capturadas no Chromium do Ubuntu/WSL com o build otimizado e conferidas visualmente. Para atualizar após uma alteração visual intencional, use `npm run test:e2e -- --grep composição --update-snapshots=all` no respectivo sistema e confira as imagens antes de versionar. A comparação mantém até 3.000 pixels divergentes dentro do mesmo sistema; dados/carrossel são estáveis e animações desativadas na captura. As outras telas e os fluxos restantes terão cobertura nas próximas etapas.
+Os testes de pagamento cobrem compra até o recibo, baixa do estoque, snapshot imutável, validação, conexão/recusa/desconexão, cotação alterada, edição esgotada por Socket.IO, pagamento recusado, duplicação e conflito de idempotência, timeout/503 com recuperação, pedido pendente após reconexão/refresh, eventos antigos/duplicados, preservação de itens adicionados depois, expiração, isolamento entre contas e skeleton/falha recuperável.
+
+Relatórios ficam em `playwright-report/`; screenshots e traces de falhas em `test-results/`. A CI publica essas pastas como artefato. As baselines de início, carrinho e pagamento desktop/mobile estão versionadas em `tests/e2e/__screenshots__/`, separadas por projeto e sistema (`win32` e `linux`), pois fontes e controles nativos podem alterar métricas e quebras de linha. As imagens Linux atuais foram capturadas no Chromium do Ubuntu/WSL com o build otimizado e conferidas visualmente. Para atualizar após uma alteração visual intencional, use `npm run test:e2e -- --grep composição --update-snapshots=all` no respectivo sistema e confira as imagens antes de versionar. A comparação mantém até 3.000 pixels divergentes dentro do mesmo sistema; dados/carrossel são estáveis e animações desativadas na captura. Baselines do detalhe e a auditoria final permanecem para o fechamento da entrega.
 
 ## Lighthouse
 
@@ -164,7 +195,7 @@ npm run audit:lighthouse -- --runs=1 --profile=desktop --page=home
 
 Uma medição rápida valida a infraestrutura, mas não substitui as três medições de cada página/perfil exigidas na entrega final.
 
-A auditoria do início desta etapa está versionada em [reports/lighthouse/catalog](./reports/lighthouse/catalog/README.md), com três execuções por perfil e relatórios HTML/JSON. Medianas: Performance **89 mobile / 100 desktop**; Accessibility, Best Practices e SEO **100** em ambos. A meta de performance mobile ainda não foi atingida; as causas observadas, a variabilidade e as otimizações aplicadas estão documentadas no relatório. A auditoria do detalhe completo permanece para a respectiva etapa.
+A auditoria do início desta etapa está versionada em [reports/lighthouse/catalog](./reports/lighthouse/catalog/README.md), com três execuções por perfil e relatórios HTML/JSON. Medianas: Performance **89 mobile / 100 desktop**; Accessibility, Best Practices e SEO **100** em ambos. A meta de performance mobile ainda não foi atingida; as causas observadas, a variabilidade e as otimizações aplicadas estão documentadas no relatório. A auditoria do detalhe completo permanece para a revisão final.
 
 ## CI e deploy
 

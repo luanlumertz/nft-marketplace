@@ -122,7 +122,7 @@ export function useSaveWallet() {
       origin,
     }: {
       slot: WalletSlot
-      input: WalletSave
+      input: WalletSave | null
       origin: Origin
     }) => {
       if (!isCurrent(origin))
@@ -131,10 +131,13 @@ export function useSaveWallet() {
         queryKey: accountKeys.wallets(origin.userId),
       })
       return walletsSchema.parse(
-        (
-          await http.put(`/wallets/${slot}`, input, {
-            headers: headers(origin.token),
-          })
+        (input === null
+          ? await http.delete(`/wallets/${slot}`, {
+              headers: headers(origin.token),
+            })
+          : await http.put(`/wallets/${slot}`, input, {
+              headers: headers(origin.token),
+            })
         ).data,
       )
     },
@@ -148,12 +151,27 @@ export function useSaveWallet() {
         void client.invalidateQueries({
           queryKey: accountKeys.wallets(origin.userId),
         })
+        void client.invalidateQueries({
+          queryKey: ['private', origin.userId, 'checkout'],
+        })
       }
     },
   })
   return {
     mutation,
     pending,
+    removeSecondary: (onSuccess: () => void) => {
+      if (!session.data?.user || pending) return
+      const origin = { token: getSessionToken(), userId: session.data.user.id }
+      mutation.mutate(
+        { slot: 'secondary', input: null, origin },
+        {
+          onSuccess: () => {
+            if (isCurrent(origin)) onSuccess()
+          },
+        },
+      )
+    },
     save: (
       slot: WalletSlot,
       input: WalletSave,

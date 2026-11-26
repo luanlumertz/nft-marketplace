@@ -3,6 +3,7 @@ import { useNavigate, useSearch } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { Search, SlidersHorizontal } from 'lucide-react'
 import { Slider } from '@/components/ui/slider'
+import { SelectControl } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
 import {
   collections,
@@ -291,21 +292,16 @@ export function CatalogFilters({
           Limpar filtros
         </button>
       )}
-      <label className="filter-sort hidden [&_select]:bg-card [&_select]:[border:1px_solid_var(--border)] [&_select]:p-2.5 [&_select]:rounded-sm">
+      <label className="filter-sort hidden">
         Ordenar por
-        <select
+        <SelectControl
           aria-label="Ordenar por"
           value={search.sort}
-          onChange={(e) =>
-            update({ sort: e.target.value as CatalogSearch['sort'] })
+          options={sortOptions}
+          onValueChange={(value) =>
+            update({ sort: value as CatalogSearch['sort'] })
           }
-        >
-          {sortOptions.map(([value, label]) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
-        </select>
+        />
       </label>
     </div>
   )

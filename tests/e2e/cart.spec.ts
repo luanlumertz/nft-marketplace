@@ -156,8 +156,15 @@ test('preserva o carrinho do visitante no login e isola contas e logout', async 
   await page.reload()
   await expect(row(page).getByRole('status')).toHaveText('2')
   await page.goto('/')
-  await visibleButton(page, 'Abrir conta de Ana Costa').click()
-  await page.getByRole('button', { name: 'Sair da conta' }).click()
+  await page
+    .getByRole('link', { name: 'Ir ao perfil de Ana Costa' })
+    .filter({ visible: true })
+    .click()
+  await page
+    .getByRole('button', { name: /^(Sair|Sair da conta)$/ })
+    .filter({ visible: true })
+    .click()
+  await expect(page).toHaveURL('/')
   await expect(page.getByRole('dialog')).toHaveCount(0)
   await page.goto('/carrinho')
   await expect(
@@ -169,8 +176,15 @@ test('preserva o carrinho do visitante no login e isola contas e logout', async 
     page.getByRole('heading', { name: 'Seu carrinho está vazio' }),
   ).toBeVisible()
   await page.goto('/')
-  await visibleButton(page, 'Abrir conta de Bruno Lima').click()
-  await page.getByRole('button', { name: 'Sair da conta' }).click()
+  await page
+    .getByRole('link', { name: 'Ir ao perfil de Bruno Lima' })
+    .filter({ visible: true })
+    .click()
+  await page
+    .getByRole('button', { name: /^(Sair|Sair da conta)$/ })
+    .filter({ visible: true })
+    .click()
+  await expect(page).toHaveURL('/')
   await expect(page.getByRole('dialog')).toHaveCount(0)
   await page.goto('/login?redirect=%2Fcarrinho')
   await signIn(page)

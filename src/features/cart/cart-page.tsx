@@ -394,11 +394,11 @@ export function CartPage() {
                   )}
                   {cart.user ? (
                     <Button
-                      disabled
-                      title="Pagamento indisponível nesta etapa"
+                      asChild
+                      disabled={!canConnect}
                       className="mt-5 h-10 w-full rounded-xs font-semibold disabled:opacity-100 mobile:mt-7 mobile:h-15 mobile:rounded-full mobile:bg-linear-to-r mobile:from-primary mobile:to-[#b77943]"
                     >
-                      Conectar e finalizar
+                      <Link to="/pagamento" onClick={(event) => { if (!canConnect) event.preventDefault() }} aria-disabled={!canConnect} tabIndex={canConnect ? undefined : -1}>Conectar e finalizar</Link>
                     </Button>
                   ) : (
                     <Button

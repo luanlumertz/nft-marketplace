@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
-import { mockRequest, returnToCatalog } from './helpers'
+import { chooseOption, mockRequest, returnToCatalog } from './helpers'
 
 const list = (page: Page) => page.getByRole('list', { name: 'NFTs da coleção' })
 const mobile = (page: Page) => (page.viewportSize()?.width ?? 1440) < 768
@@ -54,14 +54,16 @@ test('combina filtros, preço, busca e ordenação e restaura pelo histórico e 
 
   if (mobile(page)) {
     const dialog = await openFilters(page)
-    await dialog
-      .getByLabel('Ordenar por', { exact: true })
-      .selectOption('price-desc')
+    await chooseOption(
+      dialog.getByLabel('Ordenar por', { exact: true }),
+      'price-desc',
+    )
     await closeFilters(page)
   } else
-    await page
-      .getByRole('combobox', { name: 'Ordenar NFTs' })
-      .selectOption('price-desc')
+    await chooseOption(
+      page.getByRole('combobox', { name: 'Ordenar NFTs' }),
+      'price-desc',
+    )
   await expect(list(page).getByRole('listitem').first()).toContainText(
     'Ivory Baron',
   )

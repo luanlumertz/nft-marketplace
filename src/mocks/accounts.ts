@@ -284,6 +284,14 @@ export const accounts = {
   wallets(userId: string) {
     return { items: structuredClone(state.wallets[userId] ?? []) }
   },
+  deleteSecondaryWallet(userId: string) {
+    const next = structuredClone(state)
+    next.wallets[userId] = (next.wallets[userId] ?? []).filter(
+      (wallet) => wallet.slot !== 'secondary',
+    )
+    commit(next)
+    return { items: structuredClone(next.wallets[userId]) }
+  },
   saveWallet(
     userId: string,
     slot: WalletSlot,

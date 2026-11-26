@@ -117,10 +117,14 @@ test('isola favoritos depois de logout e troca de usuário', async ({
     page.getByRole('heading', { name: 'Sage Nomad #009' }),
   ).toBeVisible()
   const account = page
-    .getByRole('button', { name: 'Abrir conta de Ana Costa' })
+    .getByRole('link', { name: 'Ir ao perfil de Ana Costa' })
     .filter({ visible: true })
   await account.click()
-  await page.getByRole('button', { name: 'Sair da conta' }).click()
+  await page
+    .getByRole('button', { name: /^(Sair|Sair da conta)$/ })
+    .filter({ visible: true })
+    .click()
+  await expect(page).toHaveURL('/')
   await expect(page).toHaveURL('/')
   await expect(
     page.getByRole('list', { name: 'NFTs da coleção' }),
@@ -160,7 +164,7 @@ test('valida cadastro, trata conflito e persiste conta sem senha em claro', asyn
   await page.reload()
   await expect(
     page
-      .getByRole('button', { name: 'Abrir conta de Nova Coleção' })
+      .getByRole('link', { name: 'Ir ao perfil de Nova Coleção' })
       .filter({ visible: true }),
   ).toBeVisible()
   const persisted = await page.evaluate(() =>
