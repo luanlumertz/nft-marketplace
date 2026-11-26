@@ -1,343 +1,31 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { useQuery } from '@tanstack/react-query'
 import {
   ArrowLeft,
-  ChevronLeft,
-  ChevronRight,
   Copy,
   Mail,
   Minus,
   Plus,
-  Search,
   ShoppingCart,
   Star,
-  X,
 } from 'lucide-react'
 import { FaLinkedinIn, FaXTwitter } from 'react-icons/fa6'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Skeleton } from '@/components/ui/skeleton'
-import { CarouselDots } from '@/components/carousel-dots'
 import { FavoriteButton } from '@/features/favorites/favorite-button'
+import { useCart } from '@/features/cart/use-cart'
+import { useDocumentTitle } from '@/hooks/use-document-title'
 import { ethToWei, parseCatalogSearch } from '../catalog-search'
 import {
   weiToEth,
   type NftDetail,
   type validateDetailSearch,
 } from '../detail-contracts'
-import { relatedNftsOptions } from '../queries'
-import { catalogDefaults } from '../catalog-search'
-import { useCart } from '@/features/cart/use-cart'
+import { NftGallery } from './nft-gallery'
+import { NftDetailTabs } from './nft-detail-tabs'
+import { NftRecommendations } from './nft-recommendations'
 
 type DetailSearch = ReturnType<typeof validateDetailSearch>
-function Gallery({ nft }: { nft: NftDetail }) {
-  const zoomTrigger = useRef<HTMLButtonElement>(null)
-  const [active, setActive] = useState(0),
-    [zoom, setZoom] = useState(false)
-  const image = nft.gallery[active] ?? nft.gallery[0]
-  const move = (offset: number) =>
-    setActive(
-      (value) => (value + offset + nft.gallery.length) % nft.gallery.length,
-    )
-  return (
-    <>
-      <div className="grid grid-cols-[100px_minmax(0,1fr)] gap-7 tablet:grid-cols-[64px_minmax(0,1fr)] tablet:gap-3 mobile:block">
-        <div
-          className="flex flex-col gap-4 mobile:hidden"
-          aria-label="Galeria de imagens"
-        >
-          {nft.gallery.map((image, index) => (
-            <button
-              key={`${image.url}-${index}`}
-              type="button"
-              onClick={() => setActive(index)}
-              aria-label={`Ver imagem ${index + 1}`}
-              aria-pressed={index === active}
-              className={`overflow-hidden rounded-lg border ${index === active ? 'border-primary' : 'border-transparent'}`}
-            >
-              <img
-                src={image.url}
-                alt={image.alt}
-                width={100}
-                height={100}
-                className="aspect-square w-full object-cover"
-              />
-            </button>
-          ))}
-        </div>
-        <div className="relative flex items-center justify-center rounded-2xl bg-card p-5 mobile:block mobile:bg-transparent mobile:p-0">
-          <button
-            type="button"
-            className="block w-full"
-            aria-label="Abrir galeria de imagens"
-            onClick={(event) => {
-              zoomTrigger.current = event.currentTarget
-              setZoom(true)
-            }}
-          >
-            <img
-              src={image.url}
-              alt={`Arte de ${nft.name}`}
-              width={500}
-              height={500}
-              fetchPriority="high"
-              className="aspect-square w-full rounded-3xl object-cover mobile:rounded-[20px]"
-            />
-          </button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={(event) => {
-              zoomTrigger.current = event.currentTarget
-              setZoom(true)
-            }}
-            aria-label="Ampliar imagem do NFT"
-            className="absolute top-3 right-3 size-8 rounded-full bg-card text-foreground hover:bg-card mobile:hidden"
-          >
-            <Search className="size-6" />
-          </Button>
-        </div>
-      </div>
-      <CarouselDots
-        count={nft.gallery.length}
-        active={active}
-        onSelect={setActive}
-        label="Selecionar imagem da galeria"
-        buttonLabel="Imagem da galeria"
-        className="hidden py-3 mobile:flex"
-      />
-      <Dialog open={zoom} onOpenChange={setZoom}>
-        <DialogContent
-          className="fixed top-1/2 left-1/2 z-81 w-[min(780px,calc(100%-32px))] -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-border bg-card p-4"
-          onCloseAutoFocus={(event) => {
-            event.preventDefault()
-            zoomTrigger.current?.focus()
-          }}
-          onKeyDown={(event) => {
-            if (event.key === 'ArrowLeft') move(-1)
-            if (event.key === 'ArrowRight') move(1)
-          }}
-        >
-          <DialogTitle className="sr-only">Galeria de {nft.name}</DialogTitle>
-          <DialogDescription className="sr-only">
-            Use as setas para trocar a imagem e Escape para fechar.
-          </DialogDescription>
-          <img
-            src={image.url}
-            alt={image.alt}
-            className="mx-auto max-h-[75dvh] rounded-2xl object-contain"
-          />
-          <DialogClose
-            className="absolute top-4 right-4 rounded-full bg-card p-2"
-            aria-label="Fechar imagem"
-          >
-            <X />
-          </DialogClose>
-          <div className="mt-3 flex items-center justify-between">
-            <Button
-              variant="ghost"
-              onClick={() => move(-1)}
-              aria-label="Imagem anterior"
-            >
-              <ChevronLeft />
-            </Button>
-            <span className="text-sm">
-              {active + 1} / {nft.gallery.length}
-            </span>
-            <Button
-              variant="ghost"
-              onClick={() => move(1)}
-              aria-label="Próxima imagem"
-            >
-              <ChevronRight />
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
-  )
-}
-
-function DetailTabs({ nft }: { nft: NftDetail }) {
-  const [visible, setVisible] = useState(3)
-  const allVisible = visible >= nft.reviews.length
-  return (
-    <Tabs defaultValue="details" className="gap-4">
-      <TabsList
-        variant="line"
-        className="h-auto w-full justify-start gap-8 rounded-none border-b border-border bg-transparent p-0 group-data-[orientation=horizontal]/tabs:h-auto mobile:gap-4"
-      >
-        <TabsTrigger
-          value="details"
-          className="h-auto flex-none rounded-none border-0 border-b-2 border-transparent bg-transparent px-0 pt-0 pb-2 text-[16px] font-normal text-foreground shadow-none after:hidden data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:font-semibold data-[state=active]:text-primary data-[state=active]:shadow-none mobile:text-[12px]"
-        >
-          Detalhes do NFT
-        </TabsTrigger>
-        <TabsTrigger
-          value="reviews"
-          data-review-tab
-          className="h-auto flex-none rounded-none border-0 border-b-2 border-transparent bg-transparent px-0 pt-0 pb-2 text-[16px] font-normal text-foreground shadow-none after:hidden data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:font-semibold data-[state=active]:text-primary data-[state=active]:shadow-none mobile:text-[12px]"
-        >
-          Avaliações de colecionadores ({nft.reviews.length})
-        </TabsTrigger>
-      </TabsList>
-      <TabsContent
-        value="details"
-        className="space-y-6 text-[14px] leading-6 text-muted-foreground"
-      >
-        {nft.fullDescription.map((paragraph) => (
-          <p key={paragraph}>{paragraph}</p>
-        ))}
-        <dl className="space-y-4">
-          <div>
-            <dt className="font-semibold text-foreground">Rede:</dt>
-            <dd>{nft.networkDescription}</dd>
-          </div>
-          <div>
-            <dt className="font-semibold text-foreground">Contrato:</dt>
-            <dd>{nft.royalties}</dd>
-          </div>
-          <div>
-            <dt className="font-semibold text-foreground">
-              Direitos autorais:
-            </dt>
-            <dd>
-              {nft.contractAddress} • Contrato inteligente ERC-721 verificado.
-            </dd>
-          </div>
-        </dl>
-      </TabsContent>
-      <TabsContent value="reviews" className="space-y-4">
-        {nft.reviews.slice(0, visible).map((review) => (
-          <article
-            key={review.id}
-            className="rounded-xl border border-border p-4 text-sm"
-          >
-            <div className="flex flex-wrap justify-between gap-2">
-              <h3 className="font-semibold">{review.author}</h3>
-              <span
-                className="text-primary"
-                aria-label={`${review.rating} de 5 estrelas`}
-              >
-                {'★'.repeat(review.rating)}
-              </span>
-            </div>
-            <p className="mt-2 leading-6 text-muted-foreground">
-              {review.text}
-            </p>
-            <p className="mt-2 text-xs text-muted-foreground">{review.date}</p>
-          </article>
-        ))}
-        {nft.reviews.length > 3 && (
-          <Button
-            variant={allVisible ? 'default' : 'outline'}
-            onClick={() =>
-              setVisible((value) =>
-                allVisible ? 3 : Math.min(value + 3, nft.reviews.length),
-              )
-            }
-          >
-            {allVisible
-              ? 'Mostrar menos avaliações'
-              : 'Mostrar mais avaliações'}
-          </Button>
-        )}
-      </TabsContent>
-    </Tabs>
-  )
-}
-
-export function NftRecommendations({
-  id,
-  search = catalogDefaults,
-  title = 'Mais desta coleção',
-}: {
-  id: string
-  search?: ReturnType<typeof parseCatalogSearch>
-  title?: string
-}) {
-  const query = useQuery(relatedNftsOptions(id)),
-    [page, setPage] = useState(0)
-  const pages = Math.ceil((query.data?.items.length ?? 0) / 5)
-  return (
-    <section className="mt-24 mobile:hidden" aria-labelledby="related-title">
-      <h2
-        id="related-title"
-        className="border-b border-border pb-2 text-[18px] font-semibold text-primary"
-      >
-        {title}
-      </h2>
-      {query.isPending ? (
-        <div className="mt-8 grid grid-cols-5 gap-6">
-          {Array.from({ length: 5 }, (_, i) => (
-            <Skeleton key={i} className="aspect-square" />
-          ))}
-        </div>
-      ) : query.isError ? (
-        <p role="alert" className="mt-6 text-sm text-muted-foreground">
-          Não foi possível carregar os itens relacionados.{' '}
-          <button
-            className="text-primary underline"
-            onClick={() => {
-              void query.refetch()
-            }}
-          >
-            Tentar novamente
-          </button>
-        </p>
-      ) : (
-        <>
-          <ul className="mt-8 grid grid-cols-5 gap-6 tablet:gap-3">
-            {query.data?.items.slice(page * 5, page * 5 + 5).map((item) => (
-              <li key={item.id}>
-                <Link
-                  to="/nfts/$nftId"
-                  params={{ nftId: item.id }}
-                  search={parseCatalogSearch(search)}
-                  className="block"
-                >
-                  <div className="flex aspect-219/256 items-center overflow-hidden rounded-[12px] bg-card p-3">
-                    <img
-                      src={item.imageUrl}
-                      alt={`Arte de ${item.name}`}
-                      width={219}
-                      height={256}
-                      loading="lazy"
-                      className="aspect-square w-full rounded-2xl object-cover"
-                    />
-                  </div>
-                  <h3 className="mt-3 text-sm">{item.name}</h3>
-                  <p className="text-[18px] font-semibold text-primary">
-                    {item.priceEth} ETH
-                  </p>
-                </Link>
-              </li>
-            ))}
-          </ul>
-          {pages > 1 && (
-            <CarouselDots
-              count={pages}
-              active={page}
-              onSelect={setPage}
-              label="Páginas de itens relacionados"
-              buttonLabel="Relacionados, página"
-              className="mt-6"
-            />
-          )}
-        </>
-      )}
-    </section>
-  )
-}
-
 export function NftDetailSkeleton() {
   return (
     <section
@@ -401,13 +89,7 @@ export function NftDetailContent({
     )
   }
   const [shareMessage, setShareMessage] = useState('')
-  useEffect(() => {
-    const previous = document.title
-    document.title = `${nft.name} | Kurio`
-    return () => {
-      document.title = previous
-    }
-  }, [nft.name])
+  useDocumentTitle(`${nft.name} | Kurio`)
   const update = (patch: { edition?: string; quantity?: number }) => {
     void navigate({
       search: (previous) => ({ ...previous, ...patch }),
@@ -489,7 +171,7 @@ export function NftDetailContent({
               className="size-9 rounded-full border-border bg-card"
             />
           </div>
-          <Gallery nft={nft} />
+          <NftGallery nft={nft} />
         </div>
         <div className="mobile:relative mobile:rounded-t-[36px] mobile:bg-[#251610] mobile:px-6 mobile:pt-8 mobile:pb-48">
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -679,7 +361,7 @@ export function NftDetailContent({
               Detalhes e avaliações
             </summary>
             <div className="mt-4">
-              <DetailTabs nft={nft} />
+              <NftDetailTabs nft={nft} />
             </div>
           </details>
         </div>
@@ -689,7 +371,7 @@ export function NftDetailContent({
         className="mt-24 scroll-mt-6 mobile:hidden"
         aria-label="Informações e avaliações"
       >
-        <DetailTabs nft={nft} />
+        <NftDetailTabs nft={nft} />
       </section>
       <NftRecommendations id={nft.id} search={search} />
       <div className="fixed inset-x-0 bottom-0 z-40 hidden rounded-t-[40px] bg-[#251610] px-6 pt-5 pb-[max(28px,env(safe-area-inset-bottom))] shadow-[0_-10px_30px_#160e0a33] mobile:block">

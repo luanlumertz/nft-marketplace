@@ -13,6 +13,49 @@ import {
 } from '../catalog-search'
 import type { NftList } from '../contracts'
 import type { UpdateCatalog } from './catalog-filter-types'
+
+function FilterGroup<Value extends string>({
+  title,
+  options,
+  selected,
+  facets,
+  onChange,
+}: {
+  title: string
+  options: readonly (readonly [Value, string])[]
+  selected: readonly Value[]
+  facets?: NftList['facets']['collections']
+  onChange: (values: Value[]) => void
+}) {
+  return (
+    <fieldset>
+      <legend>{title}</legend>
+      {options.map(([value, label]) => (
+        <label
+          key={value}
+          className="filter-option relative flex items-center gap-1.25 justify-between min-h-10 m-[0_4px] p-[3px_8px] text-[14px] text-muted-foreground cursor-pointer [&_input]:absolute [&_input]:w-px [&_input]:h-px [&_input]:opacity-0 [&:has(input:focus-visible)]:[outline:2px_solid_var(--primary)] [&:has(input:focus-visible)]:outline-offset-1 [&:has(input:checked)]:text-primary [&:has(input:checked)]:font-semibold [&:has(input:checked)]:[box-shadow:inset_2px_0_var(--primary)]"
+        >
+          <input
+            type="checkbox"
+            checked={selected.includes(value)}
+            onChange={() =>
+              onChange(
+                selected.includes(value)
+                  ? selected.filter((item) => item !== value)
+                  : [...selected, value],
+              )
+            }
+          />
+          <span>{label}</span>
+          <span className="facet-count ml-auto text-[13px]">
+            ({facets?.find((facet) => facet.value === value)?.count ?? '…'})
+          </span>
+        </label>
+      ))}
+    </fieldset>
+  )
+}
+
 function PriceFilter({
   search,
   update,
@@ -116,67 +159,25 @@ export default function CatalogFilters({
     search.tab !== catalogDefaults.tab
   return (
     <div className="catalog-filters bg-card p-[16px_20px_20px] [&_legend]:text-[18px] [&_legend]:font-semibold [&_legend]:mb-2.5 [&_h3]:text-[18px] [&_h3]:font-semibold [&_h3]:mb-2.5 [&_fieldset]:min-w-0">
-      <fieldset>
-        <legend>Coleções</legend>
-        {collections.map(([value, label]) => (
-          <label
-            key={value}
-            className="filter-option relative flex items-center gap-1.25 justify-between min-h-10 m-[0_4px] p-[3px_8px] text-[14px] text-muted-foreground cursor-pointer [&_input]:absolute [&_input]:w-px [&_input]:h-px [&_input]:opacity-0 [&:has(input:focus-visible)]:[outline:2px_solid_var(--primary)] [&:has(input:focus-visible)]:outline-offset-1 [&:has(input:checked)]:text-primary [&:has(input:checked)]:font-semibold [&:has(input:checked)]:[box-shadow:inset_2px_0_var(--primary)]"
-          >
-            <input
-              type="checkbox"
-              checked={search.collections.includes(value)}
-              onChange={() =>
-                update({
-                  collections: search.collections.includes(value)
-                    ? search.collections.filter((item) => item !== value)
-                    : [...search.collections, value],
-                })
-              }
-            />
-            <span>{label}</span>
-            <span className="facet-count ml-auto text-[13px]">
-              (
-              {facets?.collections.find((facet) => facet.value === value)
-                ?.count ?? '…'}
-              )
-            </span>
-          </label>
-        ))}
-      </fieldset>
+      <FilterGroup
+        title="Coleções"
+        options={collections}
+        selected={search.collections}
+        facets={facets?.collections}
+        onChange={(collections) => update({ collections })}
+      />
       <PriceFilter
         key={`${search.minPrice}:${search.maxPrice}`}
         search={search}
         update={update}
       />
-      <fieldset>
-        <legend>Rede</legend>
-        {networks.map(([value, label]) => (
-          <label
-            key={value}
-            className="filter-option relative flex items-center gap-1.25 justify-between min-h-10 m-[0_4px] p-[3px_8px] text-[14px] text-muted-foreground cursor-pointer [&_input]:absolute [&_input]:w-px [&_input]:h-px [&_input]:opacity-0 [&:has(input:focus-visible)]:[outline:2px_solid_var(--primary)] [&:has(input:focus-visible)]:outline-offset-1 [&:has(input:checked)]:text-primary [&:has(input:checked)]:font-semibold [&:has(input:checked)]:[box-shadow:inset_2px_0_var(--primary)]"
-          >
-            <input
-              type="checkbox"
-              checked={search.networks.includes(value)}
-              onChange={() =>
-                update({
-                  networks: search.networks.includes(value)
-                    ? search.networks.filter((item) => item !== value)
-                    : [...search.networks, value],
-                })
-              }
-            />
-            <span>{label}</span>
-            <span className="facet-count ml-auto text-[13px]">
-              (
-              {facets?.networks.find((facet) => facet.value === value)?.count ??
-                '…'}
-              )
-            </span>
-          </label>
-        ))}
-      </fieldset>
+      <FilterGroup
+        title="Rede"
+        options={networks}
+        selected={search.networks}
+        facets={facets?.networks}
+        onChange={(networks) => update({ networks })}
+      />
       {hasFilters && (
         <button
           className="clear-filters block mt-5 text-[12px] text-primary underline underline-offset-4"

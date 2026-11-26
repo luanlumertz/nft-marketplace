@@ -27,6 +27,14 @@ Fluxo REST: componente → TanStack Query → Axios → rede interceptada pelo M
 
 O plugin do Router roda antes do plugin React, gera a árvore de rotas e separa o código por rota. `routeTree.gen.ts` não deve ser editado manualmente. Ao criar rotas, inicie `npm run dev` para regenerá-lo antes de checar tipos.
 
+### Componentes e utilitários compartilhados
+
+Galeria, detalhes/avaliações e recomendações ficam em módulos próprios da feature de NFTs. O carrinho importa diretamente `nft-recommendations.tsx`, sem depender do módulo da tela de detalhe. O formulário de edição de carteiras fica em `wallet-form.tsx`; a página organiza consulta, resumo e alternância entre leitura e edição. Essas extrações conservam markup, classes Tailwind, estado e callbacks dos componentes originais.
+
+Coleções e redes usam o mesmo `FilterGroup` local, com opções tipadas, seleção múltipla e contagens; o filtro de preço continua independente. `requireSession` protege todas as rotas privadas, incluindo favoritos. `useDocumentTitle` centraliza a atualização/restauração do título das telas que já o gerenciavam. `parseAppSearch` é compartilhado pelo Router e pelo fundo da autenticação para preservar as 18 casas decimais dos filtros. Os handlers MSW compartilham `readJson`, que devolve `null` para corpos inválidos antes da validação por contrato.
+
+Formulários de autenticação, perfil, carteira e checkout mantêm composições distintas: labels, validações, campos editáveis e estados não são equivalentes. Seus controles básicos já são compartilhados. O fluxo de envio/recuperação do checkout permanece coeso para conservar a relação entre conexão, revisão da cotação e tentativa idempotente; não foi criada uma camada genérica de mutations ou de autorização dos mocks.
+
 ## Contratos REST atuais
 
 | Método | Endpoint | Resposta |

@@ -1,3 +1,4 @@
+import { readJson } from './http-utils'
 import { delay, http, HttpResponse } from 'msw'
 import { env } from '@/lib/env'
 import { loginSchema, registerSchema } from '@/features/auth/contracts'
@@ -15,13 +16,6 @@ const expired = () =>
     },
     { status: 401 },
   )
-async function json(request: Request) {
-  try {
-    return await request.json()
-  } catch {
-    return null
-  }
-}
 async function network() {
   const scenario = mockStore.getState().scenario
   await delay(scenario === 'slow' ? 1800 : 120)
@@ -54,7 +48,7 @@ export const accountHandlers = [
   http.post(`${base}/session/login`, async ({ request }) => {
     const error = await network()
     if (error) return error
-    const parsed = loginSchema.safeParse(await json(request))
+    const parsed = loginSchema.safeParse(await readJson(request))
     if (!parsed.success)
       return HttpResponse.json(
         {
@@ -78,7 +72,7 @@ export const accountHandlers = [
   http.post(`${base}/session/register`, async ({ request }) => {
     const error = await network()
     if (error) return error
-    const parsed = registerSchema.safeParse(await json(request))
+    const parsed = registerSchema.safeParse(await readJson(request))
     if (!parsed.success)
       return HttpResponse.json(
         {

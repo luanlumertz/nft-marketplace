@@ -1,3 +1,4 @@
+import { readJson } from './http-utils'
 import { delay, http, HttpResponse } from 'msw'
 import { z } from 'zod'
 import {
@@ -34,14 +35,6 @@ const nftPatchSchema = z
   .refine(
     (patch) => patch.priceEth !== undefined || patch.available !== undefined,
   )
-
-async function readJson(request: Request): Promise<unknown> {
-  try {
-    return await request.json()
-  } catch {
-    return null
-  }
-}
 
 async function simulateNetwork() {
   const { scenario } = mockStore.getState()

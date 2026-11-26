@@ -1,3 +1,4 @@
+import { readJson } from './http-utils'
 import { delay, http, HttpResponse } from 'msw'
 import { z } from 'zod'
 import { env } from '@/lib/env'
@@ -17,13 +18,6 @@ import {
 import { carts } from './carts'
 
 const base = env.apiUrl.replace(/\/$/, '')
-async function json(request: Request) {
-  try {
-    return await request.json()
-  } catch {
-    return null
-  }
-}
 async function authorize(request: Request) {
   const scenario = mockStore.getState().scenario
   await delay(scenario === 'slow' ? 1800 : 120)
@@ -93,7 +87,7 @@ export const checkoutHandlers = [
   http.post(`${base}/wallet-connections`, async ({ request }) => {
     const auth = await authorize(request)
     if (auth instanceof Response) return auth
-    const parsed = connectionInputSchema.safeParse(await json(request))
+    const parsed = connectionInputSchema.safeParse(await readJson(request))
     if (!parsed.success) return invalid(parsed.error)
     if (!accounts.session(auth.token))
       return HttpResponse.json(
@@ -122,7 +116,7 @@ export const checkoutHandlers = [
   http.post(`${base}/orders`, async ({ request }) => {
     const auth = await authorize(request)
     if (auth instanceof Response) return auth
-    const parsed = orderInputSchema.safeParse(await json(request))
+    const parsed = orderInputSchema.safeParse(await readJson(request))
     if (!parsed.success) return invalid(parsed.error)
     const key = z.uuid().safeParse(request.headers.get('Idempotency-Key'))
     if (!key.success)
@@ -221,7 +215,7 @@ export const checkoutHandlers = [
   http.post(`${base}/__mock/orders/:id/settle`, async ({ params, request }) => {
     const result = z
       .enum(['confirmed', 'declined'])
-      .safeParse(await json(request))
+      .safeParse(await readJson(request))
     if (!result.success) return invalid(result.error)
     try {
       const order = orders.settle(String(params.id), result.data)
@@ -233,13 +227,13 @@ export const checkoutHandlers = [
     }
   }),
   http.post(`${base}/__mock/order-events`, async ({ request }) => {
-    const parsed = orderUpdatedSchema.safeParse(await json(request))
+    const parsed = orderUpdatedSchema.safeParse(await readJson(request))
     if (!parsed.success) return invalid(parsed.error)
     broadcastOrderUpdated(parsed.data)
     return new HttpResponse(null, { status: 204 })
   }),
   http.post(`${base}/__mock/orders-online`, async ({ request }) => {
-    const parsed = z.boolean().safeParse(await json(request))
+    const parsed = z.boolean().safeParse(await readJson(request))
     if (!parsed.success) return invalid(parsed.error)
     setOrdersOnline(parsed.data)
     return new HttpResponse(null, { status: 204 })
