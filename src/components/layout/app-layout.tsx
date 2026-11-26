@@ -1,7 +1,7 @@
 import { Link, Outlet, useRouterState } from '@tanstack/react-router'
 import { Home, Heart, ScanLine } from 'lucide-react'
 import { useCatalogEvents } from '@/features/nfts/use-catalog-events'
-import { HeaderSearch } from '@/features/nfts/components/catalog-controls'
+import { HeaderSearch } from '@/features/nfts/components/header-search'
 import { SiteFooter } from './site-footer'
 import { AccountButton } from '@/features/auth/account-button'
 import { SessionBoundary } from '@/features/auth/session-boundary'
