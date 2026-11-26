@@ -26,10 +26,12 @@ export function AppLayout() {
   const detail = pathname.startsWith('/nfts/')
   const cart = pathname === '/carrinho'
   const account = pathname === '/perfil' || pathname === '/carteiras'
+  const checkout = pathname === '/pagamento'
+  const order = pathname.startsWith('/pedidos/')
 
   return (
     <div
-      className={`app-shell min-h-svh ${home ? 'home-layout mobile:[&_.site-main]:pt-10 mobile:[&_.site-main]:pb-12' : ''} ${detail ? 'detail-layout mobile:[&_.site-main]:w-full mobile:[&_.site-main]:p-0 mobile:[&_.mobile-navigation]:hidden' : ''} ${cart ? 'cart-layout mobile:[&_.site-main]:w-full mobile:[&_.site-main]:p-0 mobile:[&_.mobile-navigation]:hidden' : ''}`}
+      className={`app-shell min-h-svh ${home ? 'home-layout mobile:[&_.site-main]:pt-10 mobile:[&_.site-main]:pb-12' : ''} ${detail ? 'detail-layout mobile:[&_.site-main]:w-full mobile:[&_.site-main]:p-0 mobile:[&_.mobile-navigation]:hidden' : ''} ${checkout ? 'checkout-layout mobile:[&_.site-main]:w-full mobile:[&_.site-main]:p-0 mobile:[&_.mobile-navigation]:hidden' : ''} ${order ? 'order-layout [&_.site-main]:pt-40 mobile:[&_.site-main]:pt-6 [&_.site-header]:hidden [&_.site-footer]:hidden mobile:[&_.site-main]:w-[calc(100%-32px)] mobile:[&_.mobile-navigation]:hidden' : ''} ${cart ? 'cart-layout mobile:[&_.site-main]:w-full mobile:[&_.site-main]:p-0 mobile:[&_.mobile-navigation]:hidden' : ''}`}
     >
       <SessionBoundary />
       <SessionNotice />
@@ -62,7 +64,7 @@ export function AppLayout() {
             to="/"
             hash="catalogo"
             activeProps={{ className: '' }}
-            className={detail || cart ? 'active' : ''}
+            className={detail || cart || checkout ? 'active' : ''}
           >
             Mercado
           </Link>

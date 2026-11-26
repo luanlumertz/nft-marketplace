@@ -55,6 +55,8 @@ export function AuthBackground({ redirect }: { redirect: string }) {
   if (target.pathname === '/carrinho') return <CartPage />
   if (target.pathname === '/perfil') return <ProfilePage />
   if (target.pathname === '/carteiras') return <WalletsPage />
+  if (target.pathname === '/pagamento' || target.pathname.startsWith('/pedidos/'))
+    return <section className="grid min-h-100 place-content-center gap-4 text-center"><h1 className="text-2xl font-semibold">{target.pathname === '/pagamento' ? 'Pagamento com carteira' : 'Seu pedido'}</h1><p className="text-sm text-muted-foreground">Entre para retomar esta etapa com seus dados.</p></section>
   return (
     <CatalogPreviewContext value={parseCatalogSearch(originSearch(target))}>
       <CatalogHome />
