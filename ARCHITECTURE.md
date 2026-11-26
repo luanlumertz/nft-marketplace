@@ -35,6 +35,8 @@ Coleções e redes usam o mesmo `FilterGroup` local, com opções tipadas, sele�
 
 Formulários de autenticação, perfil, carteira e checkout mantêm composições distintas: labels, validações, campos editáveis e estados não são equivalentes. Seus controles básicos já são compartilhados. O fluxo de envio/recuperação do checkout permanece coeso para conservar a relação entre conexão, revisão da cotação e tentativa idempotente; não foi criada uma camada genérica de mutations ou de autorização dos mocks.
 
+A formatação dos arquivos autorais segue Prettier 3.6.2, com aspas simples em TypeScript/JavaScript e sem ponto e vírgula (`--single-quote --no-semi`). Foram expandidos trechos de JSX, CSS e configuração que estavam comprimidos em uma linha. Assets, lockfile, código gerado e baselines não foram alterados por essa revisão.
+
 ## Contratos REST atuais
 
 | Método | Endpoint | Resposta |

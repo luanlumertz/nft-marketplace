@@ -37,7 +37,7 @@ npm run test:e2e
 npm run audit:lighthouse
 ```
 
-Em Linux, instale o navegador com `npx playwright install --with-deps chromium`. `test:e2e` gera o build pelo `webServer` e executa os 96 testes. O relatório está em `playwright-report/`, com screenshots/traces de falhas em `test-results/`; a CI publica ambos como artefato. A auditoria inicia seu próprio preview e exige a porta 4173 livre; execute-a separadamente dos testes para evitar disputa de recursos.
+Em Linux, instale o navegador com `npx playwright install --with-deps chromium`. `test:e2e` gera o build pelo `webServer` e executa os 98 testes atuais. O relatório está em `playwright-report/`, com screenshots/traces de falhas em `test-results/`; a CI publica ambos como artefato. A auditoria inicia seu próprio preview e exige a porta 4173 livre; execute-a separadamente dos testes para evitar disputa de recursos.
 
 Para atualizar uma baseline após mudança visual intencional, use `npm run test:e2e -- --grep composição --update-snapshots=all` no respectivo sistema e confira as imagens antes de versionar.
 
@@ -56,3 +56,20 @@ Uma nova rodada de 12 medições Lighthouse foi executada separadamente dos test
 ## Experimento posterior de consultas antecipadas
 
 O prefetch pelo Router foi implementado e conferido com quatro casos específicos em desktop/mobile no Windows, sem retries. A comparação mobile usou três medições por página em cada variante: início 74 contra 80 no controle; detalhe 72 contra 77. Como não demonstrou benefício, loaders e testes experimentais foram retirados. Nenhuma alteração de aplicação permaneceu. O [registro do experimento](./route-prefetch.md) conserva método, limites e resultados sem substituir a auditoria oficial acima.
+
+## Revisão final de organização e formatação
+
+Revisão do código funcional `df2a099`, após a formatação `4bbb71f`, em 26/11/2026. Foram inspecionados componentes, hooks, rotas, contratos, consultas/mutations, persistência, handlers/fixtures MSW, eventos, testes, scripts e configurações autorais. Arquivos gerados, assets, baselines e relatórios históricos não foram reformatados.
+
+As mudanças se limitaram a extrações de componentes existentes (galeria, avaliações, recomendações e formulário de carteira), um grupo compartilhado para coleções/redes, título das páginas, leitura dos preços na URL, proteção de favoritos e leitura de JSON dos mocks. Campos e controles que já eram compartilhados foram mantidos; diferenças de markup, validação e estados entre telas não foram forçadas em uma abstração genérica. JSX, CSS e configuração comprimidos foram formatados. A [arquitetura](../../ARCHITECTURE.md) descreve os limites e motivos dessas escolhas.
+
+| Verificação desta revisão | Resultado |
+| --- | --- |
+| TypeScript, ESLint e build otimizado | Passaram |
+| Suíte completa Chromium desktop/mobile, Ubuntu/WSL | 98/98, sem retries, 7,5 minutos |
+| Baselines, galeria, foco, precisão da URL, favoritos e filtros sob demanda, Windows | 18/18, sem retries |
+| Imagens de referência e cenários de teste | Preservados, sem atualização de snapshots |
+
+Os dois sistemas usaram o mesmo build otimizado. No Linux, um servidor estático na porta 4174 serviu o `dist/`; no Windows, `vite preview` usou a porta 4173. As configurações locais apenas reaproveitam o build e a configuração Playwright versionada, com um worker e retries zero. Os relatórios HTML locais ficam em `artifacts/linux-report/` e `playwright-report/`. A CI repete a suíte completa pelo comando público `npm run test:e2e`.
+
+Não houve nova auditoria Lighthouse nem conferência de produção nesta etapa de organização. As pontuações 81/77 mobile e 98/98 desktop continuam identificadas como resultados da auditoria anterior em `e0805fe`; não são medições novas da refatoração. A verificação pública de 20 casos continua vinculada à `main` `ead1e9c`, anterior ao merge deste PR.

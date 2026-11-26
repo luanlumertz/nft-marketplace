@@ -184,7 +184,7 @@ Os testes de pagamento cobrem compra até o recibo, baixa do estoque, snapshot i
 
 Relatórios ficam em `playwright-report/`; screenshots e traces de falhas em `test-results/`. A CI publica essas pastas como artefato. As baselines de início, detalhe, avaliações, carrinho e pagamento desktop/mobile estão versionadas em `tests/e2e/__screenshots__/`, separadas por projeto e sistema (`win32` e `linux`), pois fontes e controles nativos podem alterar métricas e quebras de linha. As imagens Linux atuais foram capturadas no Chromium do Ubuntu/WSL com o build otimizado e conferidas visualmente. Para atualizar após uma alteração visual intencional, use `npm run test:e2e -- --grep composição --update-snapshots=all` no respectivo sistema e confira as imagens antes de versionar. A comparação mantém até 3.000 pixels divergentes dentro do mesmo sistema; dados/carrossel são estáveis e animações desativadas na captura. O detalhe possui captura da página completa e do painel de avaliações, com fontes e imagens carregadas antes da comparação.
 
-A [conferência final](./reports/validation/README.md) registra a execução completa anterior de 96 testes no Ubuntu/WSL e 20 testes dos fluxos publicados. Após a separação dos filtros, 32 testes dos fluxos afetados passaram por sistema (Windows e Ubuntu/WSL), sem retries; a suíte passa a ter 98 casos com a nova regressão de carregamento/redimensionamento. As oito novas baselines do detalhe/avaliações completam a regressão visual exigida.
+A [conferência final](./reports/validation/README.md) registra **98/98 testes da suíte completa no Ubuntu/WSL** após a revisão de organização, além de **18/18 testes selecionados no Windows**, sem retries, incluindo todas as baselines. As imagens de referência e os cenários foram preservados. A regressão de carregamento/redimensionamento dos filtros faz parte desses 98 casos. Os 20 testes dos fluxos publicados permanecem registrados como evidência da `main` anterior ao merge deste PR.
 
 ## Lighthouse
 
@@ -202,7 +202,7 @@ npm run audit:lighthouse -- --runs=1 --profile=desktop --page=home
 
 Uma medição rápida valida a infraestrutura, mas não substitui as três medições de cada página/perfil exigidas na entrega final.
 
-A auditoria final está em [reports/lighthouse/final](./reports/lighthouse/final/README.md), com 12 medições e seus relatórios HTML/JSON, três por página/perfil, medianas, LCP/CLS/TBT, ferramentas e ambiente. O código funcional auditado é `e0805fe`.
+A última auditoria completa está em [reports/lighthouse/final](./reports/lighthouse/final/README.md), com 12 medições e seus relatórios HTML/JSON, três por página/perfil, medianas, LCP/CLS/TBT, ferramentas e ambiente. O código funcional auditado é `e0805fe`, anterior à revisão final de organização dos componentes. Essa revisão não repete a auditoria nem declara novas pontuações.
 
 | Página | Performance mobile | Performance desktop | Accessibility | Best Practices | SEO |
 | --- | ---: | ---: | ---: | ---: | ---: |
