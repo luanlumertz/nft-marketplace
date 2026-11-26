@@ -6,29 +6,15 @@ import { weiToEth } from '@/features/nfts/detail-contracts'
 import { detailFor } from './nft-details'
 import { mockStore } from './store'
 
-const storageKey = 'kurio:carts:v1'
-const storedCartSchema = z.object({
-  revision: z.number().int().nonnegative(),
-  items: z.array(purchaseSelectionSchema),
-  coupon: z.string().nullable(),
+import { commerce } from './commerce-store'
+
+const emptyCart = () => ({
+  revision: 0,
+  items: [] as z.infer<typeof purchaseSelectionSchema>[],
+  coupon: null as string | null,
 })
-const storageSchema = z.record(z.string(), storedCartSchema)
-type StoredCart = z.infer<typeof storedCartSchema>
-function restore() {
-  try {
-    return storageSchema.parse(
-      JSON.parse(localStorage.getItem(storageKey) ?? '{}'),
-    )
-  } catch {
-    return {}
-  }
-}
-let state = restore()
-function persist() {
-  localStorage.setItem(storageKey, JSON.stringify(state))
-}
-function get(owner: string): StoredCart {
-  return (state[owner] ??= { revision: 0, items: [], coupon: null })
+function get(owner: string) {
+  return commerce.read().carts[owner] ?? emptyCart()
 }
 function edition(nftId: string, editionId: string) {
   const nft = mockStore.getState().nfts.find((item) => item.id === nftId)
@@ -102,7 +88,7 @@ export const carts = {
     input: z.infer<typeof purchaseSelectionSchema>,
     add: boolean,
   ) {
-    const cart = get(owner)
+    const cart = structuredClone(get(owner))
     const existing = cart.items.find(
       (item) =>
         item.nftId === input.nftId && item.editionId === input.editionId,
@@ -130,28 +116,34 @@ export const carts = {
     if (existing) existing.quantity = quantity
     else cart.items.push({ ...input, quantity })
     cart.revision++
-    persist()
+    commerce.change((draft) => {
+      draft.carts[owner] = cart
+    })
     return null
   },
   remove(owner: string, nftId: string, editionId: string) {
-    const cart = get(owner)
+    const cart = structuredClone(get(owner))
     cart.items = cart.items.filter(
       (item) => item.nftId !== nftId || item.editionId !== editionId,
     )
     cart.revision++
-    persist()
+    commerce.change((draft) => {
+      draft.carts[owner] = cart
+    })
   },
   coupon(owner: string, code: string | null) {
-    const cart = get(owner)
+    const cart = structuredClone(get(owner))
     cart.coupon = code
     cart.revision++
-    persist()
+    commerce.change((draft) => {
+      draft.carts[owner] = cart
+    })
   },
   mergeGuest(guestId: string | null, userId: string) {
     if (!guestId) return
-    const guest = state[`guest:${guestId}`]
+    const guest = commerce.read().carts[`guest:${guestId}`]
     if (!guest) return
-    const account = get(`user:${userId}`)
+    const account = structuredClone(get(`user:${userId}`))
     for (const item of guest.items) {
       const existing = account.items.find(
         (saved) =>
@@ -162,11 +154,12 @@ export const carts = {
     }
     account.coupon ??= guest.coupon
     account.revision++
-    delete state[`guest:${guestId}`]
-    persist()
+    commerce.change((draft) => {
+      draft.carts[`user:${userId}`] = account
+      delete draft.carts[`guest:${guestId}`]
+    })
   },
   reset() {
-    state = {}
-    persist()
+    commerce.reset()
   },
 }

@@ -7,7 +7,15 @@ import {
 } from '@/features/nfts/contracts'
 import { env } from '@/lib/env'
 import { mockStore, scenarioSchema } from './store'
-import { broadcastNftUpdated, socketHandler, subscriberCount } from './socket'
+import {
+  broadcastNftUpdated,
+  socketHandler,
+  subscriberCount,
+  orderSubscriberCount,
+  setOrdersOnline,
+} from './socket'
+import { checkoutHandlers } from './checkout-handlers'
+import { orders } from './orders'
 import { parseCatalogSearch } from '@/features/nfts/catalog-search'
 import { queryCatalog } from './catalog'
 import { accounts } from './accounts'
@@ -53,6 +61,7 @@ export const handlers = [
   ...accountHandlers,
   ...cartHandlers,
   ...collectorHandlers,
+  ...checkoutHandlers,
   http.get(`${base}/nfts/:id/related`, async ({ params }) => {
     const error = await simulateNetwork()
     if (error) return error
@@ -97,12 +106,15 @@ export const handlers = [
     mockStore.reset()
     accounts.reset()
     carts.reset()
+    orders.resetTimers()
+    setOrdersOnline(true)
     return new HttpResponse(null, { status: 204 })
   }),
   http.get(`${base}/__mock/state`, () =>
     HttpResponse.json({
       scenario: mockStore.getState().scenario,
       subscribers: subscriberCount(),
+      orderSubscribers: orderSubscriberCount(),
     }),
   ),
   http.post(`${base}/__mock/scenario`, async ({ request }) => {
