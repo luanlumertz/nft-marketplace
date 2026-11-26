@@ -52,3 +52,7 @@ Sobre o código `e0805fe`, passaram **32/32 testes no Windows e 32/32 no Ubuntu/
 A suíte completa passa a ter **98 casos**. Esta revisão rodou os 32 casos afetados por sistema; os resultados de 96 completos e 20 públicos da tabela inicial se referem à versão anterior identificada no começo deste documento. Tipos, lint e build passaram na revisão.
 
 Uma nova rodada de 12 medições Lighthouse foi executada separadamente dos testes. O JavaScript inicial diminuiu, mas a pontuação mobile não melhorou: 81/77 contra 81/79 anteriormente. A comparação de recursos, as medianas, os dados anteriores e os relatórios atuais estão em [Lighthouse final](../lighthouse/final/README.md).
+
+## Experimento posterior de consultas antecipadas
+
+O prefetch pelo Router foi implementado e conferido com quatro casos específicos em desktop/mobile no Windows, sem retries. A comparação mobile usou três medições por página em cada variante: início 74 contra 80 no controle; detalhe 72 contra 77. Como não demonstrou benefício, loaders e testes experimentais foram retirados. Nenhuma alteração de aplicação permaneceu. O [registro do experimento](./route-prefetch.md) conserva método, limites e resultados sem substituir a auditoria oficial acima.

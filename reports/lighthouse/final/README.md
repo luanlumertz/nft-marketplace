@@ -34,7 +34,7 @@ LCP próximo de quatro segundos, tarefas longas e trabalho de JavaScript no boot
 
 As três execuções do início mobile tiveram 65 (TBT 1.100,9 ms), 81 (TBT 327,0 ms), 81 (TBT 327,5 ms). Todas estão preservadas e entram no cálculo, incluindo a primeira mais lenta. A nota varia com máquina, carga e throttling; a avaliação deve repetir o comando nas mesmas condições.
 
-Os ajustes anteriores de skeleton/CLS, fontes, carregamento dos primeiros cards, semântica e área de toque permanecem. Preloads adicionais de imagens/módulos já foram testados e retirados por piorarem o LCP. As funcionalidades, fontes e imagens não foram removidas para elevar a nota. Antecipação das consultas e divisão dos mocks são hipóteses futuras, fora desta revisão.
+Os ajustes anteriores de skeleton/CLS, fontes, carregamento dos primeiros cards, semântica e área de toque permanecem. Preloads adicionais de imagens/módulos já foram testados e retirados por piorarem o LCP. As funcionalidades, fontes e imagens não foram removidas para elevar a nota. A antecipação das consultas foi posteriormente [testada e retirada por não demonstrar benefício](../../validation/route-prefetch.md). A divisão dos mocks não foi implementada.
 
 ## Relatórios completos
 
