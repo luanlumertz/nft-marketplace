@@ -1,12 +1,12 @@
-@import "tailwindcss" source(".");
-@import "tw-animate-css";
+@import 'tailwindcss' source('.');
+@import 'tw-animate-css';
 
 @custom-variant mobile (@media (max-width: 767px));
 @custom-variant tablet (@media (min-width: 768px) and (max-width: 1199px));
 @custom-variant tablet-compact (@media (min-width: 768px) and (max-width: 1023px));
 
 @theme inline {
-  --font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-mono: 'Roboto Mono', ui-monospace, SFMono-Regular, monospace;
   --font-sans: var(--font-mono);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -35,7 +35,7 @@
 }
 
 :root {
-  --font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-mono: 'Roboto Mono', ui-monospace, SFMono-Regular, monospace;
   color-scheme: dark;
   --background: #160e0a;
   --foreground: #f5eee8;
@@ -54,27 +54,62 @@
 }
 
 @layer base {
-  * { @apply border-border; }
-  body { @apply m-0 min-w-80 bg-background text-foreground; }
-  button, a, input, select, textarea { @apply focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring; }
-  button, a { -webkit-tap-highlight-color: transparent; }
-  button { @apply cursor-pointer; }
-  button:disabled { @apply cursor-not-allowed; }
-  html { scroll-behavior: smooth; }
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply m-0 min-w-80 bg-background text-foreground;
+  }
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    @apply focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring;
+  }
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+  button {
+    @apply cursor-pointer;
+  }
+  button:disabled {
+    @apply cursor-not-allowed;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 .shimmer {
-  background: linear-gradient(100deg, var(--card) 25%, #4a3223 45%, var(--card) 65%);
+  background: linear-gradient(
+    100deg,
+    var(--card) 25%,
+    #4a3223 45%,
+    var(--card) 65%
+  );
   background-size: 200% 100%;
   animation: shimmer 1.6s linear infinite;
 }
 
 @keyframes shimmer {
-  from { background-position: 200% 0; }
-  to { background-position: -200% 0; }
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  *, *::before, *::after { animation: none !important; transition: none !important; }
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }

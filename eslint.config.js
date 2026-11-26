@@ -6,7 +6,15 @@ import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist', 'node_modules', 'src/routeTree.gen.ts', 'public/mockServiceWorker.js', 'playwright-report', 'test-results', 'artifacts']),
+  globalIgnores([
+    'dist',
+    'node_modules',
+    'src/routeTree.gen.ts',
+    'public/mockServiceWorker.js',
+    'playwright-report',
+    'test-results',
+    'artifacts',
+  ]),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [js.configs.recommended, tseslint.configs.recommended],
@@ -18,7 +26,12 @@ export default defineConfig([
   },
   {
     files: ['src/routes/**/*.{ts,tsx}'],
-    rules: { 'react-refresh/only-export-components': ['error', { extraHOCs: ['createFileRoute', 'createRootRouteWithContext'] }] },
+    rules: {
+      'react-refresh/only-export-components': [
+        'error',
+        { extraHOCs: ['createFileRoute', 'createRootRouteWithContext'] },
+      ],
+    },
   },
   {
     files: ['*.js', 'scripts/*.mjs'],
