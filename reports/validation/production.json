@@ -1,0 +1,119 @@
+{
+  "checkedAt": "2026-11-26T14:35:51.648Z",
+  "url": "https://nft-marketplace-chi-five.vercel.app",
+  "referenceMainCommit": "ead1e9c",
+  "entryScript": "/assets/index-CUhj4klt.js",
+  "command": "npm run test:e2e:production",
+  "config": "playwright.production.config.ts",
+  "stats": {
+    "startTime": "2026-11-26T14:31:12.476Z",
+    "duration": 103124.25,
+    "expected": 20,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "tests": [
+    {
+      "title": "valida perfil, trata conflito e persiste os dados com a sessão atualizada",
+      "project": "chromium-desktop",
+      "status": "passed"
+    },
+    {
+      "title": "valida perfil, trata conflito e persiste os dados com a sessão atualizada",
+      "project": "chromium-mobile",
+      "status": "passed"
+    },
+    {
+      "title": "cadastra, espelha e edita carteiras principal e secundária com persistência",
+      "project": "chromium-desktop",
+      "status": "passed"
+    },
+    {
+      "title": "cadastra, espelha e edita carteiras principal e secundária com persistência",
+      "project": "chromium-mobile",
+      "status": "passed"
+    },
+    {
+      "title": "valida cupom inválido e expirado, aplica desconto pela API e permite remover",
+      "project": "chromium-desktop",
+      "status": "passed"
+    },
+    {
+      "title": "valida cupom inválido e expirado, aplica desconto pela API e permite remover",
+      "project": "chromium-mobile",
+      "status": "passed"
+    },
+    {
+      "title": "combina filtros, preço, busca e ordenação e restaura pelo histórico e refresh",
+      "project": "chromium-desktop",
+      "status": "passed"
+    },
+    {
+      "title": "combina filtros, preço, busca e ordenação e restaura pelo histórico e refresh",
+      "project": "chromium-mobile",
+      "status": "passed"
+    },
+    {
+      "title": "compra do detalhe ao recibo, preserva o snapshot e limpa somente a compra confirmada",
+      "project": "chromium-desktop",
+      "status": "passed"
+    },
+    {
+      "title": "compra do detalhe ao recibo, preserva o snapshot e limpa somente a compra confirmada",
+      "project": "chromium-mobile",
+      "status": "passed"
+    },
+    {
+      "title": "Socket.IO atualiza a revisão e impede envio com edição esgotada",
+      "project": "chromium-desktop",
+      "status": "passed"
+    },
+    {
+      "title": "Socket.IO atualiza a revisão e impede envio com edição esgotada",
+      "project": "chromium-mobile",
+      "status": "passed"
+    },
+    {
+      "title": "recupera pedido pendente após reconectar, ignora eventos antigos e preserva itens adicionados depois",
+      "project": "chromium-desktop",
+      "status": "passed"
+    },
+    {
+      "title": "recupera pedido pendente após reconectar, ignora eventos antigos e preserva itens adicionados depois",
+      "project": "chromium-mobile",
+      "status": "passed"
+    },
+    {
+      "title": "retoma o favorito após login e persiste após refresh",
+      "project": "chromium-desktop",
+      "status": "passed"
+    },
+    {
+      "title": "retoma o favorito após login e persiste após refresh",
+      "project": "chromium-mobile",
+      "status": "passed"
+    },
+    {
+      "title": "valida cadastro, trata conflito e persiste conta sem senha em claro",
+      "project": "chromium-desktop",
+      "status": "passed"
+    },
+    {
+      "title": "valida cadastro, trata conflito e persiste conta sem senha em claro",
+      "project": "chromium-mobile",
+      "status": "passed"
+    },
+    {
+      "title": "abre a coleção, navega para o NFT e preserva o acesso após refresh",
+      "project": "chromium-desktop",
+      "status": "passed"
+    },
+    {
+      "title": "abre a coleção, navega para o NFT e preserva o acesso após refresh",
+      "project": "chromium-mobile",
+      "status": "passed"
+    }
+  ],
+  "scope": "Deployed main before final PR; isolated browser MSW state. Final accessibility/loading adjustments must deploy after merge."
+}
