@@ -1,9 +1,6 @@
 import { QueryClientProvider } from '@tanstack/react-query'
-import {
-  createRouter,
-  RouterProvider,
-  defaultParseSearch,
-} from '@tanstack/react-router'
+import { createRouter, RouterProvider } from '@tanstack/react-router'
+import { parseAppSearch } from '@/lib/router-search'
 import { queryClient } from '@/lib/query-client'
 import { routeTree } from './routeTree.gen'
 
@@ -11,15 +8,7 @@ const router = createRouter({
   routeTree,
   context: { queryClient },
   scrollRestoration: true,
-  parseSearch: (value) => {
-    const parsed: Record<string, unknown> = { ...defaultParseSearch(value) }
-    const raw = new URLSearchParams(value)
-    for (const key of ['minPrice', 'maxPrice']) {
-      const amount = raw.get(key)
-      if (amount !== null && !amount.startsWith('"')) parsed[key] = amount
-    }
-    return parsed
-  },
+  parseSearch: parseAppSearch,
 })
 
 declare module '@tanstack/react-router' {

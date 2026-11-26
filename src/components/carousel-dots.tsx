@@ -29,7 +29,9 @@ export function CarouselDots({
           <span
             className={cn(
               'rounded-full border border-primary',
-              active === index ? 'size-3 bg-primary' : 'size-2.5 bg-transparent',
+              active === index
+                ? 'size-3 bg-primary'
+                : 'size-2.5 bg-transparent',
             )}
           />
         </button>

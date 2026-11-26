@@ -2,7 +2,7 @@
 
 ## Escopo atual
 
-O início implementa a composição desktop/mobile das referências, com destaque selecionável, catálogo, busca, coleções, redes, faixa de preço, abas, ordenação, paginação, banners, seções editoriais e rodapé. Há 36 NFTs determinísticos, nove por página. O detalhe inclui galeria, ampliação, edições, quantidade, informações, avaliações e relacionados. Login, cadastro, sessão, logout, favoritos, carrinho, cotação, perfil, avatar, senha, carteiras, pagamento e pedidos são funcionais com MSW. A auditoria final e as baselines de detalhe continuam pendentes.
+O início implementa a composição desktop/mobile das referências, com destaque selecionável, catálogo, busca, coleções, redes, faixa de preço, abas, ordenação, paginação, banners, seções editoriais e rodapé. Há 36 NFTs determinísticos, nove por página. O detalhe inclui galeria, ampliação, edições, quantidade, informações, avaliações e relacionados. Login, cadastro, sessão, logout, favoritos, carrinho, cotação, perfil, avatar, senha, carteiras, pagamento e pedidos são funcionais com MSW. O fechamento inclui auditoria de início/detalhe e baselines visuais das quatro telas exigidas; os resultados estão em `reports/lighthouse/final/`.
 
 ## Organização
 
@@ -27,6 +27,16 @@ Fluxo REST: componente → TanStack Query → Axios → rede interceptada pelo M
 
 O plugin do Router roda antes do plugin React, gera a árvore de rotas e separa o código por rota. `routeTree.gen.ts` não deve ser editado manualmente. Ao criar rotas, inicie `npm run dev` para regenerá-lo antes de checar tipos.
 
+### Componentes e utilitários compartilhados
+
+Galeria, detalhes/avaliações e recomendações ficam em módulos próprios da feature de NFTs. O carrinho importa diretamente `nft-recommendations.tsx`, sem depender do módulo da tela de detalhe. O formulário de edição de carteiras fica em `wallet-form.tsx`; a página organiza consulta, resumo e alternância entre leitura e edição. Essas extrações conservam markup, classes Tailwind, estado e callbacks dos componentes originais.
+
+Coleções e redes usam o mesmo `FilterGroup` local, com opções tipadas, seleção múltipla e contagens; o filtro de preço continua independente. `requireSession` protege todas as rotas privadas, incluindo favoritos. `useDocumentTitle` centraliza a atualização/restauração do título das telas que já o gerenciavam. `parseAppSearch` é compartilhado pelo Router e pelo fundo da autenticação para preservar as 18 casas decimais dos filtros. Os handlers MSW compartilham `readJson`, que devolve `null` para corpos inválidos antes da validação por contrato.
+
+Formulários de autenticação, perfil, carteira e checkout mantêm composições distintas: labels, validações, campos editáveis e estados não são equivalentes. Seus controles básicos já são compartilhados. O fluxo de envio/recuperação do checkout permanece coeso para conservar a relação entre conexão, revisão da cotação e tentativa idempotente; não foi criada uma camada genérica de mutations ou de autorização dos mocks.
+
+A formatação dos arquivos autorais segue Prettier 3.6.2, com aspas simples em TypeScript/JavaScript e sem ponto e vírgula (`--single-quote --no-semi`). Foram expandidos trechos de JSX, CSS e configuração que estavam comprimidos em uma linha. Assets, lockfile, código gerado e baselines não foram alterados por essa revisão.
+
 ## Contratos REST atuais
 
 | Método | Endpoint | Resposta |
@@ -49,6 +59,7 @@ O plugin do Router roda antes do plugin React, gera a árvore de rotas e separa 
 | PATCH | `/api/profile` | Recebe dados do perfil, `avatarUrl` e `passwordChange` opcional; valida e salva atomicamente |
 | GET | `/api/wallets` | `{ items: Wallet[] }` da conta autenticada, até uma por slot |
 | PUT | `/api/wallets/:slot` | `primary` ou `secondary`; salva/edita campos ou espelha a principal com `{ sameAsPrimary: true }` |
+| DELETE | `/api/wallets/secondary` | Remove a secundária e retorna `{ items: Wallet[] }`; excluir a principal retorna HTTP 405 |
 | GET | `/api/checkout` | `{ connection: WalletConnection ou null }` da sessão atual |
 | POST | `/api/wallet-connections` | `{ walletId, network, provider }`; conexão simulada da carteira cadastrada (201) |
 | DELETE | `/api/wallet-connections/:id` | Desconecta a carteira da conta; HTTP 204 |
@@ -154,7 +165,7 @@ Dialog e Slider em `src/components/ui/` foram adaptados dos registros oficiais s
 
 Existem link para pular ao conteúdo, landmarks, hierarquia de títulos, foco visível, alt nas imagens e mensagens acessíveis de carregamento/erro/atualização. Busca e painel de filtros usam Dialog do Radix (mesma fundação dos componentes shadcn/ui instalados), com portal, overlay, foco contido, Escape e retorno ao acionador. A faixa de preço usa Slider do Radix com dois controles na mesma barra, arraste, teclado e valores sincronizados nos inputs; a consulta só muda ao aplicar. Inputs de preço possuem labels e erro associado; abas suportam setas, Home e End. Skeletons conservam a geometria da grade e respeitam movimento reduzido.
 
-O acesso direto ao Figma não foi liberado pela integração; foram usadas as imagens desktop/mobile fornecidas pelo usuário. O mobile usa destaque compacto, grade escalonada, navegação inferior e filtros em painel; tablet mantém a grade sem sidebar. A revisão solicitada pelo usuário remove a imagem secundária do destaque mobile, separa texto e arte em colunas, destaca o indicador ativo e arredonda/engrossa a moldura dos cards. Os ícones sociais vêm do Font Awesome 6 via React Icons, com espaçamento uniforme; as carteiras usam distribuição horizontal. Contagens, ordem dos itens e preços vêm da API e podem diferir dos números ilustrativos dos frames. Mantém-se a mesma ordenação nos diferentes viewports. Os campos exatos de preço e áreas de toque de 24 px nos indicadores são ajustes de acessibilidade. A família tipográfica permanece a aproximação local já documentada.
+O acesso direto ao Figma não foi liberado pela integração; foram usadas as imagens desktop/mobile fornecidas pelo usuário. O mobile usa destaque compacto, grade alinhada por linhas, navegação inferior e filtros em painel; tablet mantém a grade sem sidebar. A revisão solicitada pelo usuário remove a imagem secundária do destaque mobile, separa texto e arte em colunas, destaca o indicador ativo e arredonda/engrossa a moldura dos cards. Os ícones sociais vêm do Font Awesome 6 via React Icons, com espaçamento uniforme; as carteiras usam distribuição horizontal. Contagens, ordem dos itens e preços vêm da API e podem diferir dos números ilustrativos dos frames. Mantém-se a mesma ordenação nos diferentes viewports. Os campos exatos de preço e áreas de toque de 24 px nos indicadores são ajustes de acessibilidade. A família tipográfica permanece a aproximação local já documentada.
 
 “Limpar filtros” aparece somente com busca, coleções, redes, faixa de preço ou aba restritiva ativos. Ordenação e paginação isoladas não ativam esse botão. O item Mercado do header aponta para `/#catalogo`; não existe uma rota própria para Mercado nesta etapa.
 
@@ -236,20 +247,38 @@ Os controles `__mock/orders/:id/settle`, `__mock/order-events` e `__mock/orders-
 
 A CI verifica tipos, lint e build com npm 11 e 12, além de E2E em Chromium desktop/mobile. Playwright testa o build otimizado com contextos novos e MSW ativo, registra relatório HTML e retém traces de falhas. A suíte cobre catálogo, histórico, precisão, erros, eventos, foco, autenticação, favoritos, carrinho, perfil, avatar, senha, carteiras e compra. Os cenários de pagamento cobrem recibo imutável e baixa de estoque, conexão/recusa/desconexão, revisão de cotação alterada, edição esgotada via Socket.IO, pagamento recusado, clique repetido, conflito de idempotência, timeout/503 com recuperação, reconexão de pedido pendente, eventos antigos/duplicados, quantidades adicionadas depois da compra, expiração, isolamento entre contas, skeleton e falha recuperável.
 
-Baselines de início, carrinho e pagamento desktop/mobile são separadas por projeto e sistema (`win32`/`linux`), com dados estáveis e animações desativadas na captura. A tolerância de 3.000 pixels é mantida dentro do mesmo sistema, sem mascarar diferenças de métricas de fontes/controles entre plataformas. As capturas Linux atuais usam Chromium no Ubuntu/WSL com o build otimizado. Detalhe ainda terá baselines próprias na revisão final.
+Baselines de início, detalhe, avaliações, carrinho e pagamento desktop/mobile são separadas por projeto e sistema (`win32`/`linux`), com dados estáveis e animações desativadas na captura. A tolerância de 3.000 pixels é mantida dentro do mesmo sistema, sem mascarar diferenças de métricas de fontes/controles entre plataformas. As capturas Linux atuais usam Chromium no Ubuntu/WSL com o build otimizado. O detalhe também captura o painel de avaliações. Fontes e imagens são aguardadas antes das capturas.
 
-Na entrega da etapa de carrinho, tipos, lint e build passaram. A suíte completa passou com 54 testes no Windows e 54 no Ubuntu/WSL, em Chromium desktop/mobile, sem retries. Os testes no Linux usaram o mesmo `dist/` otimizado servido localmente, com MSW e o cliente Socket.IO ativos. Lighthouse não foi reexecutado nesta etapa.
+No fechamento, passaram 96 testes da suite completa no Ubuntu/WSL e 16 testes visuais/de navegação no Windows, em Chromium desktop/mobile, sem retries. Os 20 testes dos fluxos principais na Vercel também passaram. Tipos, lint e build passaram. Evidências, escopo e comandos reproduzíveis estão em [reports/validation](./reports/validation/README.md).
 
-Na entrega de perfil e carteiras, tipos, lint e build passaram. A suíte completa passou com 68 testes no Windows e 68 no Ubuntu/WSL, em Chromium desktop/mobile, sem retries, usando o mesmo build otimizado. Os 14 casos novos cobrem os fluxos privados descritos acima. Perfil e carteiras também foram conferidos em 390, 768 e 1440 px, sem overflow horizontal. Lighthouse não foi reexecutado nesta etapa.
-
-Na entrega de pagamento e pedidos, a suíte completa passou com 92 testes no Windows e 92 no Ubuntu/WSL, em Chromium desktop/mobile, sem retries. Foram adicionados 24 casos de pagamento. O ajuste final de retorno de foco e os snapshots de pagamento passaram novamente em quatro casos por sistema, sobre o build final; tipos, lint e build também passaram. Pagamento e recibo foram conferidos em 390, 768 e 1440 px, sem overflow. Lighthouse e baselines do detalhe permanecem para a revisão final.
-
-Na revisão de fidelidade de pagamento/recibo, passaram 28 testes por sistema (Windows e Ubuntu/WSL), sem retries: todos os fluxos de pagamento e a composição visual de início/carrinho/pagamento, em desktop/mobile. As quatro baselines de pagamento foram atualizadas. A conexão automática, a troca de carteira, o botão bloqueado sem provedor e a preservação da seleção na expiração foram exercitados; tipos, lint e build passaram. As telas também foram conferidas em 390, 768 e 1440 px.
-
-`scripts/lighthouse.mjs` usa o Chromium do Playwright, serve o build e executa três rodadas por página/perfil por padrão. Gera relatórios completos e medianas de Performance, Accessibility, Best Practices e SEO, além de LCP/CLS/TBT e ambiente. As metas devem ser verificadas novamente com todas as funcionalidades e layouts implementados.
+`scripts/lighthouse.mjs` usa o Chromium do Playwright, serve o build e executa três rodadas por página/perfil por padrão. Gera relatórios completos e medianas de Performance, Accessibility, Best Practices e SEO, além de LCP/CLS/TBT e ambiente. Os resultados finais usam todas as funcionalidades e os layouts implementados e ficam registrados abaixo.
 
 Os diálogos são importados sob demanda; o foco retorna explicitamente ao acionador após fechar o módulo carregado. React DOM é importado após a ativação dos mocks, com chunk inicial pequeno, e as fontes principais são antecipadas no HTML. As otimizações valem para a aplicação publicada, sem modos especiais de auditoria.
 
-A auditoria de início está em `reports/lighthouse/catalog/`, com três execuções por perfil. Performance mobile teve mediana 89, abaixo da meta 90, com LCP de 3,221 s e TBT de 246 ms. O caminho de inicialização dos mocks seguido da aplicação e o trabalho de JavaScript permanecem como oportunidades de otimização. A primeira execução apresentou TBT de 365 ms e está preservada nos relatórios. Desktop teve Performance 100; Accessibility, Best Practices e SEO foram 100 em ambos. O detalhe completo e os demais fluxos ainda precisam da auditoria final.
+A auditoria de início está em `reports/lighthouse/catalog/`, com três execuções por perfil. Performance mobile teve mediana 89, abaixo da meta 90, com LCP de 3,221 s e TBT de 246 ms. O caminho de inicialização dos mocks seguido da aplicação e o trabalho de JavaScript permanecem como oportunidades de otimização. A primeira execução apresentou TBT de 365 ms e está preservada nos relatórios. Desktop teve Performance 100; Accessibility, Best Practices e SEO foram 100 em ambos. Os relatórios de início/detalhe da entrega completa estão em `reports/lighthouse/final/`.
 
 `vercel.json` configura deploy estático com acesso direto às rotas. A integração Git da Vercel está conectada e publica previews e produção; GitHub Actions verifica o código. A base foi validada publicamente em https://nft-marketplace-chi-five.vercel.app/. Novas etapas devem ser conferidas no preview e mescladas após a CI antes de atualizar essa produção.
+
+## Ajustes finais de interface e carregamento
+
+A grade mobile foi alinhada por linhas a pedido do usuário, e os indicadores compartilhados usam círculo preenchido maior no ativo e contorno nos demais. A navegação mobile usa um recorte SVG menor com junções curvas; o círculo central conserva o desenho aprovado. São ajustes autorizados em relação às referências.
+
+O botão da conta abre diretamente /perfil; as seções ficam no AccountShell, com Sair identificado no mobile. SelectControl compartilha tema, setas e interação Radix nos formulários, catálogo e pagamento. Excluir a secundária preserva a principal e os snapshots de pedidos; GET /checkout deixa de retornar conexões cuja carteira não existe ou mudou de endereço/rede. A mutation invalida carteiras e checkout da conta.
+
+O skeleton do detalhe reserva a altura aproximada dos blocos de informações e recomendações do desktop, mantendo o rodapé fora da região inicial durante a consulta. As fontes 400/500/600/700 são antecipadas e os quatro primeiros cards carregam as artes sem lazy loading; os demais continuam sob demanda. Links sociais indisponíveis possuem papel semântico válido, e os controles de compartilhar têm área de toque mínima de 24 px.
+
+## Auditoria final
+
+Os 12 relatórios HTML/JSON de início/detalhe, com três execuções por perfil e ambiente completo, estão em [reports/lighthouse/final](./reports/lighthouse/final/README.md). Performance desktop teve mediana 98 nas duas páginas; mobile ficou em 81 no início e 77 no detalhe. Accessibility, Best Practices e SEO tiveram 100 em todas as combinações. CLS teve mediana zero nas quatro combinações da rodada atual.
+
+A meta de performance mobile ≥90 permanece não atingida. LCP ~4 s, tarefas longas e trabalho de bootstrap/contratos/renderização limitam as medições. O MSW instala os interceptors antes do cliente Socket.IO; preservar essa ordem mantém os eventos simulados funcionais. Preloads adicionais de imagens e módulos foram testados e retirados por competição de banda. Os relatórios mantêm todas as medições e justificam os valores abaixo da meta, conforme solicitado pelo desafio.
+
+## Carregamento de busca e filtros
+
+O cabeçalho importa `header-search.tsx` e o formulário leve `catalog-search-form.tsx`, sem depender dos controles de preço/rede/ordenação. O drawer importa `catalog-filter-dialog.tsx` somente ao abrir, e esse módulo compõe os mesmos Dialog, CatalogFilters e Button. Os tipos compartilhados usam imports de tipo e não adicionam dependências ao bundle.
+
+No NftGrid, a sidebar só monta CatalogFilters em larguras ≥1024 px; a ordenação do toolbar carrega Select em ≥768 px. `useMediaQuery` usa matchMedia/useSyncExternalStore para acompanhar mudanças de largura e liberar os listeners no cleanup. Isso evita carregar os controles só para escondê-los por CSS. As classes e a composição final são preservadas, com skeleton na carga inicial da sidebar. Os filtros aplicados permanecem na URL e são repassados ao componente que estiver ativo após redimensionar.
+
+O novo teste passa por detalhe e catálogo mobile, confirma que os chunks de filtros/Select ainda não carregaram, abre o painel e verifica sua chegada. Depois aplica filtro de rede, preço e ordenação e alterna 390/1440/768 px, conferindo estado, foco e ausência de overflow. A revisão executa os 32 testes afetados de catálogo, detalhe, compra e regressão visual em cada sistema. As baselines existentes foram preservadas. A suíte completa contém 98 casos; a execução completa anterior de 96 e os 20 casos públicos estão mantidos como evidência histórica em reports/validation.
+
+A auditoria atual cobre o commit `e0805fe`. O JavaScript inicial mobile caiu 102,8 kB no catálogo e 67,0 kB no detalhe, antes da compressão. A nota não apresentou ganho demonstrado: início 81→81 e detalhe 79→77, com LCP menor e TBT maior nessa rodada. Os relatórios preservam o resumo anterior e a comparação, sem atribuir a variação de TBT a uma causa não medida. Antecipar consultas ou separar mocks não faz parte dessa mudança.

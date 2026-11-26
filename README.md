@@ -2,7 +2,7 @@
 
 Solução para o [desafio frontend da Jungle](https://github.com/junglegaming/frontend-challenge).
 
-## Etapa atual
+## Visão geral
 
 Catálogo responsivo com destaques, busca, filtros combináveis, ordenação e paginação na URL, com 36 NFTs simulados. A interface segue as referências desktop/mobile fornecidas, com barra lateral no desktop, painel de filtros acessível no mobile e navegação para o detalhe. React + TypeScript + Vite, TanStack Router/Query, Axios, Tailwind CSS, shadcn/ui, MSW e Socket.IO participam dos fluxos.
 
@@ -48,9 +48,13 @@ Variáveis `VITE_*` são públicas e incorporadas ao build. Nunca coloque segred
 
 Também é possível criar uma conta em `/cadastro`. No desktop, login/cadastro abrem em modal sobre a página de retorno, preservando os filtros do catálogo ou a edição/quantidade do NFT; no mobile, ocupam a tela. Ao cancelar ou concluir, o retorno preserva a URL anterior. Favoritar sem sessão abre o login e retoma a inclusão após autenticar. O logout mantém a página pública atual e redireciona ao catálogo apenas ao sair de uma página privada, como Favoritos.
 
+Cadastros novos ficam no navegador e na origem onde foram criados, em `localStorage`, e não têm expiração automática. Limpar os dados do site ou executar o reset remove essas contas; janelas anônimas descartam os dados ao encerrar. Outro navegador/dispositivo possui sua própria simulação. A validade de 24 horas se aplica à sessão de login.
+
 `/favoritos` exige sessão. Conta e favoritos persistem após refresh; logout e troca de usuário removem o cache privado. Novas sessões duram 24 horas e são revalidadas pela API ao retomar a janela e a cada 15 segundos enquanto a aba está ativa. Sessões abertas antes dessa alteração conservam a validade original; saia e entre novamente para obter o novo prazo. Senhas ficam no store simulado como hashes PBKDF2-SHA256 com salt individual, nunca em claro.
 
 ## Explorar o carrinho
+
+Para avaliar a compra completa, entre com uma conta de demonstração (ou crie a sua), salve uma carteira em `/carteiras` usando os exemplos abaixo e abra um NFT. Selecione edição/quantidade, adicione ao carrinho, experimente **KURIO10**, siga para o pagamento, escolha um provedor e confirme a revisão. A confirmação gera uma rota `/pedidos/:id` que pode ser recarregada. Os cenários de falha e os controles Socket.IO estão descritos nas seções seguintes.
 
 No detalhe, selecione edição e quantidade e clique em **COMPRAR** (desktop) ou **Comprar NFT** (mobile) para adicionar e abrir `/carrinho`. No mobile, o botão com ícone de carrinho adiciona sem sair do detalhe. O ícone do header/navegação abre o carrinho e exibe a soma das quantidades.
 
@@ -119,6 +123,7 @@ Para testar interrupção durante um pedido pendente, execute `await fetch('/api
 | `npm run preview` | Serve o build em <http://127.0.0.1:4173> |
 | `npm run test:e2e` | Gera o build e executa Playwright em Chromium desktop e mobile |
 | `npm run test:e2e:ui` | Abre a interface do Playwright |
+| `npm run test:e2e:production` | Confere os fluxos principais na URL pública, com dados isolados por navegador |
 | `npm run test:e2e:report` | Abre o relatório HTML mais recente |
 | `npm run audit:lighthouse` | Gera build e audita início e detalhe, mobile e desktop, três vezes por combinação |
 
@@ -173,11 +178,13 @@ npm run test:e2e
 
 No Linux/CI, use `npx playwright install --with-deps chromium`.
 
-Cada teste recebe um contexto de navegador novo, com armazenamento isolado. Os testes usam o build otimizado, requisições REST interceptadas pelo MSW e o cliente Socket.IO real. As verificações cobrem filtros combinados, parâmetros da API, histórico, refresh, paginação, respostas obsoletas, precisão decimal, abertura do detalhe, 404, skeletons, falha e recuperação, resultado vazio, eventos novos/duplicados/antigos e recomposição da lista, persistência, teclado, foco dos diálogos, autenticação e favoritos. O carrinho acrescenta quantidades, remoção, edições separadas, conflitos de estoque, cupom inválido/expirado, transferência no login, isolamento de contas, atualização de preço/estoque e precisão de 18 casas. Os fluxos automatizados usam 390 e 1440 px; o layout também foi conferido em 768 px.
+Cada teste recebe um contexto de navegador novo, com armazenamento isolado. Os testes usam o build otimizado, requisições REST interceptadas pelo MSW e o cliente Socket.IO real. As verificações cobrem filtros combinados, parâmetros da API, histórico, refresh, paginação, respostas obsoletas, precisão decimal, abertura do detalhe, 404, skeletons, falha e recuperação, resultado vazio, eventos novos/duplicados/antigos e recomposição da lista, persistência, teclado, foco dos diálogos, autenticação e favoritos. O carrinho acrescenta quantidades, remoção, edições separadas, conflitos de estoque, cupom inválido/expirado, transferência no login, isolamento de contas, atualização de preço/estoque e precisão de 18 casas. Os fluxos automatizados usam 390 e 1440 px; a conferência de layout inclui 320 e 768 px. A largura mínima suportada é 320 pixels CSS (`min-w-80`).
 
 Os testes de pagamento cobrem compra até o recibo, baixa do estoque, snapshot imutável, validação, conexão/recusa/desconexão, cotação alterada, edição esgotada por Socket.IO, pagamento recusado, duplicação e conflito de idempotência, timeout/503 com recuperação, pedido pendente após reconexão/refresh, eventos antigos/duplicados, preservação de itens adicionados depois, expiração, isolamento entre contas e skeleton/falha recuperável.
 
-Relatórios ficam em `playwright-report/`; screenshots e traces de falhas em `test-results/`. A CI publica essas pastas como artefato. As baselines de início, carrinho e pagamento desktop/mobile estão versionadas em `tests/e2e/__screenshots__/`, separadas por projeto e sistema (`win32` e `linux`), pois fontes e controles nativos podem alterar métricas e quebras de linha. As imagens Linux atuais foram capturadas no Chromium do Ubuntu/WSL com o build otimizado e conferidas visualmente. Para atualizar após uma alteração visual intencional, use `npm run test:e2e -- --grep composição --update-snapshots=all` no respectivo sistema e confira as imagens antes de versionar. A comparação mantém até 3.000 pixels divergentes dentro do mesmo sistema; dados/carrossel são estáveis e animações desativadas na captura. Baselines do detalhe e a auditoria final permanecem para o fechamento da entrega.
+Relatórios ficam em `playwright-report/`; screenshots e traces de falhas em `test-results/`. A CI publica essas pastas como artefato. As baselines de início, detalhe, avaliações, carrinho e pagamento desktop/mobile estão versionadas em `tests/e2e/__screenshots__/`, separadas por projeto e sistema (`win32` e `linux`), pois fontes e controles nativos podem alterar métricas e quebras de linha. As imagens Linux atuais foram capturadas no Chromium do Ubuntu/WSL com o build otimizado e conferidas visualmente. Para atualizar após uma alteração visual intencional, use `npm run test:e2e -- --grep composição --update-snapshots=all` no respectivo sistema e confira as imagens antes de versionar. A comparação mantém até 3.000 pixels divergentes dentro do mesmo sistema; dados/carrossel são estáveis e animações desativadas na captura. O detalhe possui captura da página completa e do painel de avaliações, com fontes e imagens carregadas antes da comparação.
+
+A [conferência final](./reports/validation/README.md) registra **98/98 testes da suíte completa no Ubuntu/WSL** após a revisão de organização, além de **18/18 testes selecionados no Windows**, sem retries, incluindo todas as baselines. As imagens de referência e os cenários foram preservados. A regressão de carregamento/redimensionamento dos filtros faz parte desses 98 casos. Os 20 testes dos fluxos publicados permanecem registrados como evidência da `main` anterior ao merge deste PR.
 
 ## Lighthouse
 
@@ -195,7 +202,16 @@ npm run audit:lighthouse -- --runs=1 --profile=desktop --page=home
 
 Uma medição rápida valida a infraestrutura, mas não substitui as três medições de cada página/perfil exigidas na entrega final.
 
-A auditoria do início desta etapa está versionada em [reports/lighthouse/catalog](./reports/lighthouse/catalog/README.md), com três execuções por perfil e relatórios HTML/JSON. Medianas: Performance **89 mobile / 100 desktop**; Accessibility, Best Practices e SEO **100** em ambos. A meta de performance mobile ainda não foi atingida; as causas observadas, a variabilidade e as otimizações aplicadas estão documentadas no relatório. A auditoria do detalhe completo permanece para a revisão final.
+A última auditoria completa está em [reports/lighthouse/final](./reports/lighthouse/final/README.md), com 12 medições e seus relatórios HTML/JSON, três por página/perfil, medianas, LCP/CLS/TBT, ferramentas e ambiente. O código funcional auditado é `e0805fe`, anterior à revisão final de organização dos componentes. Essa revisão não repete a auditoria nem declara novas pontuações.
+
+| Página | Performance mobile | Performance desktop | Accessibility | Best Practices | SEO |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Início | 81 | 98 | 100 | 100 | 100 |
+| Detalhe | 77 | 98 | 100 | 100 | 100 |
+
+Accessibility, Best Practices e SEO tiveram 100 em ambos os perfis. **A meta de performance mobile (≥90) não foi atingida**: LCP próximo de quatro segundos e trabalho inicial de JavaScript/mocks são os limitadores observados. As causas, a variação entre execuções, os ajustes aplicados e as oportunidades restantes estão documentados no relatório, sem desativar funcionalidades, imagens ou fontes. A auditoria anterior somente do catálogo continua em [reports/lighthouse/catalog](./reports/lighthouse/catalog/README.md) como registro histórico.
+
+A separação dos filtros reduziu o JavaScript inicial mobile em cerca de 103 kB no catálogo e 67 kB no detalhe, antes da compressão. A nota mobile permaneceu em 81 no início e variou de 79 para 77 no detalhe: essa rodada não demonstra ganho de pontuação. A comparação e o resumo anterior estão preservados no relatório.
 
 ## CI e deploy
 
@@ -213,6 +229,6 @@ Para publicar na Vercel:
 
 `vercel.json` configura o fallback das rotas para `index.html` e evita cache persistente do script do Service Worker. O deploy ocorre pela integração Git da Vercel; a CI executa as verificações. O merge deve ocorrer após CI e preview validados.
 
-**Status:** integração Vercel conectada e base validada na URL pública. O catálogo desta etapa deve ser conferido no preview do PR antes de atualizar a produção.
+**Status:** a integração Git publica `main` na URL pública e cada PR em um preview. `npm run test:e2e:production` valida os fluxos principais no deploy, com relatório em `artifacts/production-report/`. Para apontar para um preview, configure `PLAYWRIGHT_BASE_URL` com sua URL. Os mocks atuam no navegador e cada teste recebe armazenamento isolado. O merge desta revisão publica os últimos ajustes de acessibilidade e carregamento; repita esse comando após o deploy para conferir a correspondência final.
 
 Veja [ARCHITECTURE.md](./ARCHITECTURE.md) para contratos, responsabilidades e limitações atuais.

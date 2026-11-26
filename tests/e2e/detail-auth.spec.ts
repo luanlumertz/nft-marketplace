@@ -125,7 +125,6 @@ test('isola favoritos depois de logout e troca de usuário', async ({
     .filter({ visible: true })
     .click()
   await expect(page).toHaveURL('/')
-  await expect(page).toHaveURL('/')
   await expect(
     page.getByRole('list', { name: 'NFTs da coleção' }),
   ).toBeVisible()
@@ -171,4 +170,54 @@ test('valida cadastro, trata conflito e persiste conta sem senha em claro', asyn
     localStorage.getItem('kurio:accounts:v1'),
   )
   expect(persisted).not.toContain('Nova12345!')
+})
+
+test('mantém a composição visual do detalhe e das avaliações', async ({
+  page,
+  isMobile,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/nfts/emerald-ape-042')
+  await expect(
+    page.getByRole('heading', { name: 'Emerald Ape #042', exact: true }),
+  ).toBeVisible()
+  if (!isMobile) {
+    await expect(
+      page.getByRole('heading', { name: 'Mais desta coleção', exact: true }),
+    ).toBeVisible()
+    await expect(
+      page.locator('[aria-labelledby="related-title"] li'),
+    ).toHaveCount(5)
+  }
+  await page.evaluate(async () => {
+    await document.fonts.ready
+    const images = [...document.images].filter(
+      (image) => image.getClientRects().length > 0,
+    )
+    for (const image of images) image.loading = 'eager'
+    await Promise.all(images.map((image) => image.decode()))
+  })
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true)
+  await expect(page).toHaveScreenshot('detalhe.png', {
+    fullPage: true,
+    animations: 'disabled',
+    maxDiffPixels: 3000,
+  })
+  if (isMobile)
+    await page.getByText('Detalhes e avaliações', { exact: true }).click()
+  await page
+    .getByRole('tab', {
+      name: 'Avaliações de colecionadores (19)',
+      exact: true,
+    })
+    .click()
+  await expect(page.getByRole('tabpanel')).toContainText('Mostrar mais')
+  await expect(page.getByRole('tabpanel')).toHaveScreenshot(
+    'detalhe-avaliacoes.png',
+    { animations: 'disabled', maxDiffPixels: 1000 },
+  )
 })

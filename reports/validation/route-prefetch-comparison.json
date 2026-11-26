@@ -1,0 +1,324 @@
+{
+  "baselineCommit": "e0805fe",
+  "baselineHead": "0042c5919338646a6976b982af1092b8b85c6d48",
+  "decision": "discarded",
+  "reason": "No demonstrated performance benefit in the measured comparison",
+  "executionOrder": [
+    "candidate",
+    "control"
+  ],
+  "candidate": {
+    "generatedAt": "2026-11-26T17:31:10.012Z",
+    "runs": 3,
+    "medians": [
+      {
+        "page": "home",
+        "profile": "mobile",
+        "scores": {
+          "performance": 74,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        "metrics": {
+          "largest-contentful-paint": 4063.501149999999,
+          "cumulative-layout-shift": 0,
+          "total-blocking-time": 518.9999999999998
+        }
+      },
+      {
+        "page": "detail",
+        "profile": "mobile",
+        "scores": {
+          "performance": 72,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        "metrics": {
+          "largest-contentful-paint": 4009.9363999999987,
+          "cumulative-layout-shift": 0,
+          "total-blocking-time": 623
+        }
+      }
+    ],
+    "measurements": [
+      {
+        "page": "home",
+        "profile": "mobile",
+        "run": 1,
+        "lighthouseVersion": "13.6.0",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.0.0 Safari/537.36",
+        "scores": {
+          "performance": 58,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        "metrics": {
+          "largest-contentful-paint": 4187.699999999999,
+          "cumulative-layout-shift": 0,
+          "total-blocking-time": 2262.5499999999997
+        }
+      },
+      {
+        "page": "home",
+        "profile": "mobile",
+        "run": 2,
+        "lighthouseVersion": "13.6.0",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.0.0 Safari/537.36",
+        "scores": {
+          "performance": 74,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        "metrics": {
+          "largest-contentful-paint": 4063.501149999999,
+          "cumulative-layout-shift": 0,
+          "total-blocking-time": 518.9999999999998
+        }
+      },
+      {
+        "page": "home",
+        "profile": "mobile",
+        "run": 3,
+        "lighthouseVersion": "13.6.0",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.0.0 Safari/537.36",
+        "scores": {
+          "performance": 79,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        "metrics": {
+          "largest-contentful-paint": 3910.7881999999995,
+          "cumulative-layout-shift": 0,
+          "total-blocking-time": 372
+        }
+      },
+      {
+        "page": "detail",
+        "profile": "mobile",
+        "run": 1,
+        "lighthouseVersion": "13.6.0",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.0.0 Safari/537.36",
+        "scores": {
+          "performance": 72,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        "metrics": {
+          "largest-contentful-paint": 4036.6226000000006,
+          "cumulative-layout-shift": 0,
+          "total-blocking-time": 623
+        }
+      },
+      {
+        "page": "detail",
+        "profile": "mobile",
+        "run": 2,
+        "lighthouseVersion": "13.6.0",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.0.0 Safari/537.36",
+        "scores": {
+          "performance": 72,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        "metrics": {
+          "largest-contentful-paint": 4009.9363999999987,
+          "cumulative-layout-shift": 0,
+          "total-blocking-time": 623
+        }
+      },
+      {
+        "page": "detail",
+        "profile": "mobile",
+        "run": 3,
+        "lighthouseVersion": "13.6.0",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.0.0 Safari/537.36",
+        "scores": {
+          "performance": 75,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        "metrics": {
+          "largest-contentful-paint": 3913.473700000001,
+          "cumulative-layout-shift": 0,
+          "total-blocking-time": 496
+        }
+      }
+    ],
+    "environment": {
+      "node": "v24.13.0",
+      "platform": "win32",
+      "release": "10.0.26300",
+      "cpu": "AMD Ryzen 5 7535HS with Radeon Graphics        ",
+      "memoryGiB": 15,
+      "playwright": "1.65.1",
+      "vite": "8.3.8",
+      "mocks": "Cenário padrão MSW, build otimizado, assets e fontes locais.",
+      "throttling": "Configuração padrão Lighthouse mobile/desktop; medições sequenciais na mesma máquina."
+    }
+  },
+  "control": {
+    "generatedAt": "2026-11-26T17:33:46.725Z",
+    "runs": 3,
+    "medians": [
+      {
+        "page": "home",
+        "profile": "mobile",
+        "scores": {
+          "performance": 80,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        "metrics": {
+          "largest-contentful-paint": 3861.33825,
+          "cumulative-layout-shift": 0,
+          "total-blocking-time": 353
+        }
+      },
+      {
+        "page": "detail",
+        "profile": "mobile",
+        "scores": {
+          "performance": 77,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        "metrics": {
+          "largest-contentful-paint": 3873.355050000001,
+          "cumulative-layout-shift": 0,
+          "total-blocking-time": 454
+        }
+      }
+    ],
+    "measurements": [
+      {
+        "page": "home",
+        "profile": "mobile",
+        "run": 1,
+        "lighthouseVersion": "13.6.0",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.0.0 Safari/537.36",
+        "scores": {
+          "performance": 65,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        "metrics": {
+          "largest-contentful-paint": 3801.9730000000004,
+          "cumulative-layout-shift": 0,
+          "total-blocking-time": 1139.3609999999994
+        }
+      },
+      {
+        "page": "home",
+        "profile": "mobile",
+        "run": 2,
+        "lighthouseVersion": "13.6.0",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.0.0 Safari/537.36",
+        "scores": {
+          "performance": 81,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        "metrics": {
+          "largest-contentful-paint": 3941.998199999999,
+          "cumulative-layout-shift": 0,
+          "total-blocking-time": 306.5
+        }
+      },
+      {
+        "page": "home",
+        "profile": "mobile",
+        "run": 3,
+        "lighthouseVersion": "13.6.0",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.0.0 Safari/537.36",
+        "scores": {
+          "performance": 80,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        "metrics": {
+          "largest-contentful-paint": 3861.33825,
+          "cumulative-layout-shift": 0,
+          "total-blocking-time": 353
+        }
+      },
+      {
+        "page": "detail",
+        "profile": "mobile",
+        "run": 1,
+        "lighthouseVersion": "13.6.0",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.0.0 Safari/537.36",
+        "scores": {
+          "performance": 76,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        "metrics": {
+          "largest-contentful-paint": 3895.252400000001,
+          "cumulative-layout-shift": 0,
+          "total-blocking-time": 474
+        }
+      },
+      {
+        "page": "detail",
+        "profile": "mobile",
+        "run": 2,
+        "lighthouseVersion": "13.6.0",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.0.0 Safari/537.36",
+        "scores": {
+          "performance": 78,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        "metrics": {
+          "largest-contentful-paint": 3873.355050000001,
+          "cumulative-layout-shift": 0,
+          "total-blocking-time": 418
+        }
+      },
+      {
+        "page": "detail",
+        "profile": "mobile",
+        "run": 3,
+        "lighthouseVersion": "13.6.0",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.0.0 Safari/537.36",
+        "scores": {
+          "performance": 77,
+          "accessibility": 100,
+          "best-practices": 100,
+          "seo": 100
+        },
+        "metrics": {
+          "largest-contentful-paint": 3850.874800000001,
+          "cumulative-layout-shift": 0,
+          "total-blocking-time": 454
+        }
+      }
+    ],
+    "environment": {
+      "node": "v24.13.0",
+      "platform": "win32",
+      "release": "10.0.26300",
+      "cpu": "AMD Ryzen 5 7535HS with Radeon Graphics        ",
+      "memoryGiB": 15,
+      "playwright": "1.65.1",
+      "vite": "8.3.8",
+      "mocks": "Cenário padrão MSW, build otimizado, assets e fontes locais.",
+      "throttling": "Configuração padrão Lighthouse mobile/desktop; medições sequenciais na mesma máquina."
+    }
+  }
+}

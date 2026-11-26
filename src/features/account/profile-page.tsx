@@ -8,6 +8,7 @@ import {
 import { useQuery } from '@tanstack/react-query'
 import { ImageIcon, LoaderCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useDocumentTitle } from '@/hooks/use-document-title'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useSession } from '@/features/auth/session'
 import { AccountShell } from './account-shell'
@@ -303,13 +304,7 @@ export function ProfilePage() {
     ...profileOptions(user?.id ?? 'anonymous'),
     enabled: !!user,
   })
-  useEffect(() => {
-    const previous = document.title
-    document.title = 'Perfil do colecionador | Kurio'
-    return () => {
-      document.title = previous
-    }
-  }, [])
+  useDocumentTitle('Perfil do colecionador | Kurio')
   return (
     <AccountShell active="profile">
       <h1 className="text-[16px] font-semibold mobile:text-[20px]">

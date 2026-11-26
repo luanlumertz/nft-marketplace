@@ -1,4 +1,4 @@
-import { defaultParseSearch } from '@tanstack/react-router'
+import { parseAppSearch } from '@/lib/router-search'
 import { useQuery } from '@tanstack/react-query'
 import { CatalogHome } from '@/features/nfts/components/catalog-home'
 import { CatalogPreviewContext } from '@/features/nfts/catalog-context'
@@ -16,20 +16,10 @@ import { CartPage } from '@/features/cart/cart-page'
 import { ProfilePage } from '@/features/account/profile-page'
 import { WalletsPage } from '@/features/account/wallets-page'
 
-function originSearch(target: URL) {
-  const parsed: Record<string, unknown> = {
-    ...defaultParseSearch(target.search),
-  }
-  for (const key of ['minPrice', 'maxPrice']) {
-    const raw = target.searchParams.get(key)
-    if (raw !== null && !raw.startsWith('"')) parsed[key] = raw
-  }
-  return parsed
-}
 function DetailBackground({ target, id }: { target: URL; id: string }) {
   const query = useQuery(nftDetailOptions(id))
   const search = parseDetailSearch({
-    ...parseCatalogSearch(originSearch(target)),
+    ...parseCatalogSearch(parseAppSearch(target.search)),
     edition: target.searchParams.get('edition') ?? undefined,
     quantity: Number(target.searchParams.get('quantity') ?? 1),
   })
@@ -55,10 +45,26 @@ export function AuthBackground({ redirect }: { redirect: string }) {
   if (target.pathname === '/carrinho') return <CartPage />
   if (target.pathname === '/perfil') return <ProfilePage />
   if (target.pathname === '/carteiras') return <WalletsPage />
-  if (target.pathname === '/pagamento' || target.pathname.startsWith('/pedidos/'))
-    return <section className="grid min-h-100 place-content-center gap-4 text-center"><h1 className="text-2xl font-semibold">{target.pathname === '/pagamento' ? 'Pagamento com carteira' : 'Seu pedido'}</h1><p className="text-sm text-muted-foreground">Entre para retomar esta etapa com seus dados.</p></section>
+  if (
+    target.pathname === '/pagamento' ||
+    target.pathname.startsWith('/pedidos/')
+  )
+    return (
+      <section className="grid min-h-100 place-content-center gap-4 text-center">
+        <h1 className="text-2xl font-semibold">
+          {target.pathname === '/pagamento'
+            ? 'Pagamento com carteira'
+            : 'Seu pedido'}
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Entre para retomar esta etapa com seus dados.
+        </p>
+      </section>
+    )
   return (
-    <CatalogPreviewContext value={parseCatalogSearch(originSearch(target))}>
+    <CatalogPreviewContext
+      value={parseCatalogSearch(parseAppSearch(target.search))}
+    >
       <CatalogHome />
     </CatalogPreviewContext>
   )

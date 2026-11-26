@@ -1,3 +1,4 @@
+import { readJson } from './http-utils'
 import { delay, http, HttpResponse } from 'msw'
 import { z } from 'zod'
 import { env } from '@/lib/env'
@@ -51,13 +52,6 @@ async function ownerFor(request: Request) {
         { status: 422 },
       )
 }
-async function json(request: Request) {
-  try {
-    return await request.json()
-  } catch {
-    return null
-  }
-}
 export const cartHandlers = [
   http.get(`${base}/cart`, async ({ request }) => {
     const owner = await ownerFor(request)
@@ -68,7 +62,7 @@ export const cartHandlers = [
   http.post(`${base}/cart/items`, async ({ request }) => {
     const owner = await ownerFor(request)
     if (typeof owner !== 'string') return owner
-    const parsed = cartSelectionSchema.safeParse(await json(request))
+    const parsed = cartSelectionSchema.safeParse(await readJson(request))
     if (!parsed.success)
       return HttpResponse.json(
         {
@@ -87,7 +81,7 @@ export const cartHandlers = [
     async ({ request, params }) => {
       const owner = await ownerFor(request)
       if (typeof owner !== 'string') return owner
-      const body = await json(request)
+      const body = await readJson(request)
       const parsed = cartSelectionSchema.safeParse({
         ...(typeof body === 'object' && body ? body : {}),
         nftId: params.nftId,
@@ -116,7 +110,7 @@ export const cartHandlers = [
   http.post(`${base}/cart/quote`, async ({ request }) => {
     const owner = await ownerFor(request)
     if (typeof owner !== 'string') return owner
-    const parsed = couponInputSchema.safeParse(await json(request))
+    const parsed = couponInputSchema.safeParse(await readJson(request))
     if (!parsed.success)
       return HttpResponse.json(
         { code: 'VALIDATION_ERROR', message: 'Informe um código promocional.' },

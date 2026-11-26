@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { isAxiosError } from 'axios'
 import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useDocumentTitle } from '@/hooks/use-document-title'
 import { Skeleton } from '@/components/ui/skeleton'
 import { SelectControl } from '@/components/ui/select'
 import {
@@ -755,13 +756,7 @@ export function CheckoutPage() {
     ...checkoutOptions(user?.id ?? 'anonymous'),
     enabled: !!user,
   })
-  useEffect(() => {
-    const old = document.title
-    document.title = 'Pagamento | Kurio'
-    return () => {
-      document.title = old
-    }
-  }, [])
+  useDocumentTitle('Pagamento | Kurio')
   const queries = [cart.query, profile, wallets, checkout]
   const error = queries.some((q) => q.isError && !q.data)
   const ready =

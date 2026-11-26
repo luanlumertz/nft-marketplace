@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { isAxiosError } from 'axios'
 import { MailOpen, LoaderCircle, CircleX, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useDocumentTitle } from '@/hooks/use-document-title'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useSession } from '@/features/auth/session'
 import { walletNetworks } from '@/features/account/contracts'
@@ -22,16 +23,11 @@ export function OrderPage({ id }: { id: string }) {
   const online = useOrderEvents()
   const [explorer, setExplorer] = useState(false)
   const order = query.data?.userId === userId ? query.data : undefined
-  useEffect(() => {
-    const old = document.title
-    document.title =
-      order?.status === 'confirmed'
-        ? 'Pedido confirmado | Kurio'
-        : 'Seu pedido | Kurio'
-    return () => {
-      document.title = old
-    }
-  }, [order?.status])
+  useDocumentTitle(
+    order?.status === 'confirmed'
+      ? 'Pedido confirmado | Kurio'
+      : 'Seu pedido | Kurio',
+  )
   useEffect(() => {
     if (!userId || !order || order.status === 'pending') return
     if (readAttempt(userId)?.key === order.attemptId) saveAttempt(userId, null)

@@ -46,14 +46,12 @@ export function relatedNftsOptions(id: string) {
   return queryOptions({
     queryKey: ['nfts', 'related', id],
     queryFn: async ({ signal }) =>
-      z
-        .object({ items: z.array(nftSchema) })
-        .parse(
-          (
-            await http.get(`/nfts/${encodeURIComponent(id)}/related`, {
-              signal,
-            })
-          ).data,
-        ),
+      z.object({ items: z.array(nftSchema) }).parse(
+        (
+          await http.get(`/nfts/${encodeURIComponent(id)}/related`, {
+            signal,
+          })
+        ).data,
+      ),
   })
 }

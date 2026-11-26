@@ -153,6 +153,7 @@ export function SiteFooter({
                 <span
                   key={label}
                   aria-disabled="true"
+                  role="link"
                   aria-label={label}
                   title={`${label}: ${unavailable}`}
                 >

@@ -1,3 +1,4 @@
+import { readJson } from './http-utils'
 import { delay, http, HttpResponse } from 'msw'
 import { z } from 'zod'
 import { env } from '@/lib/env'
@@ -34,13 +35,6 @@ async function authorize(request: Request, resource: 'profile' | 'wallets') {
         { code: 'SESSION_EXPIRED', message: 'Sua sessão expirou.' },
         { status: 401 },
       )
-}
-async function json(request: Request) {
-  try {
-    return await request.json()
-  } catch {
-    return null
-  }
 }
 function invalid(error: z.ZodError) {
   const fields: Record<string, string[]> = {}
@@ -80,7 +74,7 @@ export const collectorHandlers = [
   http.patch(`${base}/profile`, async ({ request }) => {
     const authorized = await authorize(request, 'profile')
     if (authorized instanceof Response) return authorized
-    const parsed = profileUpdateSchema.safeParse(await json(request))
+    const parsed = profileUpdateSchema.safeParse(await readJson(request))
     if (!parsed.success) return invalid(parsed.error)
     if (mockStore.getState().scenario === 'profile-conflict')
       return HttpResponse.json(
@@ -115,7 +109,7 @@ export const collectorHandlers = [
         { code: 'NOT_FOUND', message: 'Carteira não encontrada.' },
         { status: 404 },
       )
-    const parsed = walletSaveSchema.safeParse(await json(request))
+    const parsed = walletSaveSchema.safeParse(await readJson(request))
     if (!parsed.success) return invalid(parsed.error)
     if (mockStore.getState().scenario === 'wallet-conflict')
       return HttpResponse.json(

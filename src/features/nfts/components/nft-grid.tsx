@@ -1,9 +1,9 @@
-import { Fragment, useEffect } from 'react'
+import { Fragment, lazy, Suspense, useEffect } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
-import { SelectControl } from '@/components/ui/select'
+import { useMediaQuery } from '@/hooks/use-media-query'
 import { QueryError } from '@/components/query-feedback'
 import { nftListOptions } from '../queries'
 import {
@@ -15,9 +15,18 @@ import {
   type CatalogSearch,
 } from '../catalog-search'
 import { useCatalogNavigation } from '../use-catalog-navigation'
-import { CatalogFilters, FilterDrawer } from './catalog-controls'
+import { FilterDrawer } from './catalog-controls'
+
+const CatalogFilters = lazy(() => import('./catalog-filters'))
+const CatalogSelect = lazy(() =>
+  import('@/components/ui/select').then(({ SelectControl }) => ({
+    default: SelectControl,
+  })),
+)
 
 export function NftGrid() {
+  const sidebarVisible = useMediaQuery('(min-width: 1024px)')
+  const sortVisible = useMediaQuery('(min-width: 768px)')
   const { search, update, navigate, isPreview } = useCatalogNavigation()
   const query = useQuery(nftListOptions(search))
   const data = query.data
@@ -51,7 +60,18 @@ export function NftGrid() {
         className="catalog-sidebar tablet-compact:hidden mobile:hidden"
         aria-label="Filtros do catálogo"
       >
-        <CatalogFilters {...filters} />
+        {sidebarVisible && (
+          <Suspense
+            fallback={
+              <Skeleton
+                className="h-176 w-full"
+                aria-label="Carregando filtros"
+              />
+            }
+          >
+            <CatalogFilters {...filters} />
+          </Suspense>
+        )}
         {data?.featured[1] && (
           <Link
             className="featured-nft block relative mt-6 overflow-hidden [background:radial-gradient(ellipse_at_top,#47301c,var(--background)_70%)] [&_h3]:m-[24px_20px_10px] [&_h3]:text-primary [&_h3]:text-[24px] [&_h3]:font-bold [&_h3]:uppercase [&_>_strong]:block [&_>_strong]:text-center [&_>_strong]:uppercase [&_>_strong]:text-[23px] [&_>_strong]:mb-2 [&_img]:w-full [&_img]:h-91.25 [&_img]:object-cover [&_img]:rounded-3xl"
@@ -122,15 +142,29 @@ export function NftGrid() {
           <div className="ml-auto flex items-center gap-3 mobile:hidden">
             <label className="catalog-sort flex min-h-8 shrink-0 items-center gap-1 whitespace-nowrap text-[14px] tablet:text-[13px]">
               Ordenar por:
-              <SelectControl
-                aria-label="Ordenar NFTs"
-                className="h-8 w-[28ch] border-0 px-0"
-                value={search.sort}
-                options={sortOptions}
-                onValueChange={(value) =>
-                  update({ sort: value as CatalogSearch['sort'] })
-                }
-              />
+              {sortVisible && (
+                <Suspense
+                  fallback={
+                    <span className="inline-flex h-8 w-[28ch] items-center text-sm">
+                      {
+                        sortOptions.find(
+                          ([value]) => value === search.sort,
+                        )?.[1]
+                      }
+                    </span>
+                  }
+                >
+                  <CatalogSelect
+                    aria-label="Ordenar NFTs"
+                    className="h-8 w-[28ch] border-0 px-0"
+                    value={search.sort}
+                    options={sortOptions}
+                    onValueChange={(value) =>
+                      update({ sort: value as CatalogSearch['sort'] })
+                    }
+                  />
+                </Suspense>
+              )}
             </label>
             <div className="tablet-filter hidden tablet-compact:block tablet-compact:[&_.filter-trigger]:h-8 tablet-compact:[&_.filter-trigger]:w-9 tablet-compact:[&_.filter-trigger]:rounded-md">
               <FilterDrawer {...filters} />
@@ -244,7 +278,7 @@ export function NftGrid() {
               aria-label="NFTs da coleção"
               className="nft-grid grid grid-cols-3 gap-x-8.5 gap-y-16 tablet:gap-x-5 tablet:gap-y-10 mobile:grid-cols-2 mobile:gap-x-6 mobile:gap-y-5"
             >
-              {data?.items.map((nft) => (
+              {data?.items.map((nft, index) => (
                 <li
                   key={nft.id}
                   className="nft-card min-w-0 relative [&_h3]:text-[15px] [&_h3]:mt-2.5 [&_h3]:leading-6 tablet:[&_h3]:text-[13px] mobile:[&_h3]:text-[13px] mobile:[&_h3]:leading-5 mobile:[&_h3]:m-[10px_7px_0]"
@@ -261,7 +295,7 @@ export function NftGrid() {
                         alt={`Arte de ${nft.name}`}
                         width={300}
                         height={300}
-                        loading="lazy"
+                        loading={index < 4 ? 'eager' : 'lazy'}
                       />
                       {nft.rare && (
                         <span className="rarity-label hidden mobile:block mobile:absolute mobile:top-4 mobile:left-0 mobile:bg-primary mobile:text-background mobile:p-[7px_10px] mobile:uppercase mobile:text-[12px]">

@@ -1,10 +1,11 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { Link } from '@tanstack/react-router'
 import { ArrowLeft, Minus, Plus, ShoppingCart, Trash2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useDocumentTitle } from '@/hooks/use-document-title'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import { NftRecommendations } from '@/features/nfts/components/nft-detail'
+import { NftRecommendations } from '@/features/nfts/components/nft-recommendations'
 import { catalogDefaults } from '@/features/nfts/catalog-search'
 import { useCart } from './use-cart'
 import type { CartItem, CartCommand } from './contracts'
@@ -159,13 +160,7 @@ export function CartPage() {
     !cart.query.isFetching &&
     !cart.query.isError
   const [code, setCode] = useState('')
-  useEffect(() => {
-    const previous = document.title
-    document.title = 'Carrinho de NFTs | Kurio'
-    return () => {
-      document.title = previous
-    }
-  }, [])
+  useDocumentTitle('Carrinho de NFTs | Kurio')
   const submitCoupon = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (code.trim())
@@ -398,7 +393,16 @@ export function CartPage() {
                       disabled={!canConnect}
                       className="mt-5 h-10 w-full rounded-xs font-semibold disabled:opacity-100 mobile:mt-7 mobile:h-15 mobile:rounded-full mobile:bg-linear-to-r mobile:from-primary mobile:to-[#b77943]"
                     >
-                      <Link to="/pagamento" onClick={(event) => { if (!canConnect) event.preventDefault() }} aria-disabled={!canConnect} tabIndex={canConnect ? undefined : -1}>Conectar e finalizar</Link>
+                      <Link
+                        to="/pagamento"
+                        onClick={(event) => {
+                          if (!canConnect) event.preventDefault()
+                        }}
+                        aria-disabled={!canConnect}
+                        tabIndex={canConnect ? undefined : -1}
+                      >
+                        Conectar e finalizar
+                      </Link>
                     </Button>
                   ) : (
                     <Button
