@@ -1,4 +1,4 @@
-import { useId } from 'react'
+import { useId, type ReactNode } from 'react'
 import { AccountField } from '@/features/account/account-field'
 import {
   walletNetworks,
@@ -16,14 +16,16 @@ export function CheckoutFields({
   changeNetwork,
   change,
   errors,
+  walletSwitch,
 }: {
   collector: Collector
   wallet?: Wallet
   network: ConnectionInput['network']
-  provider: ConnectionInput['provider']
+  provider: ConnectionInput['provider'] | ''
   changeNetwork: (network: ConnectionInput['network']) => void
   change: (key: keyof Collector, value: string) => void
   errors: FieldErrors
+  walletSwitch?: ReactNode
 }) {
   const notesErrorId = useId()
   const field = (key: keyof Collector) => ({
@@ -108,6 +110,7 @@ export function CheckoutFields({
           error={errors.ensName?.[0]}
         />
       </div>
+      {walletSwitch}
       <label className="mt-6 block text-sm">
         Observação do colecionador (opcional)
         <textarea

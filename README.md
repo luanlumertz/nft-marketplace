@@ -81,9 +81,9 @@ Use `profile-error` e `wallets-error` para falhas 503; `profile-conflict` força
 ## Pagamento e pedidos
 
 1. Adicione um NFT ao carrinho, entre na conta e cadastre pelo menos uma carteira em **Carteiras**. Os exemplos fictícios da seção anterior permitem preencher o cadastro.
-2. No carrinho, clique em **Conectar e finalizar**. Em `/pagamento`, selecione a carteira, confira a rede e os dados do colecionador. No mobile, os dados e o resumo ficam em seções expansíveis.
-3. Escolha WalletConnect, MetaMask ou Coinbase Wallet e clique em **Conectar carteira**. A conexão é simulada, associada à sessão atual e válida por 30 minutos. **Desconectar carteira** encerra essa conexão; mudar de carteira/rede/tipo exige conectar a seleção correspondente.
-4. Clique em **Confirmar compra** para revisar os itens, a carteira, descontos, taxa e total. **Confirmar e enviar pedido** revalida a cotação no servidor simulado. Se preço, disponibilidade ou cupom mudar, revise e confirme novamente.
+2. No carrinho, clique em **Conectar e finalizar**. Em `/pagamento`, confira a carteira e escolha WalletConnect, MetaMask ou Coinbase Wallet. Sem uma escolha de provedor, **Confirmar compra** fica desabilitado.
+3. No desktop, confira os dados do colecionador e a rede. **Usar outra carteira?** revela o seletor abaixo do formulário. No mobile, **Trocar carteira** alterna para a próxima carteira cadastrada; dados do colecionador vêm do perfil e da carteira, e o total aparece abaixo das três opções.
+4. Clique em **Confirmar compra**: a conexão simulada é feita automaticamente antes da revisão, vinculada à sessão atual e válida por 30 minutos. Mudar de carteira/provedor encerra a conexão anterior. **Confirmar e enviar pedido** revalida a cotação no servidor simulado. Se preço, disponibilidade ou cupom mudar, revise e confirme novamente.
 5. A rota `/pedidos/:id` acompanha o pedido. O cenário padrão confirma após aproximadamente 1,8 s; o recibo só aparece após confirmação da API. O recibo conserva os valores originais após alterações no catálogo. O explorador mostra a referência local simulada.
 
 O rascunho e a identificação da tentativa são guardados por usuário. Depois de timeout ou falha transitória, **Recuperar pedido** consulta a tentativa e reaproveita a mesma chave caso seja necessário reenviar. Refresh e retorno após login recuperam o contexto. Pedidos de outra conta retornam 404. Uma recusa mantém os itens e permite iniciar outra tentativa; confirmar remove somente as quantidades compradas, preservando inclusões posteriores, baixa o estoque e publica `nft.updated`.
@@ -92,8 +92,8 @@ Não há integração com extensões, blockchain ou pagamentos reais. Os campos 
 
 | Cenário MSW | Como reproduzir |
 | --- | --- |
-| `wallet-rejected` | Antes de conectar: a carteira recusa a solicitação |
-| `wallet-disconnected` | Depois de conectar, antes de enviar: o servidor exige nova conexão |
+| `wallet-rejected` | Antes de clicar em Confirmar compra: a carteira recusa a conexão automática |
+| `wallet-disconnected` | Depois de abrir a revisão, antes de enviar: o servidor exige nova conexão; volte a `default` e confirme novamente |
 | `price-changed` / `edition-sold-out` | Depois de abrir a revisão: o envio altera preço/estoque e exige revisar o carrinho |
 | `payment-declined` | Antes de enviar: o pedido termina recusado e preserva o carrinho |
 | `order-timeout` | Antes de enviar: cria o pedido, mas atrasa a resposta além do timeout; use Recuperar pedido ou refresh |

@@ -79,11 +79,8 @@ async function prepare(page: Page) {
     page.getByRole('form', { name: 'Pagamento', exact: true }),
   ).toBeVisible()
 }
-async function connect(page: Page) {
-  await visible(page, 'Conectar carteira').click()
-  await expect(
-    page.getByText('Carteira conectada nesta simulação.', { exact: true }),
-  ).toBeVisible()
+async function selectProvider(page: Page) {
+  await page.getByRole('radio', { name: /MetaMask/ }).check()
 }
 async function review(page: Page) {
   await visible(page, 'Confirmar compra').click()
@@ -111,7 +108,7 @@ test('compra do detalhe ao recibo, preserva o snapshot e limpa somente a compra 
   await prepare(page)
   const availableBefore = (await api(page, 'GET', '/nfts/emerald-ape-042')).data
     .available
-  await connect(page)
+  await selectProvider(page)
   await send(page)
   await confirmed(page)
   const url = page.url()
@@ -140,45 +137,61 @@ test('compra do detalhe ao recibo, preserva o snapshot e limpa somente a compra 
   ).toContainText('sem consulta à blockchain')
   await expect(page).toHaveURL(url)
 })
-test('valida o coletor, recusa conexão, troca carteira e permite desconectar', async ({
+test('valida o coletor, conecta ao confirmar e alterna carteiras sem uma etapa extra', async ({
   page,
   isMobile,
 }) => {
   await prepare(page)
-  if (isMobile)
-    await page
-      .getByText('Dados do colecionador e rede', { exact: true })
-      .click()
   const form = page.getByRole('form', { name: 'Pagamento', exact: true })
-  await form.getByLabel('Nome de exibição', { exact: false }).fill('')
-  await visible(page, 'Confirmar compra').click()
-  await expect(
-    form.getByLabel('Nome de exibição', { exact: false }),
-  ).toHaveAttribute('aria-invalid', 'true')
-  await form.getByLabel('Nome de exibição', { exact: false }).fill('Ana Costa')
+  await expect(visible(page, 'Confirmar compra')).toBeDisabled()
+  await selectProvider(page)
+  if (!isMobile) {
+    await form.getByLabel('Nome de exibição', { exact: false }).fill('')
+    await visible(page, 'Confirmar compra').click()
+    await expect(
+      form.getByLabel('Nome de exibição', { exact: false }),
+    ).toHaveAttribute('aria-invalid', 'true')
+    await form
+      .getByLabel('Nome de exibição', { exact: false })
+      .fill('Ana Costa')
+    await expect(
+      form.getByLabel('Carteira cadastrada', { exact: true }),
+    ).toHaveCount(0)
+  }
   await mockRequest(page, 'scenario', 'wallet-rejected')
-  await visible(page, 'Conectar carteira').click()
+  await visible(page, 'Confirmar compra').click()
   await expect(form.getByRole('alert')).toContainText('conexão foi recusada')
   await mockRequest(page, 'scenario', 'default')
-  if (isMobile) await form.getByRole('radio', { name: /Reserva/ }).check()
-  else
+  if (isMobile) {
+    await visible(page, 'Trocar carteira').click()
+    await expect(form.getByRole('radio', { name: /Reserva/ })).toBeChecked()
+    await expect(
+      page.getByText('Dados do colecionador e rede', { exact: true }),
+    ).toHaveCount(0)
+    await expect(
+      page.getByText('Resumo da compra', { exact: true }),
+    ).toHaveCount(0)
+  } else {
+    await form
+      .getByRole('checkbox', { name: 'Usar outra carteira?', exact: true })
+      .check()
     await form
       .getByLabel('Carteira cadastrada', { exact: true })
       .selectOption({ label: 'Reserva · polygon' })
+  }
   await form
     .getByRole('radio', { name: 'Coinbase Wallet', exact: false })
     .check()
-  await connect(page)
   const dialog = await review(page)
   await expect(dialog).toContainText('polygon')
   await dialog.getByRole('button', { name: 'Voltar à revisão' }).click()
   await expect(visible(page, 'Confirmar compra')).toBeFocused()
-  await visible(page, 'Desconectar carteira').click()
-  await visible(page, 'Confirmar compra').click()
-  await expect(form.getByRole('alert')).toContainText(
-    'Conecte a carteira selecionada',
-  )
-  await connect(page)
+  await form.getByRole('radio', { name: /WalletConnect/ }).check()
+  await expect
+    .poll(async () => (await api(page, 'GET', '/checkout')).data.connection)
+    .toBe(null)
+  const reconnected = await review(page)
+  await reconnected.getByRole('button', { name: 'Voltar à revisão' }).click()
   await mockRequest(page, 'scenario', 'wallet-disconnected')
   const retryReview = await review(page)
   await retryReview
@@ -187,13 +200,14 @@ test('valida o coletor, recusa conexão, troca carteira e permite desconectar', 
   await expect(form.getByRole('alert')).toContainText(
     'carteira foi desconectada',
   )
-  await expect(visible(page, 'Conectar carteira')).toBeVisible()
+  await expect(visible(page, 'Conectar carteira')).toHaveCount(0)
 })
+
 test('revalida uma cotação alterada no envio e exige nova revisão', async ({
   page,
 }) => {
   await prepare(page)
-  await connect(page)
+  await selectProvider(page)
   const dialog = await review(page)
   await mockRequest(page, 'scenario', 'price-changed')
   await dialog
@@ -214,7 +228,7 @@ test('Socket.IO atualiza a revisão e impede envio com edição esgotada', async
   page,
 }) => {
   await prepare(page)
-  await connect(page)
+  await selectProvider(page)
   const dialog = await review(page)
   await mockRequest(page, 'nfts/emerald-ape-042', { available: 0 })
   await expect(dialog.getByRole('alert')).toContainText('valores mudaram')
@@ -229,7 +243,7 @@ test('recusa pagamento sem recibo e mantém os itens para uma nova tentativa', a
   page,
 }) => {
   await prepare(page)
-  await connect(page)
+  await selectProvider(page)
   await mockRequest(page, 'scenario', 'payment-declined')
   await send(page)
   await expect(
@@ -258,7 +272,7 @@ test('impede duplicação por clique repetido e rejeita reutilizar a chave com o
   page,
 }) => {
   await prepare(page)
-  await connect(page)
+  await selectProvider(page)
   await mockRequest(page, 'scenario', 'order-pending')
   const requests: { key: string; input: unknown }[] = []
   page.on('request', (r) => {
@@ -304,7 +318,7 @@ test('recupera o mesmo pedido após timeout e refresh sem enviar outra compra', 
   page,
 }) => {
   await prepare(page)
-  await connect(page)
+  await selectProvider(page)
   await mockRequest(page, 'scenario', 'order-timeout')
   const dialog = await review(page)
   await dialog
@@ -325,7 +339,7 @@ test('recupera pedido pendente após reconectar, ignora eventos antigos e preser
   page,
 }) => {
   await prepare(page)
-  await connect(page)
+  await selectProvider(page)
   await mockRequest(page, 'scenario', 'order-pending')
   await send(page)
   await expect(
@@ -401,26 +415,25 @@ test('preserva rascunho na expiração e isola pedidos e subscriptions entre con
 }) => {
   await page.clock.install()
   await prepare(page)
-  if (isMobile)
+
+  if (isMobile) await visible(page, 'Trocar carteira').click()
+  else
     await page
-      .getByText('Dados do colecionador e rede', { exact: true })
-      .click()
-  await page
-    .getByLabel('Observação do colecionador (opcional)')
-    .fill('Guardar meu contexto')
+      .getByLabel('Observação do colecionador (opcional)')
+      .fill('Guardar meu contexto')
   await mockRequest(page, 'session/expire', undefined)
   await page.clock.fastForward(16_000)
   await expect(page).toHaveURL(/\/login\?redirect=%2Fpagamento/)
   await login(page)
   await expect(page).toHaveURL('/pagamento')
+
   if (isMobile)
-    await page
-      .getByText('Dados do colecionador e rede', { exact: true })
-      .click()
-  await expect(
-    page.getByLabel('Observação do colecionador (opcional)'),
-  ).toHaveValue('Guardar meu contexto')
-  await connect(page)
+    await expect(page.getByRole('radio', { name: /Reserva/ })).toBeChecked()
+  else
+    await expect(
+      page.getByLabel('Observação do colecionador (opcional)'),
+    ).toHaveValue('Guardar meu contexto')
+  await selectProvider(page)
   await mockRequest(page, 'scenario', 'order-pending')
   await send(page)
   await expect(
@@ -479,7 +492,7 @@ test('reenvia a mesma tentativa após indisponibilidade sem criar outro pedido',
   page,
 }) => {
   await prepare(page)
-  await connect(page)
+  await selectProvider(page)
   await mockRequest(page, 'scenario', 'order-error')
   const keys: string[] = []
   page.on('request', (r) => {

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { isAxiosError } from 'axios'
-import { ArrowLeft, LoaderCircle, Wallet as WalletIcon } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -90,10 +90,14 @@ function CheckoutForm({
     wallets.items.find((w) => w.id === saved?.walletId) ??
     wallets.items.find((w) => w.slot === 'primary') ??
     wallets.items[0]
-  const [selection, setSelection] = useState<ConnectionInput>(() => ({
+  const [selection, setSelection] = useState<
+    Omit<ConnectionInput, 'provider'> & {
+      provider: ConnectionInput['provider'] | ''
+    }
+  >(() => ({
     walletId: initialWallet?.id ?? '',
-    network: saved?.network ?? initialWallet?.network ?? 'ethereum',
-    provider: saved?.provider ?? initialWallet?.provider ?? 'metamask',
+    network: initialWallet?.network ?? saved?.network ?? 'ethereum',
+    provider: saved?.providerSelected ? saved.provider : '',
   }))
   const [collector, setCollector] = useState<Collector>(() => ({
     name: profile.name,
@@ -107,6 +111,11 @@ function CheckoutForm({
     ...saved?.collector,
   }))
   const [connection, setConnection] = useState(initialConnection)
+  const [otherWallet, setOtherWallet] = useState(
+    initialWallet?.slot === 'secondary',
+  )
+  const reviewedCollector = useRef<Collector | null>(null)
+  const preparing = useRef(false)
   const [errors, setErrors] = useState<FieldErrors>({})
   const [review, setReview] = useState<Cart | null>(null)
   const [attempt, setAttempt] = useState<SavedAttempt | null>(() =>
@@ -117,7 +126,6 @@ function CheckoutForm({
   const [draftError, setDraftError] = useState('')
   const confirmButton = useRef<HTMLButtonElement>(null)
   const form = useRef<HTMLFormElement>(null),
-    details = useRef<HTMLDetailsElement>(null),
     sending = useRef(false)
   const navigate = useNavigate(),
     client = useQueryClient()
@@ -133,7 +141,7 @@ function CheckoutForm({
     ...attemptOptions(userId, attempt?.key ?? ''),
     enabled: !!attempt && recoverOnMount,
   })
-  const online = useOrderEvents()
+  useOrderEvents()
   const current = (token: string | null) =>
     token !== null && token === getSessionToken()
   useEffect(() => {
@@ -148,22 +156,16 @@ function CheckoutForm({
     try {
       localStorage.setItem(
         `kurio:checkout:${userId}`,
-        JSON.stringify({ ...selection, collector }),
+        JSON.stringify({
+          ...selection,
+          providerSelected: selection.provider !== '',
+          collector,
+        }),
       )
     } catch {
       /* O envio informa a falha antes de criar uma tentativa sem persistência. */
     }
   }, [userId, selection, collector])
-  useEffect(() => {
-    const media = window.matchMedia('(min-width: 768px)')
-    const update = () =>
-      form.current?.querySelectorAll('details').forEach((detail) => {
-        detail.open = media.matches
-      })
-    update()
-    media.addEventListener('change', update)
-    return () => media.removeEventListener('change', update)
-  }, [])
   useEffect(() => {
     if (lookup.data?.order && lookup.data.order.userId === userId)
       void navigate({
@@ -190,7 +192,7 @@ function CheckoutForm({
     onSuccess: (value, { token }) => {
       if (current(token)) {
         setConnection(value)
-        setNotice('Carteira conectada. Revise os dados antes de confirmar.')
+        setNotice('')
         client.setQueryData(orderKeys.checkout(userId), { connection: value })
       }
     },
@@ -204,7 +206,7 @@ function CheckoutForm({
     onSuccess: (_, { token }) => {
       if (current(token)) {
         setConnection(null)
-        setNotice('Carteira desconectada.')
+        setNotice('')
         client.setQueryData(orderKeys.checkout(userId), { connection: null })
       }
     },
@@ -274,7 +276,7 @@ function CheckoutForm({
     setSelection({
       walletId: id,
       network: next.network,
-      provider: next.provider,
+      provider: selection.provider,
     })
     setCollector((c) => ({
       ...c,
@@ -284,23 +286,42 @@ function CheckoutForm({
     }))
     connect.reset()
     disconnect.reset()
+    if (connection) {
+      disconnect.mutate({ id: connection.id, token: getSessionToken() })
+      setConnection(null)
+    }
     setReview(null)
     setNotice('')
   }
-  function validate(event: FormEvent) {
+  async function validate(event: FormEvent) {
     event.preventDefault()
     if (
       busy ||
+      preparing.current ||
       refreshing ||
       refreshFailed ||
       !cart.quote.canCheckout ||
-      attempt
+      attempt ||
+      !wallet ||
+      !selection.provider
     )
       return
-    const parsed = collectorSchema.safeParse(collector)
+    const mobile = window.matchMedia('(max-width: 767px)').matches
+    const candidate = mobile
+      ? {
+          name: profile.name,
+          username: profile.username,
+          email: profile.email,
+          ensName: profile.ensName,
+          profileName: wallet.profileName,
+          referralCode: wallet.referralCode,
+          secondaryAddress: wallet.secondaryAddress,
+          notes: '',
+        }
+      : collector
+    const parsed = collectorSchema.safeParse(candidate)
     if (!parsed.success) {
       setErrors(validationErrors(parsed.error))
-      if (details.current) details.current.open = true
       requestAnimationFrame(() =>
         form.current
           ?.querySelector<HTMLElement>('[aria-invalid="true"]')
@@ -308,13 +329,24 @@ function CheckoutForm({
       )
       return
     }
-    if (!connected) {
-      setNotice('Conecte a carteira selecionada antes de confirmar.')
-      return
+    preparing.current = true
+    const token = getSessionToken()
+    try {
+      if (!connected)
+        await connect.mutateAsync({
+          input: { ...selection, provider: selection.provider },
+          token,
+        })
+      if (!current(token)) return
+      reviewedCollector.current = parsed.data
+      setErrors({})
+      setNotice('')
+      setReview(structuredClone(cart))
+    } catch (error) {
+      if (current(token)) setNotice(message(error))
+    } finally {
+      preparing.current = false
     }
-    setErrors({})
-    setNotice('')
-    setReview(structuredClone(cart))
   }
   function send() {
     if (sending.current || !review || !connected || refreshing || refreshFailed)
@@ -326,7 +358,7 @@ function CheckoutForm({
       )
       return
     }
-    const parsed = collectorSchema.safeParse(collector)
+    const parsed = collectorSchema.safeParse(reviewedCollector.current)
     if (!parsed.success) return
     const saved: SavedAttempt = {
       key: crypto.randomUUID(),
@@ -380,14 +412,29 @@ function CheckoutForm({
       disabled={busy || !!attempt}
       className="hidden space-y-4 mobile:block"
     >
-      <legend className="mb-3 text-[16px] font-semibold">
-        Carteira conectada
+      <legend className="mb-3 w-full">
+        <span className="flex items-center justify-between gap-3">
+          <span className="text-base font-semibold">Carteira conectada</span>
+          <button
+            type="button"
+            disabled={wallets.items.length < 2 || busy || !!attempt}
+            onClick={() => {
+              const index = wallets.items.findIndex(
+                (w) => w.id === selection.walletId,
+              )
+              choose(wallets.items[(index + 1) % wallets.items.length].id)
+            }}
+            className="min-h-8 text-sm font-semibold text-primary disabled:opacity-50"
+          >
+            Trocar carteira
+          </button>
+        </span>
       </legend>
       <div className="hidden mobile:block mobile:space-y-5">
         {wallets.items.map((w) => (
           <label
             key={w.id}
-            className="flex cursor-pointer items-center gap-4 rounded-2xl bg-card p-5 has-checked:ring-1 has-checked:ring-primary"
+            className="flex cursor-pointer items-center gap-4 rounded-2xl bg-card p-5"
           >
             <input
               type="radio"
@@ -413,12 +460,14 @@ function CheckoutForm({
           Você ainda não cadastrou uma carteira.
         </p>
       )}
-      <Link
-        to="/carteiras"
-        className="inline-block text-sm text-primary underline underline-offset-4"
-      >
-        {wallets.items.length ? 'Gerenciar carteiras' : 'Cadastrar carteira'}
-      </Link>
+      {!wallets.items.length && (
+        <Link
+          to="/carteiras"
+          className="inline-block text-sm text-primary underline underline-offset-4"
+        >
+          Cadastrar carteira
+        </Link>
+      )}
     </fieldset>
   )
   return (
@@ -428,75 +477,84 @@ function CheckoutForm({
         noValidate
         onSubmit={validate}
         aria-label="Pagamento"
-        className="grid grid-cols-[minmax(0,1.88fr)_minmax(0,1fr)] items-start gap-8 tablet:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] tablet:gap-6 mobile:flex mobile:min-h-[calc(100svh-100px)] mobile:flex-col mobile:gap-7"
+        className="grid grid-cols-[minmax(0,1.88fr)_minmax(0,1fr)] items-start gap-8 tablet:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] tablet:gap-6 mobile:flex mobile:flex-1 mobile:flex-col mobile:gap-7"
       >
         <section className="min-w-0 mobile:w-full">
-          <div className="mb-5 flex flex-wrap items-center justify-between gap-3 mobile:hidden">
-            <h2 className="text-[18px] font-semibold">
-              Perfil do colecionador
-            </h2>
-            {wallets.items.length ? (
-              <select
-                aria-label="Carteira cadastrada"
-                disabled={busy || !!attempt}
-                value={selection.walletId}
-                onChange={(event) => choose(event.target.value)}
-                className="h-9 w-60 max-w-full rounded-xs border border-border bg-background px-2 pr-8 text-sm"
-              >
-                {wallets.items.map((w) => (
-                  <option key={w.id} value={w.id}>
-                    {w.walletAlias} · {w.network}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <Link to="/carteiras" className="text-sm text-primary underline">
-                Cadastrar carteira
-              </Link>
-            )}
-          </div>
+          <h2 className="mb-5 text-lg font-semibold mobile:hidden">
+            Perfil do colecionador
+          </h2>
           {picker}
-          <details ref={details} className="group mobile:mt-6">
-            <summary className="mb-5 hidden cursor-pointer text-[16px] font-semibold text-primary mobile:block">
-              Dados do colecionador e rede
-            </summary>
-            <div className="block mobile:hidden mobile:group-open:block">
-              <fieldset disabled={busy || !!attempt}>
-                <CheckoutFields
-                  collector={collector}
-                  wallet={wallet}
-                  network={selection.network}
-                  provider={selection.provider}
-                  errors={errors}
-                  change={change}
-                  changeNetwork={(network) => {
-                    setSelection((s) => ({ ...s, network }))
-                    setReview(null)
-                  }}
-                />
-              </fieldset>
-            </div>
-          </details>
+          <fieldset disabled={busy || !!attempt} className="mobile:hidden">
+            <CheckoutFields
+              collector={collector}
+              wallet={wallet}
+              network={selection.network}
+              provider={selection.provider}
+              errors={errors}
+              change={change}
+              changeNetwork={(network) => {
+                setSelection((old) => ({ ...old, network }))
+                setReview(null)
+              }}
+              walletSwitch={
+                <div className="mt-6 flex flex-wrap items-center gap-4">
+                  <label className="flex min-h-10 cursor-pointer items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={otherWallet}
+                      disabled={wallets.items.length < 2}
+                      className={radioStyle}
+                      onChange={(event) => {
+                        setOtherWallet(event.target.checked)
+                        if (!event.target.checked) {
+                          const primary = wallets.items.find(
+                            (w) => w.slot === 'primary',
+                          )
+                          if (primary) choose(primary.id)
+                        }
+                      }}
+                    />
+                    Usar outra carteira?
+                  </label>
+                  {!wallets.items.length && (
+                    <Link
+                      to="/carteiras"
+                      className="text-sm text-primary underline"
+                    >
+                      Cadastrar carteira
+                    </Link>
+                  )}
+                  {otherWallet && (
+                    <select
+                      aria-label="Carteira cadastrada"
+                      value={selection.walletId}
+                      onChange={(event) => choose(event.target.value)}
+                      className="h-10 w-60 max-w-full rounded-xs border border-border bg-background px-2 pr-8 text-sm"
+                    >
+                      {wallets.items.map((w) => (
+                        <option key={w.id} value={w.id}>
+                          {w.walletAlias} · {w.network}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+              }
+            />
+          </fieldset>
         </section>
         <aside className="min-w-0 mobile:flex mobile:w-full mobile:flex-1 mobile:flex-col">
-          <details className="group mobile:order-2 mobile:mt-6">
-            <summary className="mb-3 hidden cursor-pointer text-sm text-primary mobile:block">
-              Resumo da compra
-            </summary>
-            <div className="mobile:hidden mobile:group-open:block">
-              <h2 className="mb-2 text-[18px] font-semibold mobile:hidden">
-                Seus NFTs
-              </h2>
-              <OrderItems cart={cart} />
-              <Link
-                to="/carrinho"
-                className="mt-3 block text-center text-xs text-muted-foreground"
-              >
-                Tem um código promocional? Aplique aqui
-              </Link>
-              <OrderTotals cart={cart} />
-            </div>
-          </details>
+          <div className="mobile:hidden">
+            <h2 className="mb-2 text-lg font-semibold">Seus NFTs</h2>
+            <OrderItems cart={cart} />
+            <Link
+              to="/carrinho"
+              className="mt-3 block text-center text-sm text-foreground"
+            >
+              Tem um código promocional? Aplique aqui
+            </Link>
+            <OrderTotals cart={cart} />
+          </div>
           <fieldset
             disabled={busy || !!attempt}
             className="mt-4 space-y-4 mobile:order-1 mobile:mt-0"
@@ -517,6 +575,13 @@ function CheckoutForm({
                     setSelection((s) => ({ ...s, provider: value }))
                     setReview(null)
                     connect.reset()
+                    if (connection) {
+                      disconnect.mutate({
+                        id: connection.id,
+                        token: getSessionToken(),
+                      })
+                      setConnection(null)
+                    }
                   }}
                   className={`${radioStyle} mobile:order-3 mobile:ml-auto`}
                 />
@@ -529,43 +594,12 @@ function CheckoutForm({
                 <span className="text-sm">{label}</span>
               </label>
             ))}
-            <div className="flex flex-wrap items-center gap-2">
-              <Button
-                type="button"
-                disabled={!wallet || busy}
-                onClick={() =>
-                  connected
-                    ? disconnect.mutate({
-                        id: connected.id,
-                        token: getSessionToken(),
-                      })
-                    : connect.mutate({
-                        input: selection,
-                        token: getSessionToken(),
-                      })
-                }
-                variant={connected ? 'outline' : 'default'}
-                className="h-10 w-full mobile:rounded-full"
-              >
-                {connect.isPending || disconnect.isPending ? (
-                  <LoaderCircle className="animate-spin" />
-                ) : (
-                  <WalletIcon />
-                )}
-                {connected ? 'Desconectar carteira' : 'Conectar carteira'}
-              </Button>
-              <p role="status" className="text-xs text-muted-foreground">
-                {connected
-                  ? 'Carteira conectada nesta simulação.'
-                  : 'Conecte a carteira para revisar a compra.'}
-              </p>
-            </div>
           </fieldset>
-          <p className="mt-4 hidden text-right text-[18px] font-semibold mobile:order-3 mobile:block">
+          <p className="mt-4 hidden text-right text-[18px] font-semibold mobile:order-2 mobile:block">
             Total:{' '}
             <span className="text-primary">{cart.quote.totalEth} ETH</span>
           </p>
-          <div className="mt-5 mobile:order-4 mobile:mt-auto mobile:pt-8">
+          <div className="mt-5 mobile:order-3 mobile:mt-auto mobile:pt-8">
             {(notice ||
               connect.isError ||
               disconnect.isError ||
@@ -628,17 +662,13 @@ function CheckoutForm({
                   refreshing ||
                   refreshFailed ||
                   !cart.quote.canCheckout ||
-                  !wallet
+                  !wallet ||
+                  !selection.provider
                 }
                 className="h-11 w-full rounded-xs font-semibold mobile:h-15 mobile:rounded-full mobile:bg-linear-to-r mobile:from-primary mobile:to-[#b77943]"
               >
-                {refreshing ? 'Atualizando valores…' : 'Confirmar compra'}
+                Confirmar compra
               </Button>
-            )}
-            {!online && (
-              <p className="mt-3 text-xs text-muted-foreground">
-                Reconectando às atualizações do pedido…
-              </p>
             )}
           </div>
         </aside>
@@ -738,7 +768,7 @@ export function CheckoutPage() {
   const ready =
     !!cart.query.data && !!profile.data && !!wallets.data && !!checkout.data
   return (
-    <div className="mobile:px-7 mobile:pb-8">
+    <div className="mobile:flex mobile:min-h-svh mobile:flex-col mobile:px-7 mobile:pb-8">
       <nav
         aria-label="Caminho de navegação"
         className="mb-7 flex gap-2 text-sm font-semibold mobile:hidden"

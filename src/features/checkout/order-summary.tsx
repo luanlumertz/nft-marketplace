@@ -11,17 +11,17 @@ export function OrderItems({
     <div>
       <div
         aria-hidden="true"
-        className={`mb-3 grid border-b border-border pb-2 text-[16px] ${receipt ? 'grid-cols-[minmax(0,1fr)_48px_100px] mobile:grid-cols-[minmax(0,1fr)_90px]' : 'grid-cols-[minmax(0,1fr)_100px]'}`}
+        className={`mb-3 grid border-b border-border pb-2 text-[16px] ${receipt ? 'grid-cols-[minmax(0,1fr)_80px_100px] mobile:grid-cols-[minmax(0,1fr)_90px]' : 'grid-cols-[minmax(0,1fr)_100px]'}`}
       >
         <span>NFTs</span>
-        {receipt && <span className="mobile:hidden">Edições</span>}
+        {receipt && <span className="text-center mobile:hidden">Edições</span>}
         <span className="text-right">Subtotal</span>
       </div>
       <ul aria-label="Itens do pedido" className="space-y-3">
         {cart.items.map((item) => (
           <li
             key={item.id}
-            className={`grid items-center gap-2 p-1 ${receipt ? 'grid-cols-[minmax(0,1fr)_48px_100px] mobile:grid-cols-[minmax(0,1fr)_90px]' : 'grid-cols-[minmax(0,1fr)_100px] bg-[#251610]'}`}
+            className={`grid items-center gap-2 p-1 ${receipt ? 'grid-cols-[minmax(0,1fr)_80px_100px] mobile:grid-cols-[minmax(0,1fr)_90px]' : 'grid-cols-[minmax(0,1fr)_100px] bg-[#251610]'}`}
           >
             <div className="flex min-w-0 items-center gap-2">
               <img
@@ -71,40 +71,55 @@ export function OrderTotals({
   cart: Cart
   receipt?: boolean
 }) {
+  const label = receipt ? 'col-start-2 mobile:col-start-1' : ''
+  const value = receipt ? 'col-start-3 mobile:col-start-2' : ''
   return (
-    <dl aria-label="Valores do pedido" className="mt-4 space-y-3 text-[14px]">
+    <dl
+      aria-label="Valores do pedido"
+      className={
+        receipt
+          ? 'mt-4 grid grid-cols-3 items-center gap-x-3 gap-y-2 text-sm mobile:grid-cols-2'
+          : 'mt-4 space-y-3 text-sm'
+      }
+    >
       {!receipt && (
         <div className="flex justify-between gap-4">
           <dt>Subtotal</dt>
-          <dd className="text-right text-[18px] wrap-anywhere">
+          <dd className="text-right text-lg wrap-anywhere">
             {cart.quote.subtotalEth} ETH
           </dd>
         </div>
       )}
       {(!receipt || cart.quote.discountEth !== '0') && (
-        <div className="flex justify-between gap-4">
-          <dt>Desconto do lançamento</dt>
-          <dd className="text-right wrap-anywhere">
+        <div className={receipt ? 'contents' : 'flex justify-between gap-4'}>
+          <dt className={label}>Desconto do lançamento</dt>
+          <dd className={`${value} text-right wrap-anywhere`}>
             (-) {cart.quote.discountEth} ETH
           </dd>
         </div>
       )}
-      <div className="flex justify-between gap-4">
-        <dt>Taxa de rede</dt>
-        <dd className="text-right">
-          <span className="text-[18px] wrap-anywhere">
-            {cart.quote.networkFeeEth} ETH
-          </span>
-          {!receipt && (
-            <span className="mt-2 block text-xs text-primary">
-              Taxa estimada
-            </span>
-          )}
+      <div className={receipt ? 'contents' : 'grid grid-cols-2 gap-x-4'}>
+        <dt className={label}>Taxa de rede</dt>
+        <dd className={`${value} text-right text-lg wrap-anywhere`}>
+          {cart.quote.networkFeeEth} ETH
         </dd>
+        {!receipt && (
+          <dd className="col-span-2 mt-2 text-center text-xs text-primary">
+            Taxa estimada
+          </dd>
+        )}
       </div>
-      <div className="flex justify-between gap-4 border-t border-border pt-3 text-[18px] font-semibold">
-        <dt>Total</dt>
-        <dd className="text-right break-all text-primary">
+      <div
+        className={
+          receipt
+            ? 'contents'
+            : 'flex justify-between gap-4 border-t border-border pt-3'
+        }
+      >
+        <dt className={`${label} text-lg font-semibold`}>Total</dt>
+        <dd
+          className={`${value} text-right text-lg font-semibold break-all text-primary`}
+        >
           {cart.quote.totalEth} ETH
         </dd>
       </div>

@@ -160,7 +160,7 @@ export function OrderPage({ id }: { id: string }) {
       >
         Seus NFTs agora estão na sua carteira
       </h1>
-      <dl className="grid grid-cols-[1.1fr_1fr_1fr_0.8fr] gap-3 border-y border-primary px-8 py-4 text-sm text-muted-foreground mobile:grid-cols-2 mobile:px-6 [&>div]:min-w-0">
+      <dl className="grid grid-cols-[1.1fr_1fr_1fr_0.8fr] divide-x divide-primary/70 border-y border-primary px-8 py-4 text-sm text-muted-foreground mobile:grid-cols-2 mobile:gap-3 mobile:divide-x-0 mobile:px-6 [&>div]:min-w-0 [&>div]:px-4 [&>div:first-child]:pl-0 [&>div:last-child]:pr-0 mobile:[&>div]:px-0">
         <div>
           <dt className="font-semibold">ID da transação</dt>
           <dd className="break-all">
@@ -226,9 +226,6 @@ export function OrderPage({ id }: { id: string }) {
             </p>
           </section>
         )}
-        <p className="mt-5 text-center text-xs break-all text-muted-foreground">
-          Pedido: {order.id}
-        </p>
       </div>
     </article>
   )

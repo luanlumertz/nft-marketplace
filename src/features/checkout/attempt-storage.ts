@@ -4,7 +4,8 @@ import { orderInputSchema } from './contracts'
 export const checkoutDraftSchema = z.object({
   walletId: z.string(),
   network: z.enum(['ethereum', 'polygon', 'solana']),
-  provider: z.enum(['walletconnect', 'metamask', 'coinbase']),
+  provider: z.enum(['walletconnect', 'metamask', 'coinbase', '']),
+  providerSelected: z.boolean().optional(),
   collector: z
     .object({
       name: z.string(),
