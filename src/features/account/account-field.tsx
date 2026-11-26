@@ -1,6 +1,7 @@
 import { useId, useState, type ComponentProps } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import { Input } from '@/components/ui/input'
+import { SelectControl } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 
 const inputStyle =
@@ -35,34 +36,29 @@ export function AccountField({
       </label>
       <div className={`relative ${ens ? 'flex gap-2.5' : ''}`}>
         {ens && (
-          <select
+          <SelectControl
             aria-label="Domínio ENS"
             disabled={props.disabled}
-            className={cn(inputStyle, 'w-20 shrink-0 pr-1')}
+            className={cn(inputStyle, 'w-20 shrink-0')}
+            compact
             defaultValue=".eth"
-          >
-            <option value=".eth">.eth</option>
-          </select>
+            options={[['.eth', '.eth']]}
+          />
         )}
         {options ? (
-          <select
+          <SelectControl
             id={id}
             name={props.name}
-            value={props.value}
+            value={props.value === undefined ? undefined : String(props.value)}
             disabled={props.disabled}
             required={props.required}
-            onChange={(event) => onValueChange?.(event.target.value)}
+            onValueChange={onValueChange}
             aria-invalid={!!error}
             aria-describedby={error ? `${id}-error` : undefined}
             className={cn(inputStyle, !props.value && 'text-muted-foreground')}
-          >
-            <option value="">{props.placeholder}</option>
-            {options.map(([value, text]) => (
-              <option key={value} value={value}>
-                {text}
-              </option>
-            ))}
-          </select>
+            options={options}
+            placeholder={props.placeholder}
+          />
         ) : (
           <Input
             {...props}

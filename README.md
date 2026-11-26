@@ -8,7 +8,7 @@ Catálogo responsivo com destaques, busca, filtros combináveis, ordenação e p
 
 O detalhe possui galeria com ampliação, edições, quantidade limitada pelo estoque, informações, avaliações e itens relacionados, com versões desktop/mobile. Login, cadastro, sessão, logout e favoritos por usuário estão integrados à API simulada. O carrinho permite adicionar a seleção do detalhe, editar quantidades, remover itens, aplicar cupom e consultar valores atualizados pela API e pelo Socket.IO. Perfil, avatar, alteração de senha e carteiras principal/secundária também persistem pela API simulada. Pagamento e pedidos incluem conexão simulada da carteira, revisão, criação idempotente, estados pendente/confirmado/recusado, recuperação de falhas e recibo persistido.
 
-A estilização usa classes Tailwind, incluindo estados e variantes responsivas. Button, Skeleton, Dialog, Slider, Input e Tabs são componentes shadcn/ui locais adaptados ao visual do projeto. O CSS global mantém o tema, fontes, estilos de base e animações.
+A estilização usa classes Tailwind, incluindo estados e variantes responsivas. Button, Skeleton, Dialog, Slider, Input, Select e Tabs são componentes shadcn/ui locais adaptados ao visual do projeto. Os seletores compartilham menu escuro, destaque laranja, navegação por teclado e setas com espaço reservado. O CSS global mantém o tema, fontes, estilos de base e animações.
 
 Aplicação de produção: [nft-marketplace-chi-five.vercel.app](https://nft-marketplace-chi-five.vercel.app/). A produção acompanha `main`; alterações em PR ficam no preview da Vercel até o merge.
 
@@ -66,11 +66,13 @@ Os cenários `cart-error`, `coupon-invalid` e `coupon-expired` exercitam falha t
 
 ## Perfil e carteiras
 
-Abra **Dados do perfil** ou **Carteiras** no menu da conta, ou acesse `/perfil` e `/carteiras`. Ambas exigem login e preservam a rota de retorno após autenticar. A navegação lateral do desktop vira uma faixa horizontal no mobile, com todas as opções e setas quando houver conteúdo fora da tela. Seções ainda indisponíveis permanecem identificadas e sem ação.
+O botão da conta abre diretamente `/perfil`; de lá, acesse **Carteiras** ou as demais seções disponíveis. `/perfil` e `/carteiras` exigem login e preservam a rota de retorno após autenticar. A navegação lateral do desktop vira uma faixa horizontal no mobile, com todas as opções e setas quando houver conteúdo fora da tela. O logout também tem o rótulo **Sair** no mobile. Seções ainda indisponíveis permanecem identificadas e sem ação.
 
 No perfil, edite nome de exibição, nome de usuário, e-mail, nome ENS e apelido da carteira. **Alterar** seleciona um avatar PNG, JPEG ou WebP de até **512 KB**; **Remover** limpa a prévia. Clique em **Salvar** para confirmar dados/avatar. Para trocar a senha, preencha os três campos de senha antes de salvar. Se qualquer validação falhar, inclusive senha atual incorreta ou e-mail/nome de usuário em uso, a alteração inteira é recusada. A nova senha substitui a credencial de login e revoga outras sessões da conta; a sessão atual permanece aberta. Senhas nunca são persistidas em claro.
 
 Em Carteiras, complete os campos do frame e clique em **Salvar carteira**. Após salvar, **Editar** reabre o formulário. A carteira secundária pode ser cadastrada separadamente ou usar **Igual à carteira principal**; nesse modo, alterações confirmadas na principal também atualizam a secundária. Desmarcar abre a edição independente, confirmada ao salvar.
+
+Ao editar uma secundária existente, **Excluir carteira** remove seu cadastro pela API simulada (`DELETE /wallets/secondary`). A principal é preservada e não permite exclusão. Conexões da carteira removida deixam de ser válidas para novas compras; pedidos já enviados conservam seu snapshot. Se a exclusão falhar, os dados permanecem e é possível tentar novamente.
 
 Ethereum/Polygon aceitam endereços `0x` com 40 dígitos hexadecimais, exceto o endereço zero. Solana exige Base58 que represente 32 bytes. Nome ENS usa um nome ASCII de 3 a 63 caracteres seguido de `.eth`; não existe resolução ENS ou conexão real com blockchain. No campo alternativo, ENS é aceito na Ethereum. Código de indicação é textual e obrigatório conforme o frame, sem integração externa.
 

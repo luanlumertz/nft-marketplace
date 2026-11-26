@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test'
-import { mockRequest } from './helpers'
+import { chooseOption, mockRequest } from './helpers'
 
 const visible = (page: Page, name: string) =>
   page.getByRole('button', { name, exact: true }).filter({ visible: true })
@@ -175,9 +175,10 @@ test('valida o coletor, conecta ao confirmar e alterna carteiras sem uma etapa e
     await form
       .getByRole('checkbox', { name: 'Usar outra carteira?', exact: true })
       .check()
-    await form
-      .getByLabel('Carteira cadastrada', { exact: true })
-      .selectOption({ label: 'Reserva · polygon' })
+    await chooseOption(
+      form.getByLabel('Carteira cadastrada', { exact: true }),
+      { label: 'Reserva · polygon' },
+    )
   }
   await form
     .getByRole('radio', { name: 'Coinbase Wallet', exact: false })

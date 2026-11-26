@@ -142,9 +142,10 @@ export function AccountShell({
             disabled={exit.isPending}
             onClick={() => exit.mutate()}
             aria-label="Sair da conta"
-            className="grid size-10 place-items-center text-primary"
+            className="flex min-h-10 items-center gap-2 px-2 text-sm text-primary"
           >
             <LogOut size={20} />
+            {exit.isPending ? 'Saindo…' : 'Sair'}
           </button>
         </div>
         <div className="flex items-center gap-1 border-b border-border">
@@ -185,7 +186,10 @@ export function AccountShell({
             >
               Atividade
             </span>
-            <Link to="/favoritos" className="border-b-2 border-transparent pb-3">
+            <Link
+              to="/favoritos"
+              className="border-b-2 border-transparent pb-3"
+            >
               Lista de interesse
             </Link>
             {['Ofertas', 'Arquivos baixados', 'Suporte'].map((label) => (

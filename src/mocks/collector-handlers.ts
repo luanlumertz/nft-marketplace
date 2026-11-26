@@ -147,4 +147,23 @@ export const collectorHandlers = [
       return storageError()
     }
   }),
+  http.delete(`${base}/wallets/:slot`, async ({ request, params }) => {
+    const authorized = await authorize(request, 'wallets')
+    if (authorized instanceof Response) return authorized
+    if (params.slot !== 'secondary')
+      return HttpResponse.json(
+        {
+          code: 'METHOD_NOT_ALLOWED',
+          message: 'Somente a carteira secundária pode ser excluída.',
+        },
+        { status: 405 },
+      )
+    try {
+      return HttpResponse.json(
+        accounts.deleteSecondaryWallet(authorized.userId),
+      )
+    } catch {
+      return storageError()
+    }
+  }),
 ]

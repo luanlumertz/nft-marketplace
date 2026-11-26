@@ -1,4 +1,17 @@
-import type { Page } from '@playwright/test'
+import type { Locator, Page } from '@playwright/test'
+
+export async function chooseOption(
+  control: Locator,
+  value: string | { label: string },
+) {
+  await control.click()
+  const list = control.page().getByRole('listbox')
+  await (
+    typeof value === 'string'
+      ? list.locator(`[data-value=${JSON.stringify(value)}]`)
+      : list.getByRole('option', { name: value.label, exact: true })
+  ).click()
+}
 
 export async function returnToCatalog(page: Page) {
   await page

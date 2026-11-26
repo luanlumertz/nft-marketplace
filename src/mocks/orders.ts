@@ -157,6 +157,15 @@ export const orders = {
         c.userId === userId && c.token === token && c.expiresAt > Date.now(),
     )
     if (!found) return null
+    const wallet = accounts
+      .wallets(userId)
+      .items.find((wallet) => wallet.id === found.walletId)
+    if (
+      !wallet ||
+      wallet.address !== found.address ||
+      wallet.network !== found.network
+    )
+      return null
     const { id, address, expiresAt, walletId, network, provider } = found
     return { id, address, expiresAt, walletId, network, provider }
   },

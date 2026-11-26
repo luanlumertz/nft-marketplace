@@ -5,6 +5,7 @@ import { isAxiosError } from 'axios'
 import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { SelectControl } from '@/components/ui/select'
 import {
   Dialog,
   DialogContent,
@@ -525,18 +526,16 @@ function CheckoutForm({
                     </Link>
                   )}
                   {otherWallet && (
-                    <select
+                    <SelectControl
                       aria-label="Carteira cadastrada"
                       value={selection.walletId}
-                      onChange={(event) => choose(event.target.value)}
-                      className="h-10 w-60 max-w-full rounded-xs border border-border bg-background px-2 pr-8 text-sm"
-                    >
-                      {wallets.items.map((w) => (
-                        <option key={w.id} value={w.id}>
-                          {w.walletAlias} · {w.network}
-                        </option>
-                      ))}
-                    </select>
+                      onValueChange={choose}
+                      className="h-10 w-60 max-w-full"
+                      options={wallets.items.map(
+                        (w) =>
+                          [w.id, `${w.walletAlias} · ${w.network}`] as const,
+                      )}
+                    />
                   )}
                 </div>
               }

@@ -1,8 +1,9 @@
 import { Fragment, useEffect } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
-import { ChevronDown, ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
+import { SelectControl } from '@/components/ui/select'
 import { QueryError } from '@/components/query-feedback'
 import { nftListOptions } from '../queries'
 import {
@@ -71,18 +72,18 @@ export function NftGrid() {
         )}
       </aside>
       <div className="catalog-main min-w-0">
-        <div className="catalog-toolbar min-h-8 flex items-center justify-between gap-3.5 mb-5.5 mobile:mb-4 mobile:min-h-6">
+        <div className="catalog-toolbar min-h-8 flex flex-wrap items-center justify-between gap-3.5 mb-5.5 mobile:mb-4 mobile:min-h-6">
           <div
             role="tablist"
             aria-label="Seleção de NFTs"
-            className="catalog-tabs flex items-center justify-start gap-2 whitespace-nowrap [&_button]:[border-bottom:2px_solid_transparent] [&_button]:text-[16px] [&_button]:min-h-8 [&_button[aria-selected='true']]:text-primary [&_button[aria-selected='true']]:border-b-primary tablet:[&_button]:text-[14px] mobile:flex-wrap mobile:gap-x-1 mobile:gap-y-2 mobile:w-full mobile:[&_button]:text-[14px] mobile:[&_button]:min-h-8"
+            className="catalog-tabs flex items-center justify-start gap-3 whitespace-nowrap [&_button]:[border-bottom:2px_solid_transparent] [&_button]:text-[16px] [&_button]:min-h-8 [&_button[aria-selected='true']]:text-primary [&_button[aria-selected='true']]:border-b-primary tablet:[&_button]:text-[14px] mobile:flex-wrap mobile:gap-x-1.5 mobile:gap-y-2 mobile:w-full mobile:[&_button]:text-[14px] mobile:[&_button]:min-h-8"
           >
             {tabs.map(([value, label], index) => (
               <Fragment key={value}>
                 {index > 0 && (
                   <span
                     aria-hidden="true"
-                    className="size-1 shrink-0 rounded-full bg-muted-foreground"
+                    className="size-1 shrink-0 rounded-full bg-muted-foreground mobile:size-0.75"
                   />
                 )}
                 <button
@@ -118,31 +119,22 @@ export function NftGrid() {
               </Fragment>
             ))}
           </div>
-          <label className="catalog-sort flex min-h-8 shrink-0 items-center gap-1 whitespace-nowrap text-[14px] tablet:text-[13px] tablet-compact:ml-auto mobile:hidden">
-            Ordenar por:
-            <span className="relative flex items-center">
-              <select
+          <div className="ml-auto flex items-center gap-3 mobile:hidden">
+            <label className="catalog-sort flex min-h-8 shrink-0 items-center gap-1 whitespace-nowrap text-[14px] tablet:text-[13px]">
+              Ordenar por:
+              <SelectControl
                 aria-label="Ordenar NFTs"
-                className="h-8 w-[25ch] cursor-pointer appearance-none bg-background pr-6"
+                className="h-8 w-[28ch] border-0 px-0"
                 value={search.sort}
-                onChange={(e) =>
-                  update({ sort: e.target.value as CatalogSearch['sort'] })
+                options={sortOptions}
+                onValueChange={(value) =>
+                  update({ sort: value as CatalogSearch['sort'] })
                 }
-              >
-                {sortOptions.map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown
-                aria-hidden="true"
-                className="pointer-events-none absolute right-0 size-4"
               />
-            </span>
-          </label>
-          <div className="tablet-filter hidden tablet-compact:block tablet-compact:[&_.filter-trigger]:h-8 tablet-compact:[&_.filter-trigger]:w-9 tablet-compact:[&_.filter-trigger]:rounded-md mobile:hidden">
-            <FilterDrawer {...filters} />
+            </label>
+            <div className="tablet-filter hidden tablet-compact:block tablet-compact:[&_.filter-trigger]:h-8 tablet-compact:[&_.filter-trigger]:w-9 tablet-compact:[&_.filter-trigger]:rounded-md">
+              <FilterDrawer {...filters} />
+            </div>
           </div>
         </div>
         {active && (
@@ -224,7 +216,7 @@ export function NftGrid() {
             >
               {Array.from({ length: 9 }, (_, index) => (
                 <div
-                  className="nft-card min-w-0 relative [&_h3]:text-[15px] [&_h3]:mt-2.5 [&_h3]:leading-6 tablet:[&_h3]:text-[13px] mobile:even:mt-8 mobile:even:-mb-8 mobile:[&_h3]:text-[13px] mobile:[&_h3]:leading-5 mobile:[&_h3]:m-[10px_7px_0]"
+                  className="nft-card min-w-0 relative [&_h3]:text-[15px] [&_h3]:mt-2.5 [&_h3]:leading-6 tablet:[&_h3]:text-[13px] mobile:[&_h3]:text-[13px] mobile:[&_h3]:leading-5 mobile:[&_h3]:m-[10px_7px_0]"
                   key={index}
                 >
                   <Skeleton className="card-art relative flex items-center bg-card aspect-258/300 w-full p-[24px_12px] rounded-[12px] overflow-hidden [&_img]:block [&_img]:w-full [&_img]:h-auto [&_img]:aspect-[1] [&_img]:object-cover [&_img]:rounded-2xl tablet:py-3.5 mobile:aspect-175/200 mobile:p-[12px_9px_18px] mobile:rounded-[28px] mobile:[&_img]:rounded-2xl" />
@@ -255,7 +247,7 @@ export function NftGrid() {
               {data?.items.map((nft) => (
                 <li
                   key={nft.id}
-                  className="nft-card min-w-0 relative [&_h3]:text-[15px] [&_h3]:mt-2.5 [&_h3]:leading-6 tablet:[&_h3]:text-[13px] mobile:even:mt-8 mobile:even:-mb-8 mobile:[&_h3]:text-[13px] mobile:[&_h3]:leading-5 mobile:[&_h3]:m-[10px_7px_0]"
+                  className="nft-card min-w-0 relative [&_h3]:text-[15px] [&_h3]:mt-2.5 [&_h3]:leading-6 tablet:[&_h3]:text-[13px] mobile:[&_h3]:text-[13px] mobile:[&_h3]:leading-5 mobile:[&_h3]:m-[10px_7px_0]"
                 >
                   <Link
                     to="/nfts/$nftId"
